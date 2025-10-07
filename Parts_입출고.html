@@ -201,43 +201,9 @@
                     </tbody>
                 </table>
                 </div>
-                
-                <!-- 사이드바 -->
-                <aside class="w-64 bg-orange-50 border-l border-orange-200 p-4 dark:bg-orange-100 dark:border-orange-300">
-                    <h3 class="text-lg font-medium mb-4 dark:text-orange-900">빠른 작업</h3>
-                    <div class="space-y-4">
-                        <button id="openModalButton" class="!rounded-button w-full bg-custom text-black px-4 py-2 hover:bg-orange-700">
-                            <i class="fas fa-plus-circle mr-2"></i>새 부품 등록
-                        </button>
-                        <button id="inStockButton" class="!rounded-button w-full bg-custom text-black px-4 py-2 hover:bg-orange-700">
-                            <i class="fas fa-file-import mr-2"></i>입고 처리
-                        </button>
-                        <button id="outStockButton" class="!rounded-button w-full bg-custom text-black px-4 py-2 hover:bg-orange-700">
-                            <i class="fas fa-file-export mr-2"></i>출고 처리
-                        </button>
-                    </div>
-                </aside>
             </div>
         </main>
-        
-        <script>
-            const toggleQuickActions = document.getElementById('toggleQuickActions');
-            const quickActions = document.getElementById('quickActions');
-            const quickActionsContent = document.getElementById('quickActionsContent');
-
-            toggleQuickActions.addEventListener('click', () => {
-            const isHidden = quickActions.classList.contains('translate-x-full');
-            if (isHidden) {
-                quickActions.classList.remove('translate-x-full');
-                toggleQuickActions.innerHTML = '<i class="fas fa-chevron-right"></i>';
-                quickActionsContent.style.display = 'block';
-            } else {
-                quickActions.classList.add('translate-x-full');
-                toggleQuickActions.innerHTML = '<i class="fas fa-chevron-left"></i>';
-                quickActionsContent.style.display = 'none';
-            }
-            });
-        </script>    </div>
+    </div>
     
     <!-- 입고/출고 처리 모달 -->
     <div id="stockModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">

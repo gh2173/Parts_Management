@@ -219,11 +219,11 @@ ipcMain.handle('register-part', requireAuth(async (event, partData) => {
         partData.category || '기타', // 카테고리 (4열)
         parseInt(partData.minStock || 20), // 최소 재고 (5열)
         partData.inDate || new Date().toISOString().split('T')[0], // 입고일 (6열)
-        parseInt(partData.currentStock || 0), // 현재 재고 (7열)
+        0, // 현재 재고 (7열) - 항상 0
         partData.purchasePrice || '', // 구매금액 (8열)
-        partData.equipmentGroup || '', // 설비군 (9열)
-        partData.boardName || '', // BOARD명 (10열)
-        partData.serialNumber || '', // S/N (11열)
+        '', // 설비군 (9열) - 항상 빈 값 (출고 시 입력)
+        '', // BOARD명 (10열) - 항상 빈 값 (출고 시 입력)
+        '', // S/N (11열) - 항상 빈 값 (출고 시 입력)
         partData.operator || '', // 작업자 (12열)
         parseFloat(partData.unitPrice || 0) // 단가 (13열)
       ];

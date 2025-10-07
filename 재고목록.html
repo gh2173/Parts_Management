@@ -344,36 +344,12 @@
                     <input type="number" id="minStock" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" min="1" step="1" required>
                 </div>
                 <div class="mb-4">
-                    <label for="currentStock" class="block text-sm font-medium text-gray-700 dark:text-gray-300">현재 재고</label>
-                    <input type="number" id="currentStock" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" min="0" value="0" required>
-                </div>
-                <div class="mb-4">
                     <label for="purchasePrice" class="block text-sm font-medium text-gray-700 dark:text-gray-300">구매금액 (₩)</label>
                     <input type="number" id="purchasePrice" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" min="0" step="1" placeholder="예: 5000">
                 </div>
                 <div class="mb-4">
-                    <label for="equipmentGroup" class="block text-sm font-medium text-gray-700 dark:text-gray-300">설비군</label>
-                    <input type="text" id="equipmentGroup" list="equipmentGroupList" autocomplete="off" 
-                           class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
-                           style="cursor: text;" placeholder="예: SMT라인">
-                    <datalist id="equipmentGroupList"></datalist>
-                </div>                <div class="mb-4">
-                    <label for="boardName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">BOARD명</label>
-                    <input type="text" id="boardName" list="boardNameList" autocomplete="off"
-                           class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
-                           style="cursor: text;" placeholder="예: MainBoard_V1.2">
-                    <datalist id="boardNameList"></datalist>
-                </div>
-                <div class="mb-4">
-                    <label for="serialNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300">S/N</label>
-                    <input type="text" id="serialNumber" list="serialNumberList" autocomplete="off" 
-                           class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
-                           style="cursor: text;" placeholder="예: SN2025060001">
-                    <datalist id="serialNumberList"></datalist>
-                </div>
-                <div class="mb-4">
                     <label for="operator" class="block text-sm font-medium text-gray-700 dark:text-gray-300">작업자</label>
-                    <input type="text" id="operator" list="operatorList" autocomplete="off" 
+                    <input type="text" id="operator" list="operatorList" autocomplete="off"
                            class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
                            style="cursor: text;" placeholder="예: 홍길동">
                     <datalist id="operatorList"></datalist>
@@ -388,7 +364,7 @@
         const partForm = document.getElementById('partForm');
         const openModalButton = document.getElementById('openModalButton');
         const cancelButton = document.getElementById('cancelButton');
-        
+
         // 오늘 날짜로 입고일 기본값 설정
         document.getElementById('inDate').valueAsDate = new Date();
 
@@ -413,9 +389,6 @@
                     document.getElementById('nameList').innerHTML = '';
                     document.getElementById('companyList').innerHTML = '';
                     document.getElementById('categoryList').innerHTML = '';
-                    document.getElementById('equipmentGroupList').innerHTML = '';
-                    document.getElementById('boardNameList').innerHTML = '';
-                    document.getElementById('serialNumberList').innerHTML = '';
                     document.getElementById('operatorList').innerHTML = '';
                     
                     // 위치 데이터 추가
@@ -458,47 +431,7 @@
                                 document.getElementById('categoryList').appendChild(option);
                             }
                         });
-                    }                    // 새로운 속성들의 datalist 채우기
-                    if (result.data.purchasePrices && result.data.purchasePrices.length > 0) {
-                        result.data.purchasePrices.forEach(price => {
-                            if (price) {
-                                const option = document.createElement('option');
-                                option.value = price;
-                                document.getElementById('purchasePriceList').appendChild(option);
-                            }
-                        });
-                    }
-
-                    if (result.data.equipmentGroups && result.data.equipmentGroups.length > 0) {
-                        result.data.equipmentGroups.forEach(equipmentGroup => {
-                            if (equipmentGroup) {
-                                const option = document.createElement('option');
-                                option.value = equipmentGroup;
-                                document.getElementById('equipmentGroupList').appendChild(option);
-                            }
-                        });
-                    }
-
-                    if (result.data.boardNames && result.data.boardNames.length > 0) {
-                        result.data.boardNames.forEach(boardName => {
-                            if (boardName) {
-                                const option = document.createElement('option');
-                                option.value = boardName;
-                                document.getElementById('boardNameList').appendChild(option);
-                            }
-                        });
-                    }
-
-                    if (result.data.serialNumbers && result.data.serialNumbers.length > 0) {
-                        result.data.serialNumbers.forEach(serialNumber => {
-                            if (serialNumber) {
-                                const option = document.createElement('option');
-                                option.value = serialNumber;
-                                document.getElementById('serialNumberList').appendChild(option);
-                            }
-                        });
-                    }
-
+                    }                    // 작업자 datalist 채우기
                     if (result.data.operators && result.data.operators.length > 0) {
                         result.data.operators.forEach(operator => {
                             if (operator) {
@@ -596,12 +529,8 @@
                     category: document.getElementById('category').value,
                     minStock: document.getElementById('minStock').value,
                     inDate: document.getElementById('inDate').value,
-                    currentStock: document.getElementById('currentStock').value, // 현재 재고 추가
-                    purchasePrice: document.getElementById('purchasePrice').value, // 구매금액 추가
-                    equipmentGroup: document.getElementById('equipmentGroup').value, // 설비군 추가
-                    boardName: document.getElementById('boardName').value, // BOARD명 추가
-                    serialNumber: document.getElementById('serialNumber').value, // S/N 추가
-                    operator: document.getElementById('operator').value // 작업자 추가
+                    purchasePrice: document.getElementById('purchasePrice').value,
+                    operator: document.getElementById('operator').value
                 };
                 
                 console.log('등록할 데이터:', formData);
@@ -617,19 +546,21 @@
                     const newRow = document.createElement('tr');
                     newRow.classList.add('border-b');
                     
-                    // 상태는 항상 정상으로 설정
-                    const status = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-200 text-orange-800">정상</span>';                    newRow.innerHTML = `
+                    // 상태는 항상 필요(현재 재고 0이므로)로 설정
+                    const status = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-200 text-red-800">필요</span>';
+
+                    newRow.innerHTML = `
                         <td class="py-3 px-4">${formData.location}</td>
                         <td class="py-3 px-4">${formData.name}</td>
                         <td class="py-3 px-4">${formData.company}</td>
                         <td class="py-3 px-4">${formData.category}</td>
                         <td class="text-right py-3 px-4">${formData.minStock}</td>
                         <td class="py-3 px-4">${formData.inDate}</td>
-                        <td class="text-right py-3 px-4">${formData.currentStock}</td>
+                        <td class="text-right py-3 px-4">0</td>
                         <td class="py-3 px-4">${formData.purchasePrice || ''}</td>
-                        <td class="py-3 px-4">${formData.equipmentGroup || ''}</td>
-                        <td class="py-3 px-4">${formData.boardName || ''}</td>
-                        <td class="py-3 px-4">${formData.serialNumber || ''}</td>
+                        <td class="py-3 px-4"></td>
+                        <td class="py-3 px-4"></td>
+                        <td class="py-3 px-4"></td>
                         <td class="py-3 px-4">${formData.operator || ''}</td>
                         <td class="py-3 px-4 text-center">${status}</td>
                     `;
@@ -1077,6 +1008,36 @@
             // 선택된 부품 정보 저장 변수 (출고용)
             let selectedExportPart = null;
             
+            // 설비군-Board명 매핑 데이터
+            const equipmentBoardMap = {
+                'DIAMONDX': ['GX1', 'HDVI', 'I/O Interface', 'SDU', 'VI1X', 'VIS16'],
+                'ETS600': ['APU-12', 'CAL', 'CBIT', 'DIAG', 'DPU', 'DPU-16', 'DUT Power Cont', 'HPU', 'MCU16-66MHz', 'MCU-CDB', 'QMS', 'QTMU', 'SPU-112', 'SPU-112(BST)'],
+                'IFLEX': ['DC-75', 'SUPPORT', 'VHFAC', '1GBPS'],
+                'T2000': ['CUTI', 'GPWGD', 'GVI64', 'MFHP', 'AQM', 'BUS SW1', 'DM1GBPS'],
+                'T6391': ['HSD-P', 'LCD256', 'RVS32'],
+                'UFLEX': ['DC-07', 'DC-30', 'DCIO', 'Distribution', 'HexVS', 'HSD-U', 'SUPPORT', 'UltraPAC', 'VHDVS'],
+                'UFLEX_P': ['VS-5A', 'VS-800mA', 'DC Cal']
+            };
+
+            // 출고 모달의 설비군 선택 시 Board명 업데이트
+            document.getElementById('exportEquipmentGroup').addEventListener('change', function() {
+                const selectedEquipment = this.value;
+                const boardNameSelect = document.getElementById('exportBoardName');
+
+                // Board명 초기화
+                boardNameSelect.innerHTML = '<option value="">선택하세요</option>';
+
+                // 선택된 설비군에 해당하는 Board명 목록 추가
+                if (selectedEquipment && equipmentBoardMap[selectedEquipment]) {
+                    equipmentBoardMap[selectedEquipment].forEach(board => {
+                        const option = document.createElement('option');
+                        option.value = board;
+                        option.textContent = board;
+                        boardNameSelect.appendChild(option);
+                    });
+                }
+            });
+
             // 출고 처리 버튼 클릭 이벤트
             exportBtn.addEventListener('click', async () => {
                 try {
@@ -1455,18 +1416,25 @@
             
             <div class="mb-4">
                 <label for="exportEquipmentGroup" class="block text-sm font-medium text-gray-700 dark:text-gray-300">설비군</label>
-                <input type="text" id="exportEquipmentGroup" list="exportEquipmentGroupList" autocomplete="off" 
-                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" 
-                       placeholder="예: SMT라인">
-                <datalist id="exportEquipmentGroupList"></datalist>
+                <select id="exportEquipmentGroup"
+                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    <option value="">선택하세요</option>
+                    <option value="DIAMONDX">DIAMONDX</option>
+                    <option value="ETS600">ETS600</option>
+                    <option value="IFLEX">IFLEX</option>
+                    <option value="T2000">T2000</option>
+                    <option value="T6391">T6391</option>
+                    <option value="UFLEX">UFLEX</option>
+                    <option value="UFLEX_P">UFLEX_P</option>
+                </select>
             </div>
-            
+
             <div class="mb-4">
                 <label for="exportBoardName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Board명</label>
-                <input type="text" id="exportBoardName" list="exportBoardNameList" autocomplete="off" 
-                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" 
-                       placeholder="예: MainBoard_V1.2">
-                <datalist id="exportBoardNameList"></datalist>
+                <select id="exportBoardName"
+                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    <option value="">설비군을 먼저 선택하세요</option>
+                </select>
             </div>
             
             <div class="mb-4">
