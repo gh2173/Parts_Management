@@ -93,7 +93,7 @@
 
         /* 사이드바 다크모드 스타일 */
         .dark aside.w-64 {
-            background-color: #1f2937 !important; /* bg-gray-800과 동일 */
+            background-color: #374151 !important; /* bg-gray-700과 동일한 색상 */
         }
 
         .dark .button {
@@ -125,15 +125,13 @@
 </head>
 <body class="min-h-screen bg-orange-50 dark:bg-orange-100">
     <div class="flex h-screen overflow-hidden">
-        <aside class="w-64 bg-orange-600 text-white dark:bg-gray-800">
-            <a href="#" id="homeRefreshButton" class="block text-center p-2 hover:bg-orange-700 dark:hover:bg-gray-700 transition-all duration-300">
+        <aside class="w-64 bg-orange-600 text-white dark:bg-orange-500">
+            <a href="#" id="homeRefreshButton" class="block text-center p-2 hover:bg-orange-700 transition-all duration-300">
                 <img src="nepesark_2-removebg-preview.png" alt="HOME" class="h-30 w-auto transition-transform duration-300 hover:scale-105" />
-            </a>  
-            <nav class="px-4 py-2 space-y-2">
-                <a href="index.html" class="button w-full text-left bg-yellow-500 text-black mb-1 dark:text-white">📙 재고관리 대시보드</a>
-                <a href="Parts_입출고.html" class="button w-full text-left bg-orange-500 hover:bg-yellow-500 text-black dark:text-white">🚚 입출고 이력</a>
-                <a href="재고목록.html" class="button w-full text-left bg-orange-500 hover:bg-yellow-500 text-black dark:text-white">📊 재고목록 관리</a>
-            </nav>
+            </a>
+            <a href="index.html" class="button w-full text-left bg-yellow-500 text-black mb-1">📙 Parts 재고관리</a>
+            <a href="Parts_입출고.html" class="button w-full text-left bg-orange-500 hover:bg-yellow-500 text-black mb-1">🚚 Parts 입출고 이력</a>
+            <a href="재고목록.html" class="button w-full text-left bg-orange-500 hover:bg-yellow-500 text-black mb-1">📊 재고목록 관리</a>
         </aside>
         <main class="flex-1 overflow-y-auto">
             <header class="bg-orange-100 shadow-sm dark:bg-orange-200">
@@ -141,6 +139,13 @@
                     <div class="flex justify-between items-center">
                         <h1 class="text-2xl font-semibold text-orange-900 dark:text-orange-800">장비솔루션 파트 Board Parts 관리 시스템</h1>
                         <div class="flex items-center space-x-4">
+                            <!-- 사용자 정보 표시 -->
+                            <div class="flex items-center space-x-2">
+                                <span id="currentUser" class="text-sm text-orange-700 dark:text-orange-800">로딩 중...</span>
+                                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                    <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
+                                </button>
+                            </div>
                             <!-- 날짜 범위 필터 추가 -->
                             <div class="flex items-center space-x-2 bg-orange-200 dark:bg-orange-700 rounded-lg p-2">
                                 <i class="fas fa-calendar-alt text-orange-800 dark:text-orange-200"></i>
@@ -2232,9 +2237,59 @@
             }
         }
 
+        // 사용자 인증 확인 함수
+        async function checkUserAuthentication() {
+            try {
+                console.log('사용자 인증 상태 확인 중...');
+                const authStatus = await window.partsAPI.checkAuthStatus();
+
+                if (!authStatus.isAuthenticated) {
+                    // 인증되지 않았으면 로그인 페이지로 리다이렉트
+                    console.log('인증되지 않은 사용자 - 로그인 페이지로 이동');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // 사용자 정보 표시
+                const currentUserElement = document.getElementById('currentUser');
+                if (currentUserElement && authStatus.user) {
+                    currentUserElement.textContent = `${authStatus.user.username} (${authStatus.user.role})`;
+                    console.log('사용자 정보 표시됨:', authStatus.user);
+                }
+            } catch (error) {
+                console.error('인증 상태 확인 중 오류:', error);
+                // 오류 발생 시에도 로그인 페이지로 이동
+                window.location.href = 'login.html';
+            }
+        }
+
+        // 로그아웃 함수
+        async function logout() {
+            try {
+                console.log('로그아웃 요청...');
+                const result = await window.partsAPI.userLogout();
+
+                if (result.success) {
+                    console.log('로그아웃 성공');
+                    // 로그인 페이지로 리다이렉트
+                    window.location.href = 'login.html';
+                } else {
+                    console.error('로그아웃 실패:', result.error);
+                    alert('로그아웃 중 오류가 발생했습니다.');
+                }
+            } catch (error) {
+                console.error('로그아웃 중 오류:', error);
+                // 오류가 있어도 로그인 페이지로 이동
+                window.location.href = 'login.html';
+            }
+        }
+
         document.addEventListener('DOMContentLoaded', async () => {
             console.log('DOMContentLoaded 이벤트 실행');
-            
+
+            // 인증 상태 확인 및 사용자 정보 로딩
+            await checkUserAuthentication();
+
             // 날짜 필터 초기화 (다른 초기화보다 먼저 실행)
             setupDateFilter();
             
