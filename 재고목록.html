@@ -231,8 +231,30 @@
                                 <i id="moonIcon" class="fas fa-moon text-orange-800"></i>
                                 <i id="sunIcon" class="fas fa-sun text-orange-800" style="display: none;"></i>
                             </button>
-                                    
-                           
+
+                            <div class="relative">
+                                <button id="notificationButton" class="!rounded-button flex items-center text-orange-700 hover:text-orange-900 dark:text-orange-600 dark:hover:text-orange-800">
+                                    <i class="fas fa-bell text-xl"></i>
+                                </button>
+                                <span id="notificationCounter" class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">0</span>
+
+                                <!-- 알림 드롭다운 메뉴 추가 -->
+                                <div id="notificationDropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-20 hidden dark:bg-gray-800">
+                                    <div class="py-2 px-3 bg-orange-100 dark:bg-gray-700">
+                                        <div class="flex justify-between items-center">
+                                            <h3 class="text-sm font-medium text-orange-900 dark:text-gray-200">실시간 알림</h3>
+                                            <span id="dropdownNotificationCounter" class="bg-orange-500 text-white text-xs rounded-full px-2 py-1">0</span>
+                                        </div>
+                                    </div>
+                                    <div id="notificationList" class="max-h-80 overflow-y-auto">
+                                        <!-- 알림 목록은 JavaScript로 동적 생성됨 -->
+                                        <div class="text-center text-gray-500 dark:text-gray-400 py-6">알림이 없습니다</div>
+                                    </div>
+                                    <div class="py-2 px-3 bg-gray-100 text-right dark:bg-gray-900">
+                                        <button id="clearAllNotifications" class="text-xs text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300">모두 확인</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -621,6 +643,12 @@
         try {
             // 인증 상태 확인 및 사용자 정보 로딩
             await checkUserAuthentication();
+
+            // 실시간 알림 업데이트
+            await updateAlerts();
+
+            // 알림 버튼 및 드롭다운 초기화
+            setupNotifications();
             
             // 원본 데이터와 현재 정렬된 데이터 저장용 변수
             let originalData = [];
@@ -1262,8 +1290,128 @@
             console.error('다크모드 토글 버튼을 찾을 수 없습니다');
         }    });
     </script>
-    
+
     <script>
+    // 알림 버튼 및 드롭다운 기능
+    function setupNotifications() {
+        const notificationButton = document.getElementById('notificationButton');
+        const notificationDropdown = document.getElementById('notificationDropdown');
+        const notificationCounter = document.getElementById('notificationCounter');
+        const dropdownNotificationCounter = document.getElementById('dropdownNotificationCounter');
+        const notificationList = document.getElementById('notificationList');
+        const clearAllNotifications = document.getElementById('clearAllNotifications');
+
+        // 알림 버튼 클릭 이벤트
+        if (notificationButton) {
+            notificationButton.addEventListener('click', () => {
+                notificationDropdown.classList.toggle('hidden');
+
+                // 드롭다운 외부 클릭 시 닫기
+                document.addEventListener('click', function closeDropdown(e) {
+                    if (!notificationDropdown.contains(e.target) && !notificationButton.contains(e.target)) {
+                        notificationDropdown.classList.add('hidden');
+                        document.removeEventListener('click', closeDropdown);
+                    }
+                });
+            });
+        }
+
+        // 모두 확인 버튼 클릭 이벤트
+        if (clearAllNotifications) {
+            clearAllNotifications.addEventListener('click', () => {
+                notificationDropdown.classList.add('hidden');
+                // 알림 카운터 초기화
+                notificationCounter.textContent = '0';
+                dropdownNotificationCounter.textContent = '0';
+                // 알림 목록 비우기
+                notificationList.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-6">알림이 없습니다</div>';
+            });
+        }
+    }
+
+    // 알림 드롭다운 내용 업데이트 함수
+    function updateNotificationDropdown(lowStockItems) {
+        const notificationList = document.getElementById('notificationList');
+        const notificationCounter = document.getElementById('notificationCounter');
+        const dropdownNotificationCounter = document.getElementById('dropdownNotificationCounter');
+
+        if (!notificationList || !notificationCounter || !dropdownNotificationCounter) {
+            console.error('알림 관련 요소를 찾을 수 없습니다.');
+            return;
+        }
+
+        // 알림 카운터 업데이트
+        const count = lowStockItems.length;
+        notificationCounter.textContent = count;
+        dropdownNotificationCounter.textContent = count;
+
+        // 알림 목록 비우기
+        notificationList.innerHTML = '';
+
+        // 알림이 없을 경우 메시지 표시
+        if (count === 0) {
+            notificationList.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-6">알림이 없습니다</div>';
+            return;
+        }
+
+        // 알림 항목 생성
+        lowStockItems.forEach(item => {
+            const currentStock = parseInt(item.currentStock || 0);
+            const minStock = parseInt(item.minStock || 0);
+            const diff = minStock - currentStock; // 필요 수량
+
+            const notificationItem = document.createElement('div');
+            notificationItem.className = 'py-2 px-4 border-b border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700';
+
+            notificationItem.innerHTML = `
+                <div class="flex items-start">
+                    <div class="flex-shrink-0 rounded-full bg-red-200 dark:bg-red-900 p-1">
+                        <i class="fas fa-exclamation-circle text-red-600 dark:text-red-400"></i>
+                    </div>
+                    <div class="ml-3 flex-1">
+                        <p class="text-sm font-medium text-gray-900 dark:text-gray-200">${item.name} 입고 필요</p>
+                        <p class="text-xs text-red-500 dark:text-red-400">현재재고: ${currentStock} / 최소재고: ${minStock}</p>
+                        <p class="text-xs text-gray-500 dark:text-gray-400">${diff}개 부족</p>
+                    </div>
+                </div>
+            `;
+
+            notificationList.appendChild(notificationItem);
+        });
+    }
+
+    // 실시간 알림 업데이트 함수
+    async function updateAlerts() {
+        try {
+            // 데이터 가져오기
+            const result = await window.partsAPI.getExcelData();
+            if (!result.success) {
+                console.error('데이터 로드 실패:', result.error);
+                return;
+            }
+
+            // 상태가 '필요'인 항목만 필터링
+            const lowStockItems = result.data.filter(item => {
+                const currentStock = parseInt(item.currentStock || 0);
+                const minStock = parseInt(item.minStock || 0);
+                return currentStock < minStock;
+            });
+
+            // 필요한 수량이 많은 순으로 정렬
+            lowStockItems.sort((a, b) => {
+                const diffA = parseInt(a.minStock || 0) - parseInt(a.currentStock || 0);
+                const diffB = parseInt(b.minStock || 0) - parseInt(b.currentStock || 0);
+                return diffB - diffA; // 내림차순 정렬
+            });
+
+            // 알림 드롭다운 업데이트
+            updateNotificationDropdown(lowStockItems);
+
+        } catch (error) {
+            console.error('알림 업데이트 중 오류 발생:', error);
+        }
+    }
+
     // 사용자 인증 확인 함수
     async function checkUserAuthentication() {
         try {
