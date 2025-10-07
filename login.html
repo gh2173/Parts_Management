@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>시스템 로그인</title>
+    <style>
+        body {
+            font-family: 'Malgun Gothic', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        
+        .login-container {
+            background: white;
+            padding: 50px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            width: 400px;
+            text-align: center;
+        }
+        
+        .logo {
+            width: 120px;
+            height: auto;
+            margin-bottom: 20px;
+        }
+        
+        .login-title {
+            font-size: 32px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 40px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+        }
+        
+        .login-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .login-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+        
+        .login-button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .error-message {
+            color: #e74c3c;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .admin-setup {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
+        }
+        
+        .admin-setup p {
+            color: #666;
+            margin-bottom: 15px;
+        }
+        
+        .admin-setup-button {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.2s;
+        }
+        
+        .admin-setup-button:hover {
+            transform: translateY(-1px);
+        }
+        
+        .forgot-password-button {
+            background: none;
+            border: none;
+            color: #667eea;
+            text-decoration: underline;
+            cursor: pointer;
+            font-size: 14px;
+            padding: 5px;
+        }
+        
+        .forgot-password-button:hover {
+            color: #764ba2;
+        }
+          .loading {
+            opacity: 0.7;
+            pointer-events: none;
+        }
+        
+        /* 모달 스타일 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            width: 450px;
+            max-width: 90vw;
+        }
+        
+        .modal-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .modal-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 25px;
+        }
+        
+        .modal-button {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .modal-button.primary {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+        }
+        
+        .modal-button.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(46, 204, 113, 0.3);
+        }
+        
+        .modal-button.secondary {
+            background: linear-gradient(135deg, #95a5a6 0%, #7f8c8d 100%);
+            color: white;
+        }
+        
+        .modal-button.secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(149, 165, 166, 0.3);
+        }
+        
+        .modal-button:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <!-- 로고 이미지 -->
+        <img src="nepesark_2-removebg-preview.png" alt="NEPES ARK" class="logo">
+        
+        <h2 class="login-title">Parts 입출고 시스템</h2>
+          <form id="loginForm">
+            <div class="form-group">
+                <label for="username">사번</label>
+                <input type="text" id="username" name="username" required placeholder="사번을 입력하세요">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">비밀번호</label>
+                <input type="password" id="password" name="password" required placeholder="비밀번호를 입력하세요">
+            </div>
+            
+            <button type="submit" class="login-button" id="loginButton">로그인</button>
+            
+            <div id="errorMessage" class="error-message"></div>
+            
+            <div style="text-align: center; margin-top: 15px;">
+                <button type="button" class="forgot-password-button" id="forgotPasswordButton">비밀번호 찾기</button>
+            </div>
+        </form>
+        
+        <div class="admin-setup">
+            <p>최초 관리자 계정이 없으신가요?</p>
+            <button type="button" class="admin-setup-button" id="adminSetupButton">관리자 계정 생성</button>
+        </div>    </div>
+
+    <!-- 관리자 계정 생성 모달 -->
+    <div id="adminModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title">관리자 계정 생성</h2>
+            
+            <form id="adminForm">
+                <div class="form-group">
+                    <label for="adminEmployeeId">사번</label>
+                    <input type="text" id="adminEmployeeId" name="adminEmployeeId" required placeholder="사번을 입력하세요">
+                </div>
+                
+                <div class="form-group">
+                    <label for="adminPassword">비밀번호</label>
+                    <input type="password" id="adminPassword" name="adminPassword" required placeholder="비밀번호를 입력하세요 (최소 4자)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="adminConfirmPassword">비밀번호 확인</label>
+                    <input type="password" id="adminConfirmPassword" name="adminConfirmPassword" required placeholder="비밀번호를 다시 입력하세요">
+                </div>
+                
+                <div class="form-group">
+                    <label for="adminRecoveryCode">PW찾기코드</label>
+                    <input type="text" id="adminRecoveryCode" name="adminRecoveryCode" required placeholder="예: 컴퓨터, 책상, 의자 등">
+                </div>
+                
+                <div id="adminErrorMessage" class="error-message"></div>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="modal-button secondary" id="adminCancelButton">취소</button>
+                    <button type="submit" class="modal-button primary" id="adminCreateButton">생성</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 비밀번호 찾기 모달 -->
+    <div id="forgotPasswordModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title">비밀번호 찾기</h2>
+            
+            <form id="forgotPasswordForm">
+                <div class="form-group">
+                    <label for="forgotEmployeeId">사번</label>
+                    <input type="text" id="forgotEmployeeId" name="forgotEmployeeId" required placeholder="사번을 입력하세요">
+                </div>
+                
+                <div class="form-group">
+                    <label for="forgotRecoveryCode">PW찾기코드</label>
+                    <input type="text" id="forgotRecoveryCode" name="forgotRecoveryCode" required placeholder="PW찾기코드를 입력하세요">
+                </div>
+                
+                <div id="forgotPasswordResult" class="error-message"></div>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="modal-button secondary" id="forgotPasswordCancelButton">취소</button>
+                    <button type="submit" class="modal-button primary" id="forgotPasswordFindButton">비밀번호 찾기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 비밀번호 변경 모달 -->
+    <div id="changePasswordModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title">비밀번호 변경</h2>
+            
+            <div id="currentPasswordInfo" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                <strong>현재 비밀번호:</strong> <span id="currentPasswordDisplay"></span>
+            </div>
+            
+            <form id="changePasswordForm">
+                <div class="form-group">
+                    <label for="newPassword">새 비밀번호</label>
+                    <input type="password" id="newPassword" name="newPassword" required placeholder="새 비밀번호를 입력하세요 (최소 4자)">
+                </div>
+                
+                <div class="form-group">
+                    <label for="confirmNewPassword">새 비밀번호 확인</label>
+                    <input type="password" id="confirmNewPassword" name="confirmNewPassword" required placeholder="새 비밀번호를 다시 입력하세요">
+                </div>
+                
+                <div id="changePasswordError" class="error-message"></div>
+                
+                <div class="modal-buttons">
+                    <button type="button" class="modal-button secondary" id="changePasswordCancelButton">취소</button>
+                    <button type="submit" class="modal-button primary" id="changePasswordSaveButton">비밀번호 변경</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="login-ui.js"></script>
+</body>
+</html>

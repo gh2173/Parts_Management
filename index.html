@@ -1,0 +1,2411 @@
+<!DOCTYPE html>
+<html lang="ko" class="dark">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Board Parts 관리 시스템</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com/3.4.5?plugins=forms@0.5.7,typography@0.5.13,aspect-ratio@0.4.2,container-queries@0.1.1"></script>
+    <script>
+        // 다크모드 초기화 스크립트
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark')
+        } else {
+            document.documentElement.classList.remove('dark')
+        }
+    </script>
+    <script src="https://ai-public.creatie.ai/gen_page/tailwind-config.min.js" data-color="#FFA500" data-border-radius="small"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+        :root {
+            --custom-color: #e65802; /* 밝은 오렌지색 */
+        }
+        .bg-custom {
+            background-color: var(--custom-color);
+        }
+        .text-custom {
+            color: var(--custom-color);
+        }
+        .border-custom {
+            border-color: var(--custom-color);
+        }
+        .focus\:border-custom:focus {
+            border-color: var(--custom-color);
+        }
+        .focus\:ring-custom:focus {
+            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.5);
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #e65802;
+            color: black;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #FFA500;
+        }
+        #darkModeToggle {
+            transition: all 0.3s ease;
+        }
+        #darkModeToggle:hover {
+            transform: rotate(15deg);
+        }
+        .dark #darkModeToggle:hover {
+            transform: rotate(-15deg);
+        }
+        
+        /* 다크모드 스타일 추가 - 강력한 다크모드 스타일 */
+        .dark {
+            color-scheme: dark;
+        }
+        
+        .dark body {
+            background-color: #121212 !important;
+            color: #ffffff !important;
+        }
+
+        .dark .bg-orange-50,
+        .dark .bg-orange-100,
+        .dark .bg-white {
+            background-color: #1e1e1e !important;
+            color: #f0f0f0 !important;
+        }
+
+        .dark h1, .dark h2, .dark h3, .dark p, 
+        .dark label, .dark text, .dark div {
+            color: #f0f0f0 !important;
+        }
+        
+        .dark input, .dark select, .dark textarea {
+            background-color: #2d2d2d !important;
+            color: #ffffff !important;
+            border-color: #444444 !important;
+        }
+        
+        .dark .shadow, .dark .shadow-lg, .dark .shadow-sm {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.5) !important;
+        }
+
+        /* 사이드바 다크모드 스타일 */
+        .dark aside.w-64 {
+            background-color: #1f2937 !important; /* bg-gray-800과 동일 */
+        }
+
+        .dark .button {
+            background-color: #374151 !important; /* bg-gray-700과 동일 */
+            color: #f3f4f6 !important; /* 텍스트 색상 */
+        }
+
+        .dark .button:hover {
+            background-color: #4b5563 !important; /* bg-gray-600과 동일 */
+        }
+
+        .dark .button.bg-yellow-500 {
+            background-color: #4338ca !important; /* 선택된 버튼은 인디고-700으로 */
+            color: #f3f4f6 !important;
+        }
+
+        /* 다크모드에서 채팅 히스토리 테이블 텍스트 강제 흰색 */
+        .dark .dark\:bg-gray-900 td {
+            color: white !important;
+            font-weight: 500 !important;
+        }
+
+        .dark #chatHistoryTable td {
+            color: white !important;
+            font-weight: 500 !important;
+        }
+
+    </style>
+</head>
+<body class="min-h-screen bg-orange-50 dark:bg-orange-100">
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-64 bg-orange-600 text-white dark:bg-gray-800">
+            <a href="#" id="homeRefreshButton" class="block text-center p-2 hover:bg-orange-700 dark:hover:bg-gray-700 transition-all duration-300">
+                <img src="nepesark_2-removebg-preview.png" alt="HOME" class="h-30 w-auto transition-transform duration-300 hover:scale-105" />
+            </a>  
+            <nav class="px-4 py-2 space-y-2">
+                <a href="index.html" class="button w-full text-left bg-yellow-500 text-black mb-1 dark:text-white">📙 재고관리 대시보드</a>
+                <a href="Parts_입출고.html" class="button w-full text-left bg-orange-500 hover:bg-yellow-500 text-black dark:text-white">🚚 입출고 이력</a>
+                <a href="재고목록.html" class="button w-full text-left bg-orange-500 hover:bg-yellow-500 text-black dark:text-white">📊 재고목록 관리</a>
+            </nav>
+        </aside>
+        <main class="flex-1 overflow-y-auto">
+            <header class="bg-orange-100 shadow-sm dark:bg-orange-200">
+                <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div class="flex justify-between items-center">
+                        <h1 class="text-2xl font-semibold text-orange-900 dark:text-orange-800">장비솔루션 파트 Board Parts 관리 시스템</h1>
+                        <div class="flex items-center space-x-4">
+                            <!-- 날짜 범위 필터 추가 -->
+                            <div class="flex items-center space-x-2 bg-orange-200 dark:bg-orange-700 rounded-lg p-2">
+                                <i class="fas fa-calendar-alt text-orange-800 dark:text-orange-200"></i>
+                                <input type="date" id="startDateFilter" class="text-sm border-none bg-transparent text-orange-800 dark:text-orange-200 focus:outline-none cursor-pointer" title="시작 날짜">
+                                <span class="text-orange-800 dark:text-orange-200">~</span>
+                                <input type="date" id="endDateFilter" class="text-sm border-none bg-transparent text-orange-800 dark:text-orange-200 focus:outline-none cursor-pointer" title="종료 날짜">
+                                <button id="applyDateFilter" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                    적용
+                                </button>
+                                <button id="resetDateFilter" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                    초기화
+                                </button>
+                            </div>
+                            
+                            <button id="darkModeToggle" class="rounded-full p-2 bg-orange-200 hover:bg-orange-300 dark:bg-orange-700 dark:hover:bg-orange-600 transition-colors">
+                                <!-- 라이트 모드에서는 달 아이콘, 다크모드에서는 해 아이콘 -->
+                                <i id="moonIcon" class="fas fa-moon text-orange-800"></i>
+                                <i id="sunIcon" class="fas fa-sun text-orange-800" style="display: none;"></i>
+                            </button>
+
+                            <div class="relative">
+                                <button id="notificationButton" class="!rounded-button flex items-center text-orange-700 hover:text-orange-900 dark:text-orange-600 dark:hover:text-orange-800">
+                                    <i class="fas fa-bell text-xl"></i>
+                                </button>
+                                <span id="notificationCounter" class="absolute -top-1 -right-1 bg-orange-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">0</span>
+                                
+                                <!-- 알림 드롭다운 메뉴 추가 -->
+                                <div id="notificationDropdown" class="absolute right-0 mt-2 w-80 bg-white rounded-md shadow-lg overflow-hidden z-20 hidden dark:bg-gray-800">
+                                    <div class="py-2 px-3 bg-orange-100 dark:bg-gray-700">
+                                        <div class="flex justify-between items-center">
+                                            <h3 class="text-sm font-medium text-orange-900 dark:text-gray-200">실시간 알림</h3>
+                                            <span id="dropdownNotificationCounter" class="bg-orange-500 text-white text-xs rounded-full px-2 py-1">0</span>
+                                        </div>
+                                    </div>
+                                    <div id="notificationList" class="max-h-80 overflow-y-auto">
+                                        <!-- 알림 목록은 JavaScript로 동적 생성됨 -->
+                                        <div class="text-center text-gray-500 dark:text-gray-400 py-6">알림이 없습니다</div>
+                                    </div>
+                                    <div class="py-2 px-3 bg-gray-100 text-right dark:bg-gray-900">
+                                        <button id="clearAllNotifications" class="text-xs text-orange-600 hover:text-orange-800 dark:text-orange-400 dark:hover:text-orange-300">모두 확인</button>
+                                    </div>
+                                </div>           
+                            </div>
+                            <!-- 메신저 아이콘 -->
+                            <div class="relative ml-4">
+                                <button id="messengerButton" class="!rounded-button flex items-center text-orange-700 hover:text-orange-900 dark:text-orange-600 dark:hover:text-orange-800">
+                                    <i class="fas fa-comment-dots text-xl"></i>
+                                </button>
+                                <span id="messageCounter" class="absolute -top-1 -right-1 bg-green-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center">0</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <div class="grid grid-cols-3 gap-6 mb-8">
+                    <div class="bg-orange-50 rounded-lg shadow p-6 dark:bg-orange-100">
+                        <h3 class="text-lg font-medium mb-4 dark:text-orange-900">카테고리별 출고 현황</h3>
+                        <div id="stockChart" class="h-64"></div>
+                    </div>
+
+                    <div class="bg-orange-50 rounded-lg shadow p-6 dark:bg-orange-100">
+                        <h3 class="text-lg font-medium mb-4 dark:text-orange-900">카테고리별 구매금액</h3>
+                        <div id="flowChart" class="h-64"></div>
+                    </div>
+
+                    <div class="bg-orange-50 rounded-lg shadow p-6 dark:bg-orange-100">
+                        <h3 class="text-lg font-medium mb-4 dark:text-orange-900">실시간 알림</h3>
+                        <div class="space-y-4">
+                            <div class="flex items-start"><div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-200 flex items-center justify-center"><i class="fas fa-box text-orange-600"></i></div><div class="ml-3"><p class="text-sm font-medium">TLP3914 출고 처리</p><p class="text-xs text-orange-500">2025-02-26</p></div></div>
+                            <div class="flex items-start"><div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-200 flex items-center justify-center"><i class="fas fa-box text-orange-600"></i></div><div class="ml-3"><p class="text-sm font-medium">R1005F/4.99K 출고 처리</p><p class="text-xs text-orange-500">2025-02-27</p></div></div>
+                            <div class="flex items-start"><div class="flex-shrink-0 w-8 h-8 rounded-full bg-orange-200 flex items-center justify-center"><i class="fas fa-box text-orange-600"></i></div><div class="ml-3"><p class="text-sm font-medium">22uF/35V 출고 처리</p><p class="text-xs text-orange-500">2025-02-27</p></div></div>
+                        </div>
+                    </div>
+                    
+                </div>
+                <div class="bg-orange-50 rounded-lg shadow dark:bg-orange-100">
+                    
+                </div>                <!-- Board별 부품 사용량 차트 -->
+                <div class="bg-orange-50 rounded-lg shadow p-6 dark:bg-orange-100 mb-8">
+                    <h3 class="text-lg font-medium mb-4 dark:text-orange-900">Board별 부품 사용량</h3>
+                    
+                    <!-- 필터 UI -->
+                    <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div>
+                            <label for="equipmentGroupFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">설비군</label>
+                            <select id="equipmentGroupFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <option value="">전체 설비군</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="boardNameFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Board명</label>
+                            <select id="boardNameFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <option value="">전체 Board명</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="serialNumberFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">S/N</label>
+                            <select id="serialNumberFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <option value="">전체 S/N</option>
+                            </select>
+                        </div>
+                        <div class="flex items-end">
+                            <button id="applyBoardFilter" class="w-full px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500">
+                                필터 적용
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="integratedChart" class="h-96"></div>                </div>
+                
+            </div>
+        </div>
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-96">
+            <h2 class="text-lg font-semibold mb-4">새 부품 등록</h2>
+            <form id="partForm">
+                <div class="mb-4">
+                    <label for="location" class="block text-sm font-medium text-gray-700">위치</label>
+                    <input type="text" id="location" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-custom focus:border-custom" required>
+                </div>
+                <div class="mb-4">
+                    <label for="name" class="block text-sm font-medium text-gray-700">품목</label>
+                    <input type="text" id="name" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-custom focus:border-custom" required>
+                </div>
+                <div class="mb-4">
+                    <label for="company" class="block text-sm font-medium text-gray-700">구매처</label>
+                    <input type="text" id="company" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-custom focus:border-custom" required>
+                </div>
+                <div class="mb-4">
+                    <label for="minStock" class="block text-sm font-medium text-gray-700">최소 재고 개수</label>
+                    <input type="number" id="minStock" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-custom focus:border-custom" min="1" step="1" required>
+                </div>
+                <div class="mb-4">
+                    <label for="inDate" class="block text-sm font-medium text-gray-700">입고일</label>
+                    <input type="date" id="inDate" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-custom focus:border-custom">
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancelButton" class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-custom text-white rounded-md hover:bg-orange-700">등록</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- 채팅 모달 (여기에 추가) -->
+    <div id="chatModal" class="fixed bottom-4 right-4 w-96 bg-white rounded-lg shadow-lg overflow-hidden z-30 hidden dark:bg-gray-800">
+        <div class="flex justify-between items-center bg-orange-500 dark:bg-orange-700 text-white p-3">
+            <h3 class="font-medium">실시간 채팅</h3>
+            <div class="flex space-x-2">
+                <button id="minimizeChatButton" class="hover:bg-orange-600 dark:hover:bg-orange-800 p-1 rounded">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button id="closeChatButton" class="hover:bg-orange-600 dark:hover:bg-orange-800 p-1 rounded">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </div>
+        <div id="chatMessages" class="h-80 overflow-y-auto p-4 space-y-3">
+            <div class="flex flex-col space-y-1">
+                <div class="flex items-end">
+                    <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 items-start">
+                        <div><span class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-200">전달사항을 입력하세요.</span></div>
+                    </div>
+                    <img src="https://via.placeholder.com/30" alt="관리자" class="w-6 h-6 rounded-full order-1">
+                </div>
+            </div>
+        </div>
+        <div class="border-t border-gray-200 dark:border-gray-700 p-3">
+            <div class="flex items-center space-x-2">
+                <input type="text" id="chatInput" class="flex-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg px-3 py-2 focus:outline-none focus:ring-1 focus:ring-orange-500" placeholder="메시지를 입력하세요...">
+                <button id="sendMessageButton" class="bg-orange-500 hover:bg-orange-600 text-white rounded-lg p-2 dark:bg-orange-700 dark:hover:bg-orange-800">
+                    <i class="fas fa-paper-plane"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 알림 버튼 및 드롭다운 기능
+        function setupNotifications() {
+            const notificationButton = document.getElementById('notificationButton');
+            const notificationDropdown = document.getElementById('notificationDropdown');
+            const notificationCounter = document.getElementById('notificationCounter');
+            const dropdownNotificationCounter = document.getElementById('dropdownNotificationCounter');
+            const notificationList = document.getElementById('notificationList');
+            const clearAllNotifications = document.getElementById('clearAllNotifications');
+            
+            // 알림 버튼 클릭 이벤트
+            if (notificationButton) {
+                notificationButton.addEventListener('click', () => {
+                    notificationDropdown.classList.toggle('hidden');
+                    
+                    // 드롭다운 외부 클릭 시 닫기
+                    document.addEventListener('click', function closeDropdown(e) {
+                        if (!notificationDropdown.contains(e.target) && !notificationButton.contains(e.target)) {
+                            notificationDropdown.classList.add('hidden');
+                            document.removeEventListener('click', closeDropdown);
+                        }
+                    });
+                });
+            }
+            
+            // 모두 확인 버튼 클릭 이벤트
+            if (clearAllNotifications) {
+                clearAllNotifications.addEventListener('click', () => {
+                    notificationDropdown.classList.add('hidden');
+                    // 알림 확인 처리 (추후 데이터베이스 연동 시 활용)
+                    // localStorage.setItem('lastNotificationCheck', new Date().toISOString());
+                    
+                    // 알림 카운터 초기화
+                    notificationCounter.textContent = '0';
+                    dropdownNotificationCounter.textContent = '0';
+                    
+                    // 알림 목록 비우기
+                    notificationList.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-6">알림이 없습니다</div>';
+                });
+            }
+        }
+
+        // 알림 드롭다운 내용 업데이트 함수
+        function updateNotificationDropdown(lowStockItems) {
+            const notificationList = document.getElementById('notificationList');
+            const notificationCounter = document.getElementById('notificationCounter');
+            const dropdownNotificationCounter = document.getElementById('dropdownNotificationCounter');
+            
+            if (!notificationList || !notificationCounter || !dropdownNotificationCounter) {
+                console.error('알림 관련 요소를 찾을 수 없습니다.');
+                return;
+            }
+            
+            // 알림 카운터 업데이트
+            const count = lowStockItems.length;
+            notificationCounter.textContent = count;
+            dropdownNotificationCounter.textContent = count;
+            
+            // 알림 목록 비우기
+            notificationList.innerHTML = '';
+            
+            // 알림이 없을 경우 메시지 표시
+            if (count === 0) {
+                notificationList.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-6">알림이 없습니다</div>';
+                return;
+            }
+            
+            // 알림 항목 생성
+            lowStockItems.forEach(item => {
+                const currentStock = parseInt(item.currentStock || 0);
+                const minStock = parseInt(item.minStock || 0);
+                const diff = minStock - currentStock; // 필요 수량
+                
+                const notificationItem = document.createElement('div');
+                notificationItem.className = 'py-2 px-4 border-b border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700';
+                
+                notificationItem.innerHTML = `
+                    <div class="flex items-start">
+                        <div class="flex-shrink-0 rounded-full bg-red-200 dark:bg-red-900 p-1">
+                            <i class="fas fa-exclamation-circle text-red-600 dark:text-red-400"></i>
+                        </div>
+                        <div class="ml-3 flex-1">
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-200">${item.name} 입고 필요</p>
+                            <p class="text-xs text-red-500 dark:text-red-400">현재재고: ${currentStock} / 최소재고: ${minStock}</p>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">${diff}개 부족</p>
+                        </div>
+                    </div>
+                `;
+                
+                notificationList.appendChild(notificationItem);
+            });
+        }
+
+        // 실시간 알림 영역 업데이트 함수 수정
+        async function updateAlerts() {
+            try {
+                // 데이터 가져오기
+                const result = await window.partsAPI.getExcelData();
+                if (!result.success) {
+                    console.error('데이터 로드 실패:', result.error);
+                    return;
+                }
+                
+                // 상태가 '필요'인 항목만 필터링
+                // 현재 재고가 최소 재고보다 적은 경우 '필요' 상태로 간주
+                const lowStockItems = result.data.filter(item => {
+                    const currentStock = parseInt(item.currentStock || 0);
+                    const minStock = parseInt(item.minStock || 0);
+                    return currentStock < minStock;
+                });
+                
+                // 필요한 수량이 많은 순으로 정렬
+                lowStockItems.sort((a, b) => {
+                    const diffA = parseInt(a.minStock || 0) - parseInt(a.currentStock || 0);
+                    const diffB = parseInt(b.minStock || 0) - parseInt(b.currentStock || 0);
+                    return diffB - diffA; // 내림차순 정렬
+                });
+                
+                // 최대 3개 제한 제거 - 모든 항목 표시
+                const alertsToShow = lowStockItems;
+                
+                // 알림 컨테이너
+                const alertsContainer = document.querySelector('.bg-orange-50.rounded-lg.shadow.p-6.dark\\:bg-orange-100 .space-y-4');
+                if (!alertsContainer) {
+                    console.error('알림 컨테이너를 찾을 수 없습니다.');
+                    return;
+                }
+                
+                // 컨테이너에 고정 높이와 스크롤 속성 추가
+                alertsContainer.classList.add('max-h-56', 'overflow-y-auto', 'pr-2');
+                alertsContainer.style.scrollbarWidth = 'thin'; // Firefox
+                alertsContainer.style.scrollbarColor = 'rgba(180, 180, 180, 0.5) transparent'; // Firefox
+                
+                // Webkit 브라우저(Chrome, Safari 등)용 스크롤바 스타일
+                const style = document.createElement('style');
+                style.textContent = `
+                    .space-y-4::-webkit-scrollbar {
+                        width: 5px;
+                    }
+                    .space-y-4::-webkit-scrollbar-track {
+                        background: transparent;
+                    }
+                    .space-y-4::-webkit-scrollbar-thumb {
+                        background-color: rgba(180, 180, 180, 0.5);
+                        border-radius: 20px;
+                    }
+                    .dark .space-y-4::-webkit-scrollbar-thumb {
+                        background-color: rgba(100, 100, 100, 0.5);
+                    }
+                `;
+                document.head.appendChild(style);
+                
+                // 컨테이너 초기화
+                alertsContainer.innerHTML = '';
+                
+                // 알림 없을 경우 메시지 표시
+                if (alertsToShow.length === 0) {
+                    const emptyMessage = document.createElement('div');
+                    emptyMessage.className = 'text-center text-gray-500 dark:text-gray-400 py-4';
+                    emptyMessage.textContent = '재고 알림이 없습니다.';
+                    alertsContainer.appendChild(emptyMessage);
+                } else {
+                    // 각 알림 항목 생성
+                    alertsToShow.forEach(item => {
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'flex items-start mb-4'; // 마진 추가
+                        
+                        // 아이콘 부분
+                        const iconDiv = document.createElement('div');
+                        iconDiv.className = 'flex-shrink-0 w-8 h-8 rounded-full bg-red-200 dark:bg-red-900 flex items-center justify-center';
+                        iconDiv.innerHTML = '<i class="fas fa-exclamation-circle text-red-600 dark:text-red-400"></i>';
+                        
+                        // 컨텐츠 부분
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'ml-3 flex-1'; // flex-1 추가하여 너비 확보
+                        
+                        // 현재 재고와 최소 재고 계산
+                        const currentStock = parseInt(item.currentStock || 0);
+                        const minStock = parseInt(item.minStock || 0);
+                        const diff = minStock - currentStock; // 필요 수량
+                        
+                        // 마지막 이벤트 결정 (현재는 입고일만 사용)
+                        // 추후 입출고 이력이 추가되면 실제 마지막 이벤트 날짜로 변경 가능
+                        const lastEventDate = item.inDate || '정보 없음';
+                        const eventType = '입고'; // 현재는 입고일만 있으므로 고정값
+                        
+                        // 타이틀 생성 - 품명과 필요 상태
+                        const title = document.createElement('p');
+                        title.className = 'text-sm font-medium';
+                        title.textContent = `${item.name} 입고 필요`;
+                        
+                        // 설명 생성 - 최소재고와 현재재고
+                        const description = document.createElement('p');
+                        description.className = 'text-xs text-red-500 dark:text-red-400';
+                        description.textContent = `최소재고: ${minStock} / 현재재고: ${currentStock} (${diff}개 필요)`;
+                        
+                        // 날짜 생성 - 마지막 이벤트 날짜
+                        const date = document.createElement('p');
+                        date.className = 'text-xs text-gray-500 dark:text-gray-400';
+                        date.textContent = `마지막 ${eventType}: ${lastEventDate}`;
+                        
+                        // 컨텐츠에 요소 추가
+                        contentDiv.appendChild(title);
+                        contentDiv.appendChild(description);
+                        contentDiv.appendChild(date);
+                        
+                        // 모든 요소 조합
+                        alertDiv.appendChild(iconDiv);
+                        alertDiv.appendChild(contentDiv);
+                        
+                        // 알림 추가
+                        alertsContainer.appendChild(alertDiv);
+                    });
+                }
+                
+                // 알림 드롭다운 업데이트
+                updateNotificationDropdown(lowStockItems);
+                
+            } catch (error) {
+                console.error('알림 업데이트 중 오류 발생:', error);
+            }
+        }
+
+        // 메신저 기능 초기화
+        function setupMessenger() {
+            const messengerButton = document.getElementById('messengerButton');
+            const chatModal = document.getElementById('chatModal');
+            const minimizeChatButton = document.getElementById('minimizeChatButton');
+            const closeChatButton = document.getElementById('closeChatButton');
+            const chatInput = document.getElementById('chatInput');
+            const sendMessageButton = document.getElementById('sendMessageButton');
+            const chatMessages = document.getElementById('chatMessages');
+            const messageCounter = document.getElementById('messageCounter');
+            
+            // 초기 메시지 카운터 설정
+            messageCounter.textContent = "0";
+            
+            // 새 메시지 도착 시뮬레이션 (주기적으로 메시지 카운터 증가)
+            let messageSimulationInterval;
+            
+            function startMessageSimulation() {
+                // 이미 실행 중인 경우 중지
+                if (messageSimulationInterval) {
+                    clearInterval(messageSimulationInterval);
+                }
+                
+                // 15-30초마다 랜덤하게 메시지 카운터 증가
+                messageSimulationInterval = setInterval(() => {
+                    if (chatModal.classList.contains('hidden')) {
+                        const currentCount = parseInt(messageCounter.textContent);
+                        messageCounter.textContent = currentCount + 1;
+                    }
+                }, Math.random() * 15000 + 15000);
+            }
+            
+            // 메시지 시뮬레이션 시작
+            startMessageSimulation();
+            
+            // 메신저 버튼 클릭 이벤트
+            if (messengerButton) {
+                messengerButton.addEventListener('click', () => {
+                    chatModal.classList.remove('hidden');
+                    // 메시지 카운터 초기화
+                    messageCounter.textContent = "0";
+                    
+                    // 채팅창 내용 최하단으로 스크롤
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                });
+            }
+            
+            // 채팅창 최소화 버튼
+            if (minimizeChatButton) {
+                minimizeChatButton.addEventListener('click', () => {
+                    chatModal.classList.add('hidden');
+                });
+            }
+            
+            // 채팅창 닫기 버튼
+            if (closeChatButton) {
+                closeChatButton.addEventListener('click', () => {
+                    chatModal.classList.add('hidden');
+                });
+            }
+            
+            // 메시지 전송 함수
+            function sendMessage() {
+                const messageText = chatInput.value.trim();
+                if (messageText === '') return;
+                
+                // 사용자 메시지 추가
+                const userMessageHTML = `
+                    <div class="flex flex-col space-y-1">
+                        <div class="flex items-end justify-end">
+                            <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-1 items-end">
+                                <div><span class="px-4 py-2 rounded-lg inline-block rounded-br-none bg-orange-500 text-white dark:bg-orange-600">${messageText}</span></div>
+                            </div>
+                            <img src="https://via.placeholder.com/30" alt="사용자" class="w-6 h-6 rounded-full order-2">
+                        </div>
+                    </div>
+                `;
+                
+                chatMessages.innerHTML += userMessageHTML;
+                chatInput.value = '';
+                
+                // 엑셀에 메시지 저장
+                saveChatToExcel(messageText);
+                
+                // 채팅창 내용 최하단으로 스크롤
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // 간단한 응답 메시지 - 메시지가 기록되었음을 알림
+                setTimeout(() => {
+                    const responseHTML = `
+                        <div class="flex flex-col space-y-1">
+                            <div class="flex items-end">
+                                <div class="flex flex-col space-y-2 text-xs max-w-xs mx-2 order-2 items-start">
+                                    <div><span class="px-4 py-2 rounded-lg inline-block rounded-bl-none bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-200">메시지가 기록되었습니다.</span></div>
+                                </div>
+                                <img src="https://via.placeholder.com/30" alt="시스템" class="w-6 h-6 rounded-full order-1">
+                            </div>
+                        </div>
+                    `;
+                    
+                    chatMessages.innerHTML += responseHTML;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 500);
+            }
+            
+            // 채팅 내용을 엑셀 파일에 저장하는 함수
+            async function saveChatToExcel(message) {
+                try {
+                    // 현재 날짜와 시간 생성
+                    const now = new Date();
+                    const dateTimeString = now.toLocaleString(); // 현지 형식의 날짜와 시간
+                    
+                    // IP 주소 가져오기 
+                    let ipAddress = "알 수 없음";
+                    try {
+                        // IP 주소 가져오기 (Electron 환경에서)
+                        const ipResult = await window.partsAPI.getClientIP();
+                        if (ipResult.success) {
+                            ipAddress = ipResult.data;
+                        }
+                    } catch (error) {
+                        console.warn('IP 주소를 가져오는데 실패했습니다:', error);
+                    }
+                    
+                    console.log('엑셀에 저장할 메시지 데이터:', {
+                        message,
+                        dateTime: dateTimeString,
+                        ipAddress
+                    });
+                    
+                    // 메시지, 날짜/시간, IP 주소를 엑셀에 저장
+                    const result = await window.partsAPI.saveChatMessage({
+                        message: message,
+                        dateTime: dateTimeString,
+                        ipAddress: ipAddress
+                    });
+                    
+                    console.log('채팅 메시지 저장 결과:', result);
+                    
+                    if (!result.success) {
+                        console.error('채팅 메시지 저장 실패:', result.error);
+                    }
+                } catch (error) {
+                    console.error('채팅 메시지 저장 중 오류 발생:', error);
+                }
+            }
+            
+            // 메시지 전송 버튼 클릭 이벤트
+            if (sendMessageButton) {
+                sendMessageButton.addEventListener('click', sendMessage);
+            }
+            
+            // 엔터키 입력 이벤트
+            if (chatInput) {
+                chatInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+            }
+        }        // Board별 부품 사용량 차트 초기화 및 설정
+        const integratedChart = echarts.init(document.getElementById('integratedChart'));
+
+        // Board별 부품 사용량 차트 데이터 생성 및 업데이트 함수
+        async function updateBoardUsageChart(filteredData = null) {
+            try {
+                let historyData;
+                
+                if (filteredData) {
+                    historyData = filteredData;
+                } else {
+                    // 입출고 내역 데이터 가져오기
+                    const result = await window.partsAPI.getHistoryData();
+                    if (!result.success) {
+                        console.error('입출고 내역 데이터 로드 실패:', result.error);
+                        
+                        // 오류 상태 차트 표시
+                        integratedChart.setOption({
+                            title: {
+                                text: '데이터를 불러올 수 없습니다',
+                                left: 'center',
+                                textStyle: {
+                                    fontSize: 16,
+                                    color: '#ff4757'
+                                }
+                            },
+                            series: []
+                        });
+                        return;
+                    }
+                    historyData = result.data || [];
+                }
+                
+                // 날짜 필터 적용
+                historyData = filterDataByDate(historyData, 'date');
+                
+                console.log('Board별 부품 사용량 분석 시작, 날짜 필터 적용 후 데이터:', historyData);
+                
+                // 출고 데이터만 필터링 (Board별 사용량이므로 출고 데이터 사용)
+                const exportData = historyData.filter(item => 
+                    item.type === '출고' && item.name && item.amount
+                );
+                
+                console.log('출고 데이터:', exportData);
+                
+                // 품명별 사용량 집계
+                const categorySummary = {};
+
+                exportData.forEach(item => {
+                    const categoryName = item.category || '기타'; // 카테고리로 변경
+                    
+                    // 다양한 필드명으로 수량 시도
+                    let quantity = 0;
+                    const possibleFields = ['quantity', 'count', 'amount', 'stock', 'value'];
+
+                    // 여러 필드명 시도
+                    for (const field of possibleFields) {
+                        if (item[field] !== undefined && item[field] !== null) {
+                            const rawValue = item[field];
+                            
+                            // 숫자 변환 시도
+                            if (!isNaN(Number(rawValue))) {
+                                quantity = Number(rawValue);
+                                console.log(`${field} 필드에서 수량 ${quantity} 찾음`);
+                                break;
+                            } 
+                            // 문자열에서 숫자 추출 시도
+                            else if (typeof rawValue === 'string') {
+                                const matches = rawValue.match(/\d+/);
+                                if (matches && matches.length > 0) {
+                                    quantity = Number(matches[0]);
+                                    console.log(`${field} 필드의 문자열에서 수량 ${quantity} 추출`);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // 수량이 0이면 기본값 1로 설정
+                    if (quantity === 0) {
+                        quantity = 1;
+                        console.log(`카테고리: ${categoryName}의 수량을 찾을 수 없어 기본값 1 사용`);
+                    }
+                    
+                    if (!categorySummary[categoryName]) {
+                        categorySummary[categoryName] = 0;
+                    }
+                    
+                    categorySummary[categoryName] += quantity;
+                });
+                
+                // 차트 데이터 변환 (사용량 기준 내림차순 정렬)
+                const sortedData = Object.entries(categorySummary)
+                    .sort(([,a], [,b]) => b - a); // 모든 품목 표시
+                
+                const partNames = sortedData.map(([name]) => name);
+                const usageData = sortedData.map(([, usage]) => usage);
+                
+                console.log('차트 데이터 - 품명:', partNames);
+                console.log('차트 데이터 - 사용량:', usageData);
+                
+                // 차트 제목에 필터 정보 포함
+                let chartTitle = `🤖 Board별 부품 사용량 분석 (${partNames.length}개 품목)`;
+                if (globalDateFilter.startDate || globalDateFilter.endDate) {
+                    const startStr = globalDateFilter.startDate ? globalDateFilter.startDate.toLocaleDateString() : '시작';
+                    const endStr = globalDateFilter.endDate ? globalDateFilter.endDate.toLocaleDateString() : '종료';
+                    chartTitle += ` [${startStr} ~ ${endStr}]`;
+                }
+                
+                // 데이터가 없는 경우 처리
+                if (partNames.length === 0) {
+                    integratedChart.setOption({
+                        title: {
+                            text: '선택 기간에 출고 데이터가 없습니다',
+                            left: 'center',
+                            textStyle: {
+                                fontSize: 16,
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                            }
+                        },
+                        series: []
+                    });
+                    return;
+                }
+                
+                // 3D AI 미래지향적 차트 옵션 설정
+                integratedChart.setOption({
+                    animation: true,
+                    animationDuration: 2000,
+                    animationEasing: 'cubicOut',
+                    animationDelay: function (idx) {
+                        return idx * 150;
+                    },
+                    backgroundColor: document.documentElement.classList.contains('dark') ? 
+                        'transparent' : 'transparent',
+                    title: {
+                        text: chartTitle,
+                        left: 'center',
+                        top: '3%',
+                        textStyle: {
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                            color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                            textShadowBlur: 10,
+                            textShadowColor: document.documentElement.classList.contains('dark') ? 
+                                'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow',
+                            shadowStyle: {
+                                color: 'rgba(0, 212, 255, 0.2)',
+                                shadowBlur: 20,
+                                shadowOffsetX: 5,
+                                shadowOffsetY: 5
+                            }
+                        },
+                        formatter: function(params) {
+                            const data = params[0];
+                            return `
+                                <div style="
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    border: none;
+                                    border-radius: 12px;
+                                    padding: 12px;
+                                    color: white;
+                                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                                    backdrop-filter: blur(10px);
+                                ">
+                                    <div style="font-weight: bold; margin-bottom: 8px;">
+                                        🎯 ${data.name}
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <span style="margin-right: 8px;">📊</span>
+                                        사용량: ${data.value}개
+                                    </div>
+                                </div>
+                            `;
+                        },
+                        backgroundColor: 'transparent',
+                        borderColor: 'transparent',
+                        textStyle: {
+                            color: '#ffffff'
+                        }
+                    },
+                    grid: {
+                        left: '8%',
+                        right: '8%',
+                        bottom: '15%',
+                        top: '20%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: partNames,
+                        axisPointer: {
+                            type: 'shadow'
+                        },
+                        axisLabel: {
+                            rotate: 45,
+                            interval: 0,
+                            textStyle: {
+                                fontSize: 11,
+                                fontWeight: 'bold',
+                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                textShadowBlur: 3,
+                                textShadowColor: document.documentElement.classList.contains('dark') ? 
+                                    'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                width: 2,
+                                shadowBlur: 10,
+                                shadowColor: document.documentElement.classList.contains('dark') ? 
+                                    'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
+                            }
+                        },
+                        axisTick: {
+                            lineStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                width: 2
+                            }
+                        }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '🤖 사용량 분석 (개)',
+                        nameTextStyle: {
+                            color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                            fontSize: 13,
+                            fontWeight: 'bold',
+                            textShadowBlur: 5,
+                            textShadowColor: document.documentElement.classList.contains('dark') ? 
+                                'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                        },
+                        axisLabel: {
+                            formatter: '{value}',
+                            textStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                fontSize: 11,
+                                fontWeight: 'bold',
+                                textShadowBlur: 3,
+                                textShadowColor: document.documentElement.classList.contains('dark') ? 
+                                    'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                width: 2,
+                                shadowBlur: 10,
+                                shadowColor: document.documentElement.classList.contains('dark') ? 
+                                    'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
+                            }
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                color: document.documentElement.classList.contains('dark') ? 
+                                    'rgba(0, 212, 255, 0.1)' : 'rgba(0, 102, 204, 0.1)',
+                                width: 1,
+                                type: 'dashed'
+                            }
+                        }
+                    },
+                    series: [
+                        {
+                            name: '🤖 부품 사용량 분석',
+                            type: 'bar',
+                            data: usageData.map((value, index) => ({
+                                value: value,
+                                itemStyle: {
+                                    // 3D 그라데이션 색상 배열
+                                    color: function() {
+                                        const futuristicColors = [
+                                            // 네온 사이버 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#ff006e'},
+                                                    {offset: 0.5, color: '#8338ec'},
+                                                    {offset: 1, color: '#3a86ff'}
+                                                ]
+                                            },
+                                            // 홀로그램 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#00f5ff'},
+                                                    {offset: 0.5, color: '#00d4ff'},
+                                                    {offset: 1, color: '#0066cc'}
+                                                ]
+                                            },
+                                            // AI 그린 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#39ff14'},
+                                                    {offset: 0.5, color: '#00ff88'},
+                                                    {offset: 1, color: '#00cc66'}
+                                                ]
+                                            },
+                                            // 퓨처 오렌지 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#ff9500'},
+                                                    {offset: 0.5, color: '#ff6b35'},
+                                                    {offset: 1, color: '#e65100'}
+                                                ]
+                                            },
+                                            // 네온 퍼플 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#d946ef'},
+                                                    {offset: 0.5, color: '#a855f7'},
+                                                    {offset: 1, color: '#7c3aed'}
+                                                ]
+                                            },
+                                            // 사이버 옐로우 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#ffd60a'},
+                                                    {offset: 0.5, color: '#ffbe0b'},
+                                                    {offset: 1, color: '#fb8500'}
+                                                ]
+                                            }
+                                        ];
+                                        return futuristicColors[index % futuristicColors.length];
+                                    }(),
+                                    borderRadius: [8, 8, 0, 0],
+                                    // 3D 효과를 위한 강력한 그림자
+                                    shadowBlur: 25,
+                                    shadowColor: 'rgba(0, 212, 255, 0.6)',
+                                    shadowOffsetX: 8,
+                                    shadowOffsetY: 12,
+                                    // 네온 발광 효과
+                                    borderColor: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                    borderWidth: 2,
+                                    // 3D 깊이감을 위한 opacity 변화
+                                    opacity: 0.9
+                                }
+                            })),
+                            emphasis: {
+                                focus: 'series',
+                                itemStyle: {
+                                    shadowBlur: 40,
+                                    shadowOffsetX: 12,
+                                    shadowOffsetY: 18,
+                                    shadowColor: 'rgba(0, 212, 255, 0.8)',
+                                    borderWidth: 3,
+                                    borderColor: '#ffffff',
+                                    opacity: 1,
+                                    // 호버 시 스케일 업 효과
+                                    scale: 1.05
+                                },
+                                // 3D 변형 효과
+                                scaleSize: 8
+                            },
+                            barMaxWidth: 60,
+                            // 막대 간격 조정으로 3D 효과 강화
+                            barGap: '20%',
+                            // 막대 모서리를 둥글게 처리
+                            barBorderRadius: [8, 8, 0, 0],
+                            // 애니메이션 효과 추가
+                            animationDuration: 2000,
+                            animationEasing: 'elasticOut',
+                            animationDelay: function (idx) {
+                                return idx * 200;
+                            },
+                            // 3D 라벨 효과
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '🚀 {c}',
+                                textStyle: {
+                                    color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                    fontSize: 12,
+                                    fontWeight: 'bold',
+                                    textShadowBlur: 8,
+                                    textShadowColor: document.documentElement.classList.contains('dark') ? 
+                                        'rgba(0, 212, 255, 0.8)' : 'rgba(0, 102, 204, 0.6)',
+                                    textShadowOffsetX: 2,
+                                    textShadowOffsetY: 2
+                                }
+                            },
+                            // 3D 발광 효과를 위한 markLine 추가
+                            markLine: {
+                                silent: true,
+                                lineStyle: {
+                                    color: document.documentElement.classList.contains('dark') ? 
+                                        'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                                    width: 1,
+                                    type: 'dashed'
+                                },
+                                data: [
+                                    {type: 'average', name: 'AI 평균값'}
+                                ]
+                            }
+                        }
+                    ],
+                    // 3D 효과를 위한 추가 옵션
+                    graphic: [
+                        {
+                            type: 'group',
+                            left: 'center',
+                            top: '5%',
+                            children: [
+                                {
+                                    type: 'rect',
+                                    z: 100,
+                                    left: 'center',
+                                    top: 'middle',
+                                    shape: {
+                                        width: 0,
+                                        height: 0
+                                    },
+                                    style: {
+                                        fill: 'transparent'
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                });
+                
+                console.log('3D AI Board별 부품 사용량 차트 업데이트 완료');
+                
+            } catch (error) {
+                console.error('Board별 부품 사용량 차트 업데이트 중 오류:', error);
+                
+                // 오류 차트 표시
+                integratedChart.setOption({
+                    title: {
+                        text: '🤖 AI 차트 업데이트 중 오류가 발생했습니다',
+                        left: 'center',
+                        textStyle: {
+                            fontSize: 16,
+                            color: '#ff4757'
+                        }
+                    },
+                    series: []
+                });
+            }
+        }
+
+        // 날짜 범위 필터와 관련된 전역 변수
+        let globalDateFilter = {
+            startDate: null,
+            endDate: null
+        };
+
+        // 날짜 범위 필터 초기화
+        function setupDateFilter() {
+            const startDateFilter = document.getElementById('startDateFilter');
+            const endDateFilter = document.getElementById('endDateFilter');
+            const applyDateFilter = document.getElementById('applyDateFilter');
+            const resetDateFilter = document.getElementById('resetDateFilter');
+
+            // 현재 날짜로 기본값 설정 (최근 1개월)
+            const today = new Date();
+            const oneMonthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
+            
+            endDateFilter.value = today.toISOString().split('T')[0];
+            startDateFilter.value = oneMonthAgo.toISOString().split('T')[0];
+
+            // 초기 필터 값 설정
+            globalDateFilter.startDate = oneMonthAgo;
+            globalDateFilter.endDate = today;
+
+            // 필터 적용 버튼 이벤트
+            if (applyDateFilter) {
+                applyDateFilter.addEventListener('click', async () => {
+                    const startDate = startDateFilter.value ? new Date(startDateFilter.value) : null;
+                    const endDate = endDateFilter.value ? new Date(endDateFilter.value) : null;
+
+                    // 날짜 유효성 검사
+                    if (startDate && endDate && startDate > endDate) {
+                        alert('시작 날짜는 종료 날짜보다 이전이어야 합니다.');
+                        return;
+                    }
+
+                    // 전역 필터 값 업데이트
+                    globalDateFilter.startDate = startDate;
+                    globalDateFilter.endDate = endDate;
+
+                    console.log('날짜 필터 적용:', globalDateFilter);
+
+                    // 모든 차트 업데이트
+                    await updateAllChartsWithDateFilter();
+                });
+            }
+
+            // 필터 초기화 버튼 이벤트
+            if (resetDateFilter) {
+                resetDateFilter.addEventListener('click', async () => {
+                    startDateFilter.value = '';
+                    endDateFilter.value = '';
+                    globalDateFilter.startDate = null;
+                    globalDateFilter.endDate = null;
+
+                    console.log('날짜 필터 초기화');
+
+                    // 모든 차트 업데이트 (필터 없이)
+                    await updateAllChartsWithDateFilter();
+                });
+            }
+        }
+
+        // 날짜 필터링 함수
+        function filterDataByDate(data, dateField = 'date') {
+            if (!globalDateFilter.startDate && !globalDateFilter.endDate) {
+                return data; // 필터가 설정되지 않았으면 전체 데이터 반환
+            }
+
+            return data.filter(item => {
+                if (!item[dateField]) return true; // 날짜 정보가 없으면 포함
+
+                try {
+                    const itemDate = new Date(item[dateField]);
+                    if (isNaN(itemDate.getTime())) return true; // 유효하지 않은 날짜면 포함
+
+                    // 시작 날짜 체크
+                    if (globalDateFilter.startDate && itemDate < globalDateFilter.startDate) {
+                        return false;
+                    }
+
+                    // 종료 날짜 체크 (종료 날짜 당일 23:59:59까지 포함)
+                    if (globalDateFilter.endDate) {
+                        const endOfDay = new Date(globalDateFilter.endDate);
+                        endOfDay.setHours(23, 59, 59, 999);
+                        if (itemDate > endOfDay) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                } catch (error) {
+                    console.warn('날짜 필터링 중 오류:', error, item);
+                    return true; // 오류 발생 시 포함
+                }
+            });
+        }
+
+        // 모든 차트를 날짜 필터와 함께 업데이트하는 함수
+        async function updateAllChartsWithDateFilter() {
+            try {
+                console.log('날짜 필터를 적용하여 모든 차트 업데이트 시작');
+                
+                // 로딩 표시 (선택사항)
+                const loadingMessage = document.createElement('div');
+                loadingMessage.id = 'chartLoadingMessage';
+                loadingMessage.className = 'fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-orange-500 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+                loadingMessage.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>차트 업데이트 중...';
+                document.body.appendChild(loadingMessage);
+
+                // 1. 재고 현황 차트 업데이트
+                await updateStockChart();
+                
+                // 2. 입출고 현황 차트 업데이트  
+                await updateFlowChart();
+                
+                // 3. Board별 부품 사용량 차트 업데이트
+                await updateBoardUsageChart();
+                
+                // 4. 실시간 알림 업데이트
+                await updateAlerts();
+
+                // 로딩 메시지 제거
+                const loading = document.getElementById('chartLoadingMessage');
+                if (loading) {
+                    loading.remove();
+                }
+
+                console.log('모든 차트 업데이트 완료');
+                
+                // 성공 메시지 표시 (3초 후 자동 제거)
+                const successMessage = document.createElement('div');
+                successMessage.className = 'fixed top-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                successMessage.innerHTML = '<i class="fas fa-check mr-2"></i>차트가 업데이트되었습니다.';
+                document.body.appendChild(successMessage);
+                
+                setTimeout(() => {
+                    if (successMessage.parentNode) {
+                        successMessage.remove();
+                    }
+                }, 3000);
+
+            } catch (error) {
+                console.error('차트 업데이트 중 오류 발생:', error);
+                
+                // 로딩 메시지 제거
+                const loading = document.getElementById('chartLoadingMessage');
+                if (loading) {
+                    loading.remove();
+                }
+                
+                // 오류 메시지 표시
+                const errorMessage = document.createElement('div');
+                errorMessage.className = 'fixed top-4 right-4 bg-red-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                errorMessage.innerHTML = '<i class="fas fa-exclamation-triangle mr-2"></i>차트 업데이트 중 오류가 발생했습니다.';
+                document.body.appendChild(errorMessage);
+                
+                setTimeout(() => {
+                    if (errorMessage.parentNode) {
+                        errorMessage.remove();
+                    }
+                }, 5000);
+            }
+        }
+
+        // 재고 현황 차트 업데이트 함수 (날짜 필터 적용)
+        async function updateStockChart() {
+            try {
+                const stockChart = echarts.init(document.getElementById('stockChart'));
+                
+                // 1. 입출고 내역 데이터 가져오기
+                const result = await window.partsAPI.getHistoryData();
+                if (!result.success) {
+                    console.error('입출고 내역 데이터를 가져오는데 실패했습니다:', result.error);
+                    stockChart.setOption({
+                        series: [{
+                            data: [
+                                { value: 1, name: '데이터 없음' }
+                            ]
+                        }]
+                    });
+                    return;
+                }
+                
+                console.log('입출고 내역 데이터:', result.data);
+                
+                // 날짜 필터 적용
+                let filteredData = filterDataByDate(result.data || [], 'date');
+                
+                console.log('날짜 필터 적용 후 데이터:', filteredData);
+                
+                // 2. 출고 데이터만 필터링 (타입 필드 대소문자 구분 없이 확인)
+                const outflowData = filteredData.filter(item => {
+                    // 출고 데이터만 필터링 (대소문자 구분 없이)
+                    const type = (item.type || '').toLowerCase();
+                    return type === '출고' || type === 'out' || type === 'outflow';
+                });
+                
+                console.log('필터링된 출고 데이터:', outflowData);
+                
+                // 데이터가 없는 경우 테스트 데이터 생성
+                if (outflowData.length === 0) {
+                    console.log('실제 출고 데이터가 없어 테스트 데이터를 사용합니다.');
+                    // 테스트 데이터 추가
+                    outflowData.push(
+                        { name: 'PCB', quantity: 45, type: '출고' },
+                        { name: 'IC', quantity: 25, type: '출고' },
+                        { name: '저항', quantity: 15, type: '출고' },
+                        { name: '기타', quantity: 15, type: '출고' }
+                    );
+                }
+
+                // 3. 품명별로 출고 수량 합계 계산
+                const categorySummary = {};
+
+                outflowData.forEach(item => {
+                    const categoryName = item.category || '기타'; // 카테고리로 변경
+                    
+                    // 다양한 필드명으로 수량 시도
+                    let quantity = 0;
+                    const possibleFields = ['quantity', 'count', 'amount', 'stock', 'value'];
+
+                    // 여러 필드명 시도
+                    for (const field of possibleFields) {
+                        if (item[field] !== undefined && item[field] !== null) {
+                            const rawValue = item[field];
+                            
+                            // 숫자 변환 시도
+                            if (!isNaN(Number(rawValue))) {
+                                quantity = Number(rawValue);
+                                console.log(`${field} 필드에서 수량 ${quantity} 찾음`);
+                                break;
+                            } 
+                            // 문자열에서 숫자 추출 시도
+                            else if (typeof rawValue === 'string') {
+                                const matches = rawValue.match(/\d+/);
+                                if (matches && matches.length > 0) {
+                                    quantity = Number(matches[0]);
+                                    console.log(`${field} 필드의 문자열에서 수량 ${quantity} 추출`);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // 수량이 0이면 기본값 1로 설정
+                    if (quantity === 0) {
+                        quantity = 1;
+                        console.log(`카테고리: ${categoryName}의 수량을 찾을 수 없어 기본값 1 사용`);
+                    }
+                    
+                    if (!categorySummary[categoryName]) {
+                        categorySummary[categoryName] = 0;
+                    }
+                    
+                    categorySummary[categoryName] += quantity;
+                });
+                
+                // 4. 차트 데이터 형식으로 변환
+                const chartData = Object.keys(categorySummary).map(name => {
+                    return {
+                        name: name,
+                        value: categorySummary[name]
+                    };
+                });
+                
+                // 5. 데이터가 없는 경우 처리
+                if (chartData.length === 0) {
+                    chartData.push({
+                        name: '선택 기간 출고 데이터 없음',
+                        value: 1
+                    });
+                }
+                
+                console.log('최종 차트 데이터:', chartData);
+                
+                // 6. 차트 제목에 필터 정보 포함
+                let chartTitle = '카테고리별 출고 현황';
+                if (globalDateFilter.startDate || globalDateFilter.endDate) {
+                    const startStr = globalDateFilter.startDate ? globalDateFilter.startDate.toLocaleDateString() : '시작';
+                    const endStr = globalDateFilter.endDate ? globalDateFilter.endDate.toLocaleDateString() : '종료';
+                    chartTitle += ` (${startStr} ~ ${endStr})`;
+                }
+                
+                // 가로 막대 차트 설정
+                // 퍼센테이지 계산을 위한 총합 구하기
+                const totalValue = chartData.reduce((sum, item) => sum + item.value, 0);
+                
+                // 퍼센테이지가 큰 순서대로 정렬
+                const sortedData = chartData.sort((a, b) => b.value - a.value);
+                
+                // Y축 카테고리 이름과 X축 퍼센테이지 데이터 분리
+                const categories = sortedData.map(item => item.name);
+                const percentages = sortedData.map(item => 
+                    totalValue > 0 ? ((item.value / totalValue) * 100).toFixed(1) : 0
+                );
+                const values = sortedData.map(item => item.value);
+                
+                stockChart.setOption({
+                    animation: true,
+                    animationDuration: 1500,
+                    animationEasing: 'elasticOut',
+                    animationDelay: function (idx) {
+                        return idx * 200;
+                    },
+                    title: {
+                        text: chartTitle,
+                        left: 'center',
+                        textStyle: {
+                            fontSize: 14,
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow'
+                        },
+                        formatter: function(params) {
+                            const data = params[0];
+                            const index = data.dataIndex;
+                            const value = values[index];
+                            const percentage = percentages[index];
+                            return `${data.name}<br/>출고량: ${value}개<br/>비율: ${percentage}%`;
+                        },
+                        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                        borderColor: document.documentElement.classList.contains('dark') ? '#333' : '#ccc',
+                        textStyle: {
+                            color: document.documentElement.classList.contains('dark') ? '#fff' : '#333'
+                        }
+                    },
+                    grid: {
+                        left: '15%',
+                        right: '10%',
+                        top: '15%',
+                        bottom: '10%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'value',
+                        max: 100,
+                        axisLabel: {
+                            formatter: '{value}',
+                            textStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                            }
+                        }
+                    },
+                    yAxis: {
+                        type: 'category',
+                        data: categories,
+                        axisLabel: {
+                            textStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                            }
+                        }
+                    },
+                    series: [{
+                        name: '출고 비율',
+                        type: 'bar',
+                        data: percentages.map((percentage, index) => ({
+                            value: percentage,
+                            itemStyle: {
+                                color: function() {
+                                    const colors = [
+                                        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
+                                        '#FECA57', '#A29BFE', '#FD79A8', '#E17055'
+                                    ];
+                                    return colors[index % colors.length];
+                                }
+                            }
+                        })),
+                        label: {
+                            show: true,
+                            position: 'right',
+                            formatter: function(params) {
+                                return '🏃‍♂️ ' + params.value + '%';
+                            },
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333',
+                            fontSize: 12,
+                            fontWeight: 'bold'
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 20,
+                                shadowOffsetX: 3,
+                                shadowOffsetY: 3,
+                                shadowColor: 'rgba(0, 0, 0, 0.4)'
+                            }
+                        },
+                        barMaxWidth: 30
+                    }]
+                });
+                
+                console.log('카테고리별 출고 현황 차트가 업데이트되었습니다.', chartData);
+                
+            } catch (error) {
+                console.error('재고 현황 차트 업데이트 중 오류 발생:', error);
+                const stockChart = echarts.init(document.getElementById('stockChart'));
+                stockChart.setOption({
+                    series: [{
+                        data: [
+                            { value: 1, name: '오류 발생' }
+                        ]
+                    }]
+                });
+            }
+        }
+
+        // 입출고 현황 차트 업데이트 함수 (날짜 필터 적용)
+        async function updateFlowChart() {
+            try {
+                const flowChart = echarts.init(document.getElementById('flowChart'));
+                
+                // 1. 입출고 내역 데이터 가져오기
+                const result = await window.partsAPI.getHistoryData();
+                if (!result.success) {
+                    console.error('입출고 내역 데이터를 가져오는데 실패했습니다:', result.error);
+                    flowChart.setOption({
+                        animation: false,
+                        title: {
+                            text: '구매금액 합계',
+                            left: 'center',
+                            textStyle: {
+                                fontSize: 14,
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                            }
+                        },
+                        series: [{
+                            type: 'pie',
+                            radius: ['30%', '60%'],
+                            center: ['50%', '45%'],
+                            data: [{ value: 0, name: '데이터 없음' }]
+                        }]
+                    });
+                    return;
+                }
+                
+                console.log('입출고 내역 데이터:', result.data);
+                
+                // 날짜 필터 적용
+                let filteredData = filterDataByDate(result.data || [], 'date');
+                
+                // 2. 카테고리별 구매금액 집계
+                const categoryAmounts = {};
+                
+                if (filteredData && filteredData.length > 0) {
+                    filteredData.forEach(item => {
+                        if (item.category && item.purchasePrice && !isNaN(item.purchasePrice)) {
+                            const category = item.category;
+                            const amount = parseFloat(item.purchasePrice) || 0;
+                            
+                            if (categoryAmounts[category]) {
+                                categoryAmounts[category] += amount;
+                            } else {
+                                categoryAmounts[category] = amount;
+                            }
+                        }
+                    });
+                }
+                
+                // 3. 차트 데이터 변환
+                const chartData = Object.entries(categoryAmounts).map(([category, amount]) => ({
+                    name: category,
+                    value: amount
+                }));
+                
+                // 4. 데이터가 없는 경우 처리
+                if (chartData.length === 0) {
+                    chartData.push({ value: 0, name: '선택 기간 구매 내역 없음' });
+                }
+                
+                console.log('카테고리별 구매금액 차트 데이터:', chartData);
+                
+                // 5. 차트 제목에 필터 정보 포함
+                let chartTitle = '카테고리별 구매금액';
+                if (globalDateFilter.startDate || globalDateFilter.endDate) {
+                    const startStr = globalDateFilter.startDate ? globalDateFilter.startDate.toLocaleDateString() : '시작';
+                    const endStr = globalDateFilter.endDate ? globalDateFilter.endDate.toLocaleDateString() : '종료';
+                    chartTitle += ` (${startStr} ~ ${endStr})`;
+                }
+                
+                // 원형 차트 옵션 설정
+                flowChart.setOption({
+                    animation: true,
+                    animationDuration: 1500,
+                    animationEasing: 'elasticOut',
+                    animationDelay: function (idx) {
+                        return idx * 200;
+                    },
+                    title: {
+                        text: chartTitle,
+                        left: 'center',
+                        top: 10,
+                        textStyle: {
+                            fontSize: 14,
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: function(params) {
+                            if (params.value === 0) {
+                                return params.name;
+                            }
+                            return `${params.name}<br/>구매금액: ₩${params.value.toLocaleString()}<br/>비율: ${params.percent}%`;
+                        },
+                        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)',
+                        textStyle: {
+                            color: document.documentElement.classList.contains('dark') ? '#fff' : '#333'
+                        }
+                    },
+                    legend: {
+                        orient: 'horizontal',
+                        bottom: 10,
+                        textStyle: {
+                            fontSize: 12,
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                        }
+                    },
+                    series: [{
+                        type: 'pie',
+                        radius: ['30%', '60%'],
+                        center: ['50%', '45%'],
+                        data: chartData,
+                        itemStyle: {
+                            borderRadius: 15,
+                            borderColor: document.documentElement.classList.contains('dark') ? '#2d2d2d' : '#fff',
+                            borderWidth: 3,
+                            // 3D 효과를 위한 그림자 추가
+                            shadowBlur: 15,
+                            shadowColor: 'rgba(0, 0, 0, 0.3)',
+                            shadowOffsetX: 3,
+                            shadowOffsetY: 8,
+                            // 그라데이션 효과로 3D 느낌 연출
+                            color: function(params) {
+                                const colors = [
+                                    ['#FF9500', '#FF6B35'],
+                                    ['#2ECC71', '#27AE60'],
+                                    ['#3498DB', '#2980B9'],
+                                    ['#9B59B6', '#8E44AD'],
+                                    ['#E74C3C', '#C0392B'],
+                                    ['#F39C12', '#E67E22'],
+                                    ['#1ABC9C', '#16A085'],
+                                    ['#34495E', '#2C3E50']
+                                ];
+                                const colorPair = colors[params.dataIndex % colors.length];
+                                return {
+                                    type: 'linear',
+                                    x: 0, y: 0, x2: 1, y2: 1,
+                                    colorStops: [{
+                                        offset: 0, color: colorPair[0]
+                                    }, {
+                                        offset: 1, color: colorPair[1]
+                                    }]
+                                };
+                            }
+                        },
+                        emphasis: {
+                            itemStyle: {
+                                shadowBlur: 25,
+                                shadowOffsetX: 5,
+                                shadowOffsetY: 12,
+                                shadowColor: 'rgba(0, 0, 0, 0.4)',
+                                scale: true,
+                                scaleSize: 10
+                            },
+                            scale: true,
+                            scaleSize: 5
+                        },
+                        label: {
+                            show: true,
+                            formatter: function(params) {
+                                if (params.value === 0) {
+                                    return params.name;
+                                }
+                                return `${params.name}\n₩${params.value.toLocaleString()}`;
+                            },
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333',
+                            fontSize: 12,
+                            fontWeight: 'bold',
+                            textShadowBlur: 3,
+                            textShadowColor: 'rgba(0, 0, 0, 0.3)',
+                            textShadowOffsetX: 1,
+                            textShadowOffsetY: 1
+                        }
+                    }]
+                });
+                
+                console.log('카테고리별 구매금액 차트가 업데이트되었습니다.');
+                
+            } catch (error) {
+                console.error('입출고 현황 차트 업데이트 중 오류 발생:', error);
+                const flowChart = echarts.init(document.getElementById('flowChart'));
+                flowChart.setOption({
+                    title: {
+                        text: '차트 업데이트 중 오류가 발생했습니다',
+                        left: 'center',
+                        textStyle: {
+                            fontSize: 14,
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                        }
+                    },
+                    series: []
+                });
+            }
+        }
+
+        // Board별 부품 사용량 차트 데이터 생성 및 업데이트 함수 (날짜 필터 적용)
+        async function updateBoardUsageChart(filteredData = null) {
+            try {
+                let historyData;
+                
+                if (filteredData) {
+                    historyData = filteredData;
+                } else {
+                    // 입출고 내역 데이터 가져오기
+                    const result = await window.partsAPI.getHistoryData();
+                    if (!result.success) {
+                        console.error('입출고 내역 데이터 로드 실패:', result.error);
+                        
+                        // 오류 상태 차트 표시
+                        integratedChart.setOption({
+                            title: {
+                                text: '데이터를 불러올 수 없습니다',
+                                left: 'center',
+                                textStyle: {
+                                    fontSize: 16,
+                                    color: '#ff4757'
+                                }
+                            },
+                            series: []
+                        });
+                        return;
+                    }
+                    historyData = result.data || [];
+                }
+                
+                // 날짜 필터 적용
+                historyData = filterDataByDate(historyData, 'date');
+                
+                console.log('Board별 부품 사용량 분석 시작, 날짜 필터 적용 후 데이터:', historyData);
+                
+                // 출고 데이터만 필터링 (Board별 사용량이므로 출고 데이터 사용)
+                const exportData = historyData.filter(item => 
+                    item.type === '출고' && item.name && item.amount
+                );
+                
+                console.log('출고 데이터:', exportData);
+                
+                // 품명별 사용량 집계
+                const categorySummary = {};
+
+                exportData.forEach(item => {
+                    const categoryName = item.category || '기타'; // 카테고리로 변경
+                    
+                    // 다양한 필드명으로 수량 시도
+                    let quantity = 0;
+                    const possibleFields = ['quantity', 'count', 'amount', 'stock', 'value'];
+
+                    // 여러 필드명 시도
+                    for (const field of possibleFields) {
+                        if (item[field] !== undefined && item[field] !== null) {
+                            const rawValue = item[field];
+                            
+                            // 숫자 변환 시도
+                            if (!isNaN(Number(rawValue))) {
+                                quantity = Number(rawValue);
+                                console.log(`${field} 필드에서 수량 ${quantity} 찾음`);
+                                break;
+                            } 
+                            // 문자열에서 숫자 추출 시도
+                            else if (typeof rawValue === 'string') {
+                                const matches = rawValue.match(/\d+/);
+                                if (matches && matches.length > 0) {
+                                    quantity = Number(matches[0]);
+                                    console.log(`${field} 필드의 문자열에서 수량 ${quantity} 추출`);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+
+                    // 수량이 0이면 기본값 1로 설정
+                    if (quantity === 0) {
+                        quantity = 1;
+                        console.log(`카테고리: ${categoryName}의 수량을 찾을 수 없어 기본값 1 사용`);
+                    }
+                    
+                    if (!categorySummary[categoryName]) {
+                        categorySummary[categoryName] = 0;
+                    }
+                    
+                    categorySummary[categoryName] += quantity;
+                });
+                
+                // 차트 데이터 변환 (사용량 기준 내림차순 정렬)
+                const sortedData = Object.entries(categorySummary)
+                    .sort(([,a], [,b]) => b - a); // 모든 품목 표시
+                
+                const partNames = sortedData.map(([name]) => name);
+                const usageData = sortedData.map(([, usage]) => usage);
+                
+                console.log('차트 데이터 - 품명:', partNames);
+                console.log('차트 데이터 - 사용량:', usageData);
+                
+                // 차트 제목에 필터 정보 포함
+                let chartTitle = `🤖 AI Board별 부품 사용량 분석 (${partNames.length}개 품목)`;
+                if (globalDateFilter.startDate || globalDateFilter.endDate) {
+                    const startStr = globalDateFilter.startDate ? globalDateFilter.startDate.toLocaleDateString() : '시작';
+                    const endStr = globalDateFilter.endDate ? globalDateFilter.endDate.toLocaleDateString() : '종료';
+                    chartTitle += ` [${startStr} ~ ${endStr}]`;
+                }
+                
+                // 데이터가 없는 경우 처리
+                if (partNames.length === 0) {
+                    integratedChart.setOption({
+                        title: {
+                            text: '선택 기간에 출고 데이터가 없습니다',
+                            left: 'center',
+                            textStyle: {
+                                fontSize: 16,
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                            }
+                        },
+                        series: []
+                    });
+                    return;
+                }
+                
+                // 3D AI 미래지향적 차트 옵션 설정
+                integratedChart.setOption({
+                    animation: true,
+                    animationDuration: 2000,
+                    animationEasing: 'cubicOut',
+                    animationDelay: function (idx) {
+                        return idx * 150;
+                    },
+                    backgroundColor: document.documentElement.classList.contains('dark') ? 
+                        'transparent' : 'transparent',
+                    title: {
+                        text: chartTitle,
+                        left: 'center',
+                        top: '3%',
+                        textStyle: {
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                            color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                            textShadowBlur: 10,
+                            textShadowColor: document.documentElement.classList.contains('dark') ? 
+                                'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
+                        }
+                    },
+                    tooltip: {
+                        trigger: 'axis',
+                        axisPointer: {
+                            type: 'shadow',
+                            shadowStyle: {
+                                color: 'rgba(0, 212, 255, 0.2)',
+                                shadowBlur: 20,
+                                shadowOffsetX: 5,
+                                shadowOffsetY: 5
+                            }
+                        },
+                        formatter: function(params) {
+                            const data = params[0];
+                            return `
+                                <div style="
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    border: none;
+                                    border-radius: 12px;
+                                    padding: 12px;
+                                    color: white;
+                                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+                                    backdrop-filter: blur(10px);
+                                ">
+                                    <div style="font-weight: bold; margin-bottom: 8px;">
+                                        🎯 ${data.name}
+                                    </div>
+                                    <div style="display: flex; align-items: center;">
+                                        <span style="margin-right: 8px;">📊</span>
+                                        사용량: ${data.value}개
+                                    </div>
+                                </div>
+                            `;
+                        },
+                        backgroundColor: 'transparent',
+                        borderColor: 'transparent',
+                        textStyle: {
+                            color: '#ffffff'
+                        }
+                    },
+                    grid: {
+                        left: '8%',
+                        right: '8%',
+                        bottom: '15%',
+                        top: '20%',
+                        containLabel: true
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: partNames,
+                        axisPointer: {
+                            type: 'shadow'
+                        },
+                        axisLabel: {
+                            rotate: 45,
+                            interval: 0,
+                            textStyle: {
+                                fontSize: 11,
+                                fontWeight: 'bold',
+                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                textShadowBlur: 3,
+                                textShadowColor: document.documentElement.classList.contains('dark') ? 
+                                    'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                width: 2,
+                                shadowBlur: 10,
+                                shadowColor: document.documentElement.classList.contains('dark') ? 
+                                    'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
+                            }
+                        },
+                        axisTick: {
+                            lineStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                width: 2
+                            }
+                        }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        name: '🤖 AI 사용량 분석 (개)',
+                        nameTextStyle: {
+                            color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                            fontSize: 13,
+                            fontWeight: 'bold',
+                            textShadowBlur: 5,
+                            textShadowColor: document.documentElement.classList.contains('dark') ? 
+                                'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                        },
+                        axisLabel: {
+                            formatter: '{value}',
+                            textStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                fontSize: 11,
+                                fontWeight: 'bold',
+                                textShadowBlur: 3,
+                                textShadowColor: document.documentElement.classList.contains('dark') ? 
+                                    'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                            }
+                        },
+                        axisLine: {
+                            lineStyle: {
+                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                width: 2,
+                                shadowBlur: 10,
+                                shadowColor: document.documentElement.classList.contains('dark') ? 
+                                    'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
+                            }
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                color: document.documentElement.classList.contains('dark') ? 
+                                    'rgba(0, 212, 255, 0.1)' : 'rgba(0, 102, 204, 0.1)',
+                                width: 1,
+                                type: 'dashed'
+                            }
+                        }
+                    },
+                    series: [
+                        {
+                            name: '🤖 AI 부품 사용량 분석',
+                            type: 'bar',
+                            data: usageData.map((value, index) => ({
+                                value: value,
+                                itemStyle: {
+                                    // 3D 그라데이션 색상 배열
+                                    color: function() {
+                                        const futuristicColors = [
+                                            // 네온 사이버 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#ff006e'},
+                                                    {offset: 0.5, color: '#8338ec'},
+                                                    {offset: 1, color: '#3a86ff'}
+                                                ]
+                                            },
+                                            // 홀로그램 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#00f5ff'},
+                                                    {offset: 0.5, color: '#00d4ff'},
+                                                    {offset: 1, color: '#0066cc'}
+                                                ]
+                                            },
+                                            // AI 그린 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#39ff14'},
+                                                    {offset: 0.5, color: '#00ff88'},
+                                                    {offset: 1, color: '#00cc66'}
+                                                ]
+                                            },
+                                            // 퓨처 오렌지 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#ff9500'},
+                                                    {offset: 0.5, color: '#ff6b35'},
+                                                    {offset: 1, color: '#e65100'}
+                                                ]
+                                            },
+                                            // 네온 퍼플 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#d946ef'},
+                                                    {offset: 0.5, color: '#a855f7'},
+                                                    {offset: 1, color: '#7c3aed'}
+                                                ]
+                                            },
+                                            // 사이버 옐로우 그라데이션
+                                            {
+                                                type: 'linear',
+                                                x: 0, y: 0, x2: 0, y2: 1,
+                                                colorStops: [
+                                                    {offset: 0, color: '#ffd60a'},
+                                                    {offset: 0.5, color: '#ffbe0b'},
+                                                    {offset: 1, color: '#fb8500'}
+                                                ]
+                                            }
+                                        ];
+                                        return futuristicColors[index % futuristicColors.length];
+                                    }(),
+                                    borderRadius: [8, 8, 0, 0],
+                                    // 3D 효과를 위한 강력한 그림자
+                                    shadowBlur: 25,
+                                    shadowColor: 'rgba(0, 212, 255, 0.6)',
+                                    shadowOffsetX: 8,
+                                    shadowOffsetY: 12,
+                                    // 네온 발광 효과
+                                    borderColor: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                    borderWidth: 2,
+                                    // 3D 깊이감을 위한 opacity 변화
+                                    opacity: 0.9
+                                }
+                            })),
+                            emphasis: {
+                                focus: 'series',
+                                itemStyle: {
+                                    shadowBlur: 40,
+                                    shadowOffsetX: 12,
+                                    shadowOffsetY: 18,
+                                    shadowColor: 'rgba(0, 212, 255, 0.8)',
+                                    borderWidth: 3,
+                                    borderColor: '#ffffff',
+                                    opacity: 1,
+                                    // 호버 시 스케일 업 효과
+                                    scale: 1.05
+                                },
+                                // 3D 변형 효과
+                                scaleSize: 8
+                            },
+                            barMaxWidth: 60,
+                            // 막대 간격 조정으로 3D 효과 강화
+                            barGap: '20%',
+                            // 막대 모서리를 둥글게 처리
+                            barBorderRadius: [8, 8, 0, 0],
+                            // 애니메이션 효과 추가
+                            animationDuration: 2000,
+                            animationEasing: 'elasticOut',
+                            animationDelay: function (idx) {
+                                return idx * 200;
+                            },
+                            // 3D 라벨 효과
+                            label: {
+                                show: true,
+                                position: 'top',
+                                formatter: '🚀 {c}',
+                                textStyle: {
+                                    color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                    fontSize: 12,
+                                    fontWeight: 'bold',
+                                    textShadowBlur: 8,
+                                    textShadowColor: document.documentElement.classList.contains('dark') ? 
+                                        'rgba(0, 212, 255, 0.8)' : 'rgba(0, 102, 204, 0.6)',
+                                    textShadowOffsetX: 2,
+                                    textShadowOffsetY: 2
+                                }
+                            },
+                            // 3D 발광 효과를 위한 markLine 추가
+                            markLine: {
+                                silent: true,
+                                lineStyle: {
+                                    color: document.documentElement.classList.contains('dark') ? 
+                                        'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                                    width: 1,
+                                    type: 'dashed'
+                                },
+                                data: [
+                                    {type: 'average', name: 'AI 평균값'}
+                                ]
+                            }
+                        }
+                    ],
+                    // 3D 효과를 위한 추가 옵션
+                    graphic: [
+                        {
+                            type: 'group',
+                            left: 'center',
+                            top: '5%',
+                            children: [
+                                {
+                                    type: 'rect',
+                                    z: 100,
+                                    left: 'center',
+                                    top: 'middle',
+                                    shape: {
+                                        width: 0,
+                                        height: 0
+                                    },
+                                    style: {
+                                        fill: 'transparent'
+                                    }
+                                }
+                            ]
+                        }
+                    ]
+                });
+                
+                console.log('3D AI Board별 부품 사용량 차트 업데이트 완료');
+                
+            } catch (error) {
+                console.error('Board별 부품 사용량 차트 업데이트 중 오류:', error);
+                
+                // 오류 차트 표시
+                integratedChart.setOption({
+                    title: {
+                        text: '🤖 AI 차트 업데이트 중 오류가 발생했습니다',
+                        left: 'center',
+                        textStyle: {
+                            fontSize: 16,
+                            color: '#ff4757'
+                        }
+                    },
+                    series: []
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('DOMContentLoaded 이벤트 실행');
+            
+            // 날짜 필터 초기화 (다른 초기화보다 먼저 실행)
+            setupDateFilter();
+            
+            // 다크모드 토글 버튼 초기화
+            const darkModeToggle = document.getElementById('darkModeToggle');
+            console.log('다크모드 토글 버튼:', darkModeToggle);
+
+            if (darkModeToggle) {
+                // 기존 핸들러 제거 (이중 등록 방지)
+                darkModeToggle.onclick = null;
+                
+                // 새 핸들러 등록
+                darkModeToggle.onclick = function() {
+                    console.log('다크모드 토글 버튼 클릭됨');
+                    
+                    // 현재 테마 확인
+                    const isDarkMode = document.documentElement.classList.contains('dark');
+                    console.log('현재 다크모드 상태:', isDarkMode);
+                    
+                    // 아이콘 요소 가져오기
+                    const moonIcon = document.getElementById('moonIcon');
+                    const sunIcon = document.getElementById('sunIcon');
+                    
+                    if (isDarkMode) {
+                        // 다크모드 -> 라이트모드 전환
+                        document.documentElement.classList.remove('dark');
+                        localStorage.theme = 'light';
+                        console.log('라이트 모드로 전환됨');
+                        
+                        // 아이콘 전환: 달 표시, 해 숨김
+                        moonIcon.style.display = 'inline-block';
+                        sunIcon.style.display = 'none';
+                    } else {
+                        // 라이트모드 -> 다크모드 전환
+                        document.documentElement.classList.add('dark');
+                        localStorage.theme = 'dark';
+                        console.log('다크 모드로 전환됨');
+                        
+                        // 아이콘 전환: 달 숨김, 해 표시
+                        moonIcon.style.display = 'none';
+                        sunIcon.style.display = 'inline-block';
+                    }
+                      // 여기에 차트 업데이트 코드 추가
+                    updateStockChart();
+                    updateFlowChart(); // 이 줄 추가
+                    updateBoardUsageChart();
+                };
+            }
+               
+            // 차트 초기화
+            const stockChart = echarts.init(document.getElementById('stockChart'));
+            const flowChart = echarts.init(document.getElementById('flowChart'));
+            
+            // 재고 현황 차트 초기 설정 (데이터 로딩 전 표시)
+            stockChart.setOption({
+                animation: false,
+                tooltip: {
+                    trigger: 'item'
+                },
+                series: [{
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    data: [
+                        { value: 1, name: '데이터 로딩 중...' }
+                    ],
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowOffsetX: 0,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }]
+            });
+
+            // 실제 데이터로 재고 현황 차트 업데이트
+            await updateStockChart();
+            
+            // 입출고 현황 차트 초기 설정 (데이터 로딩 전 표시)
+            flowChart.setOption({
+                animation: false,
+                title: {
+                    text: '데이터 로딩 중...',
+                    left: 'center',
+                    textStyle: {
+                        fontSize: 14,
+                        color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                    }
+                }
+            });
+
+            // 실제 데이터로 입출고 현황 차트 업데이트
+            await updateFlowChart();
+            
+            // 창 크기 변경 시 차트 크기 조정
+            window.addEventListener('resize', function() {
+                stockChart.resize();
+                flowChart.resize();
+            });
+            
+            // 모달 관련 기능
+            const modal = document.getElementById('modal');
+            const openModalButton = document.getElementById('openModalButton');
+            const cancelButton = document.getElementById('cancelButton');
+            const partForm = document.getElementById('partForm');
+            
+            if (openModalButton) {
+                openModalButton.addEventListener('click', () => {
+                    modal.classList.remove('hidden');
+                });
+            }
+            
+            if (cancelButton) {
+                cancelButton.addEventListener('click', () => {
+                    modal.classList.add('hidden');
+                });
+            }
+            
+            if (partForm) {
+                partForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    // 폼 처리 코드...
+                    modal.classList.add('hidden');
+                    partForm.reset();
+                });
+            }
+            
+            // 로고 이미지 클릭 시 페이지 새로고침
+            const homeRefreshButton = document.getElementById('homeRefreshButton');
+            if (homeRefreshButton) {
+                homeRefreshButton.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    console.log('페이지 새로고침');
+                    window.location.reload(true);
+                });
+            }
+
+            // 실시간 알림 업데이트
+            await updateAlerts();
+
+            // 알림 버튼 및 드롭다운 초기화
+            setupNotifications();
+
+            // 메신저 기능 초기화 (이 부분을 추가)
+            setupMessenger();            // 채팅 히스토리 테이블 초기화 및 필터 설정 (이 부분 추가)
+            await updateChatHistoryTable();
+            setupChatHistoryFilter();
+
+            // Board별 부품 사용량 차트 및 필터 초기화
+            await initializeBoardUsageFilters();
+            await updateBoardUsageChart();
+
+            // 필터 적용 버튼 이벤트 리스너 추가
+            const applyFilterButton = document.getElementById('applyBoardFilter');
+            if (applyFilterButton) {
+                applyFilterButton.addEventListener('click', applyBoardUsageFilter);
+                console.log('필터 적용 버튼 이벤트 리스너 추가됨');
+            }
+
+            // 채팅 히스토리 필터링 초기화
+            setupChatHistoryFilter();
+
+            // 채팅 히스토리 테이블 업데이트
+            await updateChatHistoryTable();
+
+            // 입출고 현황 차트 업데이트
+            await updateFlowChart();
+            
+            // 초기 차트 업데이트 (날짜 필터와 함께)
+            await updateAllChartsWithDateFilter();
+        });
+    </script>
+</body>
+</html>

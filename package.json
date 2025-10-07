@@ -1,0 +1,41 @@
+{
+  "name": "part-management",
+  "version": "1.0.0",
+  "description": "Parts 재고 관리 시스템",
+  "main": "main.js",
+  "author": "nepes <info@nepes.com>",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder"
+  },
+  "dependencies": {
+    "basic-ftp": "^5.0.5",
+    "bcrypt": "^6.0.0",
+    "bcryptjs": "^3.0.2",
+    "electron-store": "^8.1.0",
+    "exceljs": "^4.4.0",
+    "fs-extra": "^11.3.0"
+  },
+  "devDependencies": {
+    "electron": "^38.2.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.nepes.partmanagement",
+    "productName": "Parts 재고 관리 시스템",
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "nepesark_2-removebg-preview.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
+  },
+  "keywords": [],
+  "license": "ISC"
+}

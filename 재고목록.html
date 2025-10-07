@@ -1,0 +1,1495 @@
+<!DOCTYPE html><html lang="ko"><head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Board Parts 관리 시스템</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+    <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com/3.4.5?plugins=forms@0.5.7,typography@0.5.13,aspect-ratio@0.4.2,container-queries@0.1.1"></script><script>if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {document.documentElement.classList.add('dark')} else {document.documentElement.classList.remove('dark')}</script>
+    <script src="https://ai-public.creatie.ai/gen_page/tailwind-config.min.js" data-color="#FFA500" data-border-radius="small"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
+    <style>
+        :root {
+            --custom-color: #e65802; /* 밝은 오렌지색 */
+        }
+        .bg-custom {
+            background-color: var(--custom-color);
+        }
+        .text-custom {
+            color: var(--custom-color);
+        }
+        .border-custom {
+            border-color: var(--custom-color);
+        }
+        .focus\:border-custom:focus {
+            border-color: var(--custom-color);
+        }
+        .focus\:ring-custom:focus {
+            box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.5);
+        }
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #e65802;
+            color: black;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .button:hover {
+            background-color: #FFA500;
+        }
+        /* 정렬 아이콘 스타일 */
+        .sort-icon::after {
+            content: '\2195'; /* 양방향 화살표 */
+            margin-left: 4px;
+            opacity: 0.3;
+        }
+        
+        th[data-sort="asc"] .sort-icon::after {
+            content: '\2191'; /* 위 화살표 */
+            opacity: 1;
+        }
+        
+        th[data-sort="desc"] .sort-icon::after {
+            content: '\2193'; /* 아래 화살표 */
+            opacity: 1;
+        }
+
+        /* 다크모드 관련 스타일 */
+        #darkModeToggle {
+            transition: all 0.3s ease;
+        }
+        #darkModeToggle:hover {
+            transform: rotate(15deg);
+        }
+        .dark #darkModeToggle:hover {
+            transform: rotate(-15deg);
+        }
+
+        /* 다크모드 테이블 스타일 */
+        .dark th {
+            background-color: #2d2d2d !important;
+            color: #f0f0f0 !important;
+        }
+
+        .dark table td {
+            color: #f0f0f0 !important;
+        }
+
+        .dark .bg-green-50, 
+        .dark .bg-green-200 {
+            background-color: rgba(22, 101, 52, 0.3) !important;
+        }
+
+        .dark .bg-red-50,
+        .dark .bg-red-200 {
+            background-color: rgba(153, 27, 27, 0.3) !important;
+        }
+
+        .dark .bg-gray-200 {
+            background-color: rgba(107, 114, 128, 0.3) !important;
+        }        /* 모달 다크모드 스타일 */
+        .dark .bg-white {
+            background-color: #1e1e1e !important;
+            color: #f0f0f0 !important;
+        }
+
+        .dark input, .dark select, .dark textarea {
+            background-color: #2d2d2d !important;
+            color: #ffffff !important;
+            border-color: #444444 !important;
+        }
+
+        .dark label, .dark h2, .dark h3, .dark p {
+            color: #f0f0f0 !important;
+        }
+        
+        /* 다크모드 모달 개선 */
+        .dark .rounded-lg.shadow-lg {
+            background-color: #1f2937 !important; /* bg-gray-800 */
+            border: 1px solid #374151 !important; /* border-gray-700 */
+        }
+        /* 다크모드 배경색 스타일 */
+        .dark body {
+            background-color: #111827 !important; /* bg-gray-900과 동일한 색상 */
+            color: #f3f4f6 !important;
+        }
+
+        .dark aside.w-64 {
+            background-color: #374151 !important; /* bg-gray-700과 동일한 색상 */
+        }
+
+        .dark header {
+            background-color: #1f2937 !important; /* bg-gray-800과 동일한 색상 */
+        }
+
+        .dark main .bg-orange-50,
+        .dark main .bg-orange-100, 
+        .dark .bg-orange-50, 
+        .dark .bg-orange-100 {
+            background-color: #1f2937 !important; /* bg-gray-800과 동일한 색상 */
+        }
+
+        .dark h1.text-orange-900,
+        .dark h3.text-orange-900,
+        .dark .text-orange-900,
+        .dark .text-orange-800 {
+            color: #f3f4f6 !important;
+        }
+
+        .dark .border-orange-200,
+        .dark .border-orange-300 {
+            border-color: #374151 !important; /* bg-gray-700과 동일한 색상 */
+        }
+
+        /* 사이드바 다크모드 스타일 */
+        .dark aside.w-64 {
+            background-color: #1f2937 !important; /* bg-gray-800과 동일 */
+        }
+
+        .dark .button {
+            background-color: #374151 !important; /* bg-gray-700과 동일 */
+            color: #f3f4f6 !important; /* 텍스트 색상 */
+        }
+
+        .dark .button:hover {
+            background-color: #4b5563 !important; /* bg-gray-600과 동일 */
+        }        .dark .button.bg-yellow-500 {
+            background-color: #4338ca !important; /* 선택된 버튼은 인디고-700으로 */
+            color: #f3f4f6 !important;
+        }
+
+        /* 다크모드 테이블 헤더 호버 효과 개선 */
+        .dark th.hover\:bg-orange-100:hover {
+            background-color: #374151 !important; /* bg-gray-700 */
+        }
+          /* 다크모드에서 테이블 헤더 텍스트 시인성 개선 */
+        .dark th .sort-icon::after {
+            color: #d1d5db !important; /* text-gray-300 */
+        }
+        
+        /* 다크모드 상태 배지 개선 스타일 */
+        .dark .bg-red-200.text-red-800 {
+            background-color: #7f1d1d !important; /* red-900 */
+            color: #fef2f2 !important; /* red-50 */
+            border: 1px solid #b91c1c !important; /* red-600 border */
+        }
+        
+        .dark .bg-green-200.text-green-800 {
+            background-color: #14532d !important; /* green-900 */
+            color: #f0fdf4 !important; /* green-50 */
+            border: 1px solid #16a34a !important; /* green-600 border */
+        }
+        
+        .dark .bg-gray-200.text-gray-800 {
+            background-color: #1f2937 !important; /* gray-800 */
+            color: #f9fafb !important; /* gray-50 */
+            border: 1px solid #4b5563 !important; /* gray-600 border */
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-orange-50 dark:bg-gray-900">
+    <div class="flex h-screen overflow-hidden">
+        <aside class="w-64 bg-orange-600 text-white dark:bg-orange-500">
+            <a href="#" id="homeRefreshButton" class="block text-center p-2 hover:bg-orange-700 transition-all duration-300">
+                <img src="nepesark_2-removebg-preview.png" alt="HOME" class="h-30 w-auto transition-transform duration-300 hover:scale-105" />
+            </a>
+            <a href="index.html" class="button w-full text-left bg-orange-500 text-black mb-1">📙 Parts 재고관리</a>
+            <a href="Parts_입출고.html" class="button w-full text-left bg-orange-500 hover:bg-yellow-500 text-black">🚚 Parts 입출고 이력</a>
+            <a href="재고목록.html" class="button w-full text-left bg-yellow-500 hover:bg-yellow-500 text-black">📊 재고목록 관리</a>
+            <div class="mt-6 px-4">
+                <h3 class="text-sm font-semibold text-orange-200 uppercase tracking-wider">빠른 작업</h3>
+                <div class="mt-3 space-y-1">
+                    <button id="openModalButton" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium bg-green-600 hover:bg-green-700 text-white transition-colors">
+                        <i class="fas fa-plus mr-2"></i>새 부품 등록
+                    </button>
+                    <button class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-orange-300 hover:bg-orange-700 hover:text-white">
+                        <i class="fas fa-file-import mr-2"></i>입고 처리
+                    </button>
+                    <button class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-orange-300 hover:bg-orange-700 hover:text-white">
+                        <i class="fas fa-file-export mr-2"></i>출고 처리
+                    </button>
+                </div>
+            </div>
+        </aside>
+        <main class="flex-1 overflow-y-auto">            <header class="bg-orange-100 shadow-sm dark:bg-orange-200">
+                <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div class="flex justify-between items-center">
+                        <h1 class="text-2xl font-semibold text-orange-900 dark:text-orange-800">장비솔루션 파트 Board Parts 관리 시스템</h1>
+                        <div class="flex items-center space-x-4">
+                            <!-- 사용자 정보 표시 -->
+                            <div class="flex items-center space-x-2">
+                                <span id="currentUser" class="text-sm text-orange-700 dark:text-orange-800">로딩 중...</span>
+                                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                    <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
+                                </button>
+                            </div>
+                            
+                            <!-- 다크모드 토글 버튼 추가 -->
+                            <button id="darkModeToggle" class="rounded-full p-2 bg-orange-200 hover:bg-orange-300 dark:bg-orange-700 dark:hover:bg-orange-600 transition-colors mr-2">
+                                <i id="moonIcon" class="fas fa-moon text-orange-800"></i>
+                                <i id="sunIcon" class="fas fa-sun text-orange-800" style="display: none;"></i>
+                            </button>
+                                    
+                           
+                        </div>
+                    </div>
+                </div>
+            </header><div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                <!-- 메인 콘텐츠 -->
+                <div class="w-full">
+                    <div class="bg-orange-50 rounded-lg shadow dark:bg-orange-100">
+                        <div class="p-6">                                <div class="flex justify-between items-center mb-6">
+                                    <h3 class="text-lg font-medium dark:text-orange-900"><b>재고 목록</b></h3>
+                                    <div class="flex space-x-4">
+                                        <div class="relative">
+                                            <input type="text" id="partSearchInput" placeholder="품명으로 검색" class="!rounded-button pl-10 pr-4 py-2 border border-orange-300 focus:border-custom focus:ring-1 focus:ring-custom dark:bg-orange-200 dark:border-orange-400 dark:text-orange-900"/>
+                                            <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-orange-400"></i>
+                                        </div>
+                                        <button id="filterButton" class="!rounded-button bg-custom text-white px-4 py-2">
+                                            <i class="fas fa-filter mr-2"></i>필터
+                                        </button>
+                                    </div>
+                                </div>
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead>                                <tr>
+                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="location">
+                                        위치 <span class="sort-icon"></span>
+                                    </th>
+                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="name">
+                                        품명 <span class="sort-icon"></span>
+                                    </th>
+                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="company">
+                                        구매처 <span class="sort-icon"></span>
+                                    </th>
+                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="category">
+                                        카테고리 <span class="sort-icon"></span>
+                                    </th>
+                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="minStock">
+                                        최소 재고 <span class="sort-icon"></span>
+                                    </th>                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="inDate">
+                                        입고일 <span class="sort-icon"></span>
+                                    </th><th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="currentStock">
+                                        현재 재고 <span class="sort-icon"></span>
+                                    </th>
+                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="purchasePrice">
+                                        구매금액 <span class="sort-icon"></span>
+                                    </th>
+                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="equipmentGroup">
+                                        설비군 <span class="sort-icon"></span>
+                                    </th>                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="boardName">
+                                        BOARD명 <span class="sort-icon"></span>
+                                    </th>
+                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="serialNumber">
+                                        S/N <span class="sort-icon"></span>
+                                    </th>
+                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="operator">
+                                        작업자 <span class="sort-icon"></span>
+                                    </th>
+                                    <th style="text-align: center;" class="px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider cursor-pointer hover:bg-orange-100 dark:hover:bg-gray-700 transition-colors" data-column="status">
+                                        상태 <span class="sort-icon"></span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="partsTableBody">
+                                <!-- 데이터가 동적으로 추가됩니다 -->                            </tbody>                                </table>
+                            </div>
+                        </div>                    </div>
+                </div>
+            </div>
+        </main>    </div>
+    
+    <!-- 모달 창 -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-96 max-w-2xl max-h-screen overflow-y-auto">
+            <h2 class="text-lg font-semibold mb-4 dark:text-white">새 부품 등록</h2>
+            <form id="partForm">
+                <div class="mb-4">
+                    <label for="inDate" class="block text-sm font-medium text-gray-700 dark:text-gray-300">입고일</label>
+                    <input type="date" id="inDate" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                </div>
+                <div class="mb-4">
+                    <label for="location" class="block text-sm font-medium text-gray-700 dark:text-gray-300">위치</label>
+                    <input type="text" id="location" list="locationList" autocomplete="off" 
+                           class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
+                           style="cursor: text;" required>
+                    <datalist id="locationList"></datalist>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">품명</label>
+                    <input type="text" id="name" list="nameList" autocomplete="off" 
+                           class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
+                           style="cursor: text;" required>
+                    <datalist id="nameList"></datalist>
+                </div>
+                
+                <div class="mb-4">
+                    <label for="company" class="block text-sm font-medium text-gray-700 dark:text-gray-300">구매처</label>
+                    <input type="text" id="company" list="companyList" autocomplete="off" 
+                           class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
+                           style="cursor: text;" required>
+                    <datalist id="companyList"></datalist>
+                </div>
+                <div class="mb-4">
+                    <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">카테고리</label>
+                    <input type="text" id="category" list="categoryList" autocomplete="off" 
+                        class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
+                        style="cursor: text;" required>
+                    <datalist id="categoryList"></datalist>
+                </div>
+                <div class="mb-4">
+                    <label for="minStock" class="block text-sm font-medium text-gray-700 dark:text-gray-300">최소 재고 개수</label>
+                    <input type="number" id="minStock" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" min="1" step="1" required>
+                </div>
+                <div class="mb-4">
+                    <label for="currentStock" class="block text-sm font-medium text-gray-700 dark:text-gray-300">현재 재고</label>
+                    <input type="number" id="currentStock" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" min="0" value="0" required>
+                </div>
+                <div class="mb-4">
+                    <label for="purchasePrice" class="block text-sm font-medium text-gray-700 dark:text-gray-300">구매금액 (₩)</label>
+                    <input type="number" id="purchasePrice" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" min="0" step="1" placeholder="예: 5000">
+                </div>
+                <div class="mb-4">
+                    <label for="equipmentGroup" class="block text-sm font-medium text-gray-700 dark:text-gray-300">설비군</label>
+                    <input type="text" id="equipmentGroup" list="equipmentGroupList" autocomplete="off" 
+                           class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
+                           style="cursor: text;" placeholder="예: SMT라인">
+                    <datalist id="equipmentGroupList"></datalist>
+                </div>                <div class="mb-4">
+                    <label for="boardName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">BOARD명</label>
+                    <input type="text" id="boardName" list="boardNameList" autocomplete="off"
+                           class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
+                           style="cursor: text;" placeholder="예: MainBoard_V1.2">
+                    <datalist id="boardNameList"></datalist>
+                </div>
+                <div class="mb-4">
+                    <label for="serialNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300">S/N</label>
+                    <input type="text" id="serialNumber" list="serialNumberList" autocomplete="off" 
+                           class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
+                           style="cursor: text;" placeholder="예: SN2025060001">
+                    <datalist id="serialNumberList"></datalist>
+                </div>
+                <div class="mb-4">
+                    <label for="operator" class="block text-sm font-medium text-gray-700 dark:text-gray-300">작업자</label>
+                    <input type="text" id="operator" list="operatorList" autocomplete="off" 
+                           class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 editable-input"
+                           style="cursor: text;" placeholder="예: 홍길동">
+                    <datalist id="operatorList"></datalist>
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancelButton" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-700">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-orange-600 text-white rounded-md hover:bg-orange-700">등록</button>
+                </div>
+            </form>
+        </div>    </div>    <script>        // 모달과 폼 요소들 정의
+        const modal = document.getElementById('modal');
+        const partForm = document.getElementById('partForm');
+        const openModalButton = document.getElementById('openModalButton');
+        const cancelButton = document.getElementById('cancelButton');
+        
+        // 오늘 날짜로 입고일 기본값 설정
+        document.getElementById('inDate').valueAsDate = new Date();
+
+        // 취소 버튼 클릭 시 모달 닫기
+        cancelButton.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+    
+        openModalButton.addEventListener('click', async () => {
+            // 폼 초기화 - 이전 입력값 삭제
+            partForm.reset();
+            document.getElementById('inDate').valueAsDate = new Date();
+            
+            // 모달 열기 전에 DB 데이터 가져오기
+            try {
+                const result = await window.partsAPI.getDbData();
+                
+                if (result.success) {
+                    // 데이터리스트 초기화 전에 콘솔에 출력하여 확인
+                    console.log('가져온 데이터:', result.data);                    // 데이터리스트 초기화
+                    document.getElementById('locationList').innerHTML = '';
+                    document.getElementById('nameList').innerHTML = '';
+                    document.getElementById('companyList').innerHTML = '';
+                    document.getElementById('categoryList').innerHTML = '';
+                    document.getElementById('equipmentGroupList').innerHTML = '';
+                    document.getElementById('boardNameList').innerHTML = '';
+                    document.getElementById('serialNumberList').innerHTML = '';
+                    document.getElementById('operatorList').innerHTML = '';
+                    
+                    // 위치 데이터 추가
+                    if (result.data.locations && result.data.locations.length > 0) {
+                        result.data.locations.forEach(location => {
+                            if (location) { // null이나 undefined 체크
+                                const option = document.createElement('option');
+                                option.value = location;
+                                document.getElementById('locationList').appendChild(option);
+                            }
+                        });
+                    }
+                    
+                    // 품명 데이터 추가
+                    if (result.data.names && result.data.names.length > 0) {
+                        result.data.names.forEach(name => {
+                            if (name) { // null이나 undefined 체크
+                                const option = document.createElement('option');
+                                option.value = name;
+                                document.getElementById('nameList').appendChild(option);
+                            }
+                        });
+                    }
+                    
+                    // 구매처 데이터 추가
+                    if (result.data.companies && result.data.companies.length > 0) {
+                        result.data.companies.forEach(company => {
+                            if (company) { // null이나 undefined 체크
+                                const option = document.createElement('option');
+                                option.value = company;
+                                document.getElementById('companyList').appendChild(option);
+                            }
+                        });
+                    }                    // 카테고리가 있으면 배열에 추가
+                    if (result.data.categories && result.data.categories.length > 0) {
+                        result.data.categories.forEach(category => {
+                            if (category) { // null이나 undefined 체크
+                                const option = document.createElement('option');
+                                option.value = category;
+                                document.getElementById('categoryList').appendChild(option);
+                            }
+                        });
+                    }                    // 새로운 속성들의 datalist 채우기
+                    if (result.data.purchasePrices && result.data.purchasePrices.length > 0) {
+                        result.data.purchasePrices.forEach(price => {
+                            if (price) {
+                                const option = document.createElement('option');
+                                option.value = price;
+                                document.getElementById('purchasePriceList').appendChild(option);
+                            }
+                        });
+                    }
+
+                    if (result.data.equipmentGroups && result.data.equipmentGroups.length > 0) {
+                        result.data.equipmentGroups.forEach(equipmentGroup => {
+                            if (equipmentGroup) {
+                                const option = document.createElement('option');
+                                option.value = equipmentGroup;
+                                document.getElementById('equipmentGroupList').appendChild(option);
+                            }
+                        });
+                    }
+
+                    if (result.data.boardNames && result.data.boardNames.length > 0) {
+                        result.data.boardNames.forEach(boardName => {
+                            if (boardName) {
+                                const option = document.createElement('option');
+                                option.value = boardName;
+                                document.getElementById('boardNameList').appendChild(option);
+                            }
+                        });
+                    }
+
+                    if (result.data.serialNumbers && result.data.serialNumbers.length > 0) {
+                        result.data.serialNumbers.forEach(serialNumber => {
+                            if (serialNumber) {
+                                const option = document.createElement('option');
+                                option.value = serialNumber;
+                                document.getElementById('serialNumberList').appendChild(option);
+                            }
+                        });
+                    }
+
+                    if (result.data.operators && result.data.operators.length > 0) {
+                        result.data.operators.forEach(operator => {
+                            if (operator) {
+                                const option = document.createElement('option');
+                                option.value = operator;
+                                document.getElementById('operatorList').appendChild(option);
+                            }
+                        });
+                    }
+
+                    
+                    console.log('기존 DB 데이터 로드 완료', {
+                        'locationList 길이': document.getElementById('locationList').children.length,
+                        'nameList 길이': document.getElementById('nameList').children.length,
+                        'companyList 길이': document.getElementById('companyList').children.length,
+                        'categoryList 길이': document.getElementById('categoryList').children.length
+                    });
+                } else {
+                    console.error('기존 DB 데이터 로드 실패:', result.error);
+                }
+            } catch (error) {
+                console.error('API 호출 중 오류 발생:', error);
+            }
+            
+            // 모달 표시
+            modal.classList.remove('hidden');
+        });
+    
+        partForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // 품명 가져오기
+            const partName = document.getElementById('name').value;
+            
+            try {
+                // 품명 중복 체크
+                const checkResult = await window.partsAPI.checkDuplicatePart(partName);
+                
+                // 중복 품명 발견 시 인터락 처리 부분 수정
+                if (checkResult.success && checkResult.isDuplicate) {
+                    // 모달 닫기
+                    modal.classList.add('hidden');
+                    
+                    // 중복 알림 커스텀 모달 생성 및 표시
+                    const alertModal = document.createElement('div');
+                    alertModal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+                    alertModal.id = 'duplicateAlertModal';
+                    
+                    alertModal.innerHTML = `
+                        <div class="bg-white rounded-lg shadow-lg p-6 max-w-md">
+                            <h3 class="text-lg font-semibold mb-4">중복 부품 알림</h3>
+                            <p class="mb-4">중복되는 부품이 존재합니다. 아래 옵션 중 하나를 선택해주세요:</p>
+                            <div class="mt-6 flex justify-end space-x-3">
+                                <button id="closeAlertBtn" class="px-4 py-2 bg-gray-300 rounded-md hover:bg-gray-400">
+                                    닫기
+                                </button>
+                                <button id="importBtn" class="px-4 py-2 bg-custom text-white rounded-md hover:bg-orange-700">
+                                    <i class="fas fa-file-import mr-2"></i>입고 처리
+                                </button>
+                                <button id="exportBtn" class="px-4 py-2 bg-custom text-white rounded-md hover:bg-orange-700">
+                                    <i class="fas fa-file-export mr-2"></i>출고 처리
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(alertModal);
+                    
+                    // 버튼에 이벤트 리스너 추가
+                    document.getElementById('closeAlertBtn').addEventListener('click', () => {
+                        document.getElementById('duplicateAlertModal').remove();
+                    });
+                    
+                    document.getElementById('importBtn').addEventListener('click', () => {
+                        document.getElementById('duplicateAlertModal').remove();
+                        // 여기에 입고 처리 모달을 열거나 입고 처리 페이지로 이동하는 코드 추가
+                        const importBtn = document.querySelector('button i.fa-file-import').parentElement;
+                        if (importBtn) importBtn.click();
+                    });
+                    
+                    document.getElementById('exportBtn').addEventListener('click', () => {
+                        document.getElementById('duplicateAlertModal').remove();
+                        // 여기에 출고 처리 모달을 열거나 출고 처리 페이지로 이동하는 코드 추가
+                        const exportBtn = document.querySelector('button i.fa-file-export').parentElement;
+                        if (exportBtn) exportBtn.click();
+                    });
+                    
+                    return; // 등록 중단
+                }
+                  // 폼 데이터 수집
+                const formData = {
+                    location: document.getElementById('location').value,
+                    name: document.getElementById('name').value,
+                    company: document.getElementById('company').value,
+                    category: document.getElementById('category').value,
+                    minStock: document.getElementById('minStock').value,
+                    inDate: document.getElementById('inDate').value,
+                    currentStock: document.getElementById('currentStock').value, // 현재 재고 추가
+                    purchasePrice: document.getElementById('purchasePrice').value, // 구매금액 추가
+                    equipmentGroup: document.getElementById('equipmentGroup').value, // 설비군 추가
+                    boardName: document.getElementById('boardName').value, // BOARD명 추가
+                    serialNumber: document.getElementById('serialNumber').value, // S/N 추가
+                    operator: document.getElementById('operator').value // 작업자 추가
+                };
+                
+                console.log('등록할 데이터:', formData);
+                
+                // partsAPI를 통해 메인 프로세스로 데이터 전송
+                const result = await window.partsAPI.registerPart(formData);
+                
+                if (result.success) {
+                    alert(`부품이 성공적으로 등록되었습니다.`);
+                    
+                    // 테이블에 새 행 추가
+                    const tbody = document.querySelector('table tbody');
+                    const newRow = document.createElement('tr');
+                    newRow.classList.add('border-b');
+                    
+                    // 상태는 항상 정상으로 설정
+                    const status = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-orange-200 text-orange-800">정상</span>';                    newRow.innerHTML = `
+                        <td class="py-3 px-4">${formData.location}</td>
+                        <td class="py-3 px-4">${formData.name}</td>
+                        <td class="py-3 px-4">${formData.company}</td>
+                        <td class="py-3 px-4">${formData.category}</td>
+                        <td class="text-right py-3 px-4">${formData.minStock}</td>
+                        <td class="py-3 px-4">${formData.inDate}</td>
+                        <td class="text-right py-3 px-4">${formData.currentStock}</td>
+                        <td class="py-3 px-4">${formData.purchasePrice || ''}</td>
+                        <td class="py-3 px-4">${formData.equipmentGroup || ''}</td>
+                        <td class="py-3 px-4">${formData.boardName || ''}</td>
+                        <td class="py-3 px-4">${formData.serialNumber || ''}</td>
+                        <td class="py-3 px-4">${formData.operator || ''}</td>
+                        <td class="py-3 px-4 text-center">${status}</td>
+                    `;
+                    
+                    tbody.appendChild(newRow);
+                    
+                    // 모달 닫고 폼 초기화
+                    modal.classList.add('hidden');
+                    partForm.reset();
+                    // 다시 오늘 날짜로 입고일 설정
+                    document.getElementById('inDate').valueAsDate = new Date();
+                } else {
+                    // 오류 메시지 표시
+                    alert(`부품 등록 실패: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('API 호출 중 오류 발생:', error);
+                alert('부품 등록 중 오류가 발생했습니다.');
+            }
+        });
+        // input 필드 포커스 및 클릭 처리 - 이 코드를 추가하세요
+        const editableInputs = document.querySelectorAll('.editable-input');
+        editableInputs.forEach(input => {
+            // 클릭 이벤트 - 해당 요소에 포커스
+            input.addEventListener('click', function(e) {
+                this.focus();
+                // 선택 동작 방지
+                e.preventDefault();
+            });
+            
+            // 강제로 편집 모드 활성화
+            input.addEventListener('focus', function() {
+                // 커서를 텍스트 끝으로 이동
+                const val = this.value;
+                this.value = '';
+                this.value = val;
+                
+                // 필요한 경우 선택 상태 제거
+                setTimeout(() => {
+                    this.selectionStart = this.selectionEnd = this.value.length;
+                }, 10);
+            });
+        });
+
+    </script>
+    <script>
+        // "Parts 재고 관리" 클릭 시 이동
+        document.querySelector("span:contains('Parts 재고 관리')").parentElement.addEventListener('click', function() {
+            window.location.href = 'stock_management.html'; // 재고 관리 페이지로 이동
+        });
+
+        // "Parts 입출고 관리" 클릭 시 이동
+        document.querySelector("span:contains('Parts 입출고 관리')").parentElement.addEventListener('click', function() {
+            window.location.href = 'Parts_입출고.html'; // 입출고 관리 페이지로 이동
+        });
+    </script>    <script>
+       document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            // 인증 상태 확인 및 사용자 정보 로딩
+            await checkUserAuthentication();
+            
+            // 원본 데이터와 현재 정렬된 데이터 저장용 변수
+            let originalData = [];
+            let currentData = [];
+            
+            // 필터 기능 추가
+            const searchInput = document.getElementById('partSearchInput');
+            const filterButton = document.getElementById('filterButton');
+
+            // 필터 버튼 클릭 시 테이블 필터링
+            filterButton.addEventListener('click', () => {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                
+                if (searchTerm === '') {
+                    // 검색어가 없으면 모든 데이터 표시
+                    renderTable(originalData);
+                    return;
+                }
+                
+                // 품목명(name)으로 필터링하되 데이터 로깅 추가
+                console.log('필터링 전 원본 데이터:', originalData);
+                
+                const filteredData = originalData.filter(part => {
+                    // 품목명이 문자열로 변환 후 검색어를 포함하는지 확인
+                    const partName = String(part.name || '');
+                    const result = partName.toLowerCase().includes(searchTerm);
+                    console.log(`품목명 "${partName}"이 검색어 "${searchTerm}"을 포함하는지: ${result}`);
+                    return result;
+                });
+                
+                console.log('필터링 후 데이터:', filteredData);
+                
+                // 필터링된 결과 표시
+                renderTable(filteredData);
+                
+                // 필터링 결과 안내
+                if (filteredData.length === 0) {
+                    alert(`검색어 "${searchTerm}"에 해당하는 품목이 없습니다.`);
+                } else {
+                    console.log(`${filteredData.length}개의 품목이 검색되었습니다.`);
+                }
+            });
+
+            // 엔터 키 입력으로도 필터링 가능하도록 설정
+            searchInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    filterButton.click();
+                }
+            });
+
+            // 초기화 버튼 추가
+            const clearFilterButton = document.createElement('button');
+            clearFilterButton.id = 'clearFilterButton';
+            clearFilterButton.className = '!rounded-button bg-gray-300 text-black px-3 py-2 ml-2';
+            clearFilterButton.innerHTML = '<i class="fas fa-times mr-1"></i>초기화';
+            clearFilterButton.addEventListener('click', () => {
+                searchInput.value = '';
+                renderTable(originalData);
+            });
+
+            // 필터 버튼 다음에 초기화 버튼 추가
+            filterButton.parentNode.appendChild(clearFilterButton);
+            
+            // 테이블 헤더에 정렬 이벤트 리스너 추가
+            const tableHeaders = document.querySelectorAll('th[data-column]');
+            tableHeaders.forEach(header => {
+                header.addEventListener('click', () => {
+                    // 클릭한 헤더의 데이터 컬럼 이름
+                    const column = header.getAttribute('data-column');
+                    
+                    // 현재 정렬 상태
+                    const currentSort = header.getAttribute('data-sort') || 'none';
+                    
+                    // 모든 헤더의 정렬 상태 초기화
+                    tableHeaders.forEach(h => h.removeAttribute('data-sort'));
+                    
+                    let sortedData;
+                    
+                    // 정렬 상태 변경 및 데이터 정렬
+                    if (currentSort === 'none' || currentSort === 'desc') {                        // 오름차순 정렬
+                        header.setAttribute('data-sort', 'asc');
+                        sortedData = [...currentData].sort((a, b) => {
+                            if (column === 'currentStock' || column === 'minStock' || column === 'purchasePrice') {
+                                return parseInt(a[column] || 0) - parseInt(b[column] || 0);
+                            }
+                            return (a[column] || '').toString().localeCompare((b[column] || '').toString());
+                        });
+                    } else if (currentSort === 'asc') {
+                        // 내림차순 정렬
+                        header.setAttribute('data-sort', 'desc');
+                        sortedData = [...currentData].sort((a, b) => {
+                            if (column === 'currentStock' || column === 'minStock' || column === 'purchasePrice') {
+                                return parseInt(b[column] || 0) - parseInt(a[column] || 0);
+                            }
+                            return (b[column] || '').toString().localeCompare((a[column] || '').toString());
+                        });
+                    }
+                    
+                    // 정렬된 데이터로 테이블 다시 그리기
+                    renderTable(sortedData);
+                });
+            });
+            
+            // 테이블 렌더링 함수
+            function renderTable(data) {
+                currentData = data;
+                const tbody = document.getElementById('partsTableBody');
+                tbody.innerHTML = ''; // 기존 데이터 초기화
+                
+                if (!data || data.length === 0) {
+                    // 데이터가 없을 경우 메시지 표시
+                    const emptyRow = document.createElement('tr');                    emptyRow.innerHTML = `
+                        <td colspan="13" class="py-6 text-center text-gray-500 italic">
+                            표시할 데이터가 없습니다. 검색 조건을 변경해 보세요.
+                        </td>
+                    `;
+                    tbody.appendChild(emptyRow);
+                    return;
+                }
+                
+                data.forEach((part) => {
+                    const newRow = document.createElement('tr');
+                    newRow.classList.add('border-b');
+                    
+                    // 현재 재고와 최소 재고를 숫자로 변환
+                    const currentStock = parseInt(part.currentStock || 0);
+                    const minStock = parseInt(part.minStock || 0);
+                    
+                    // 재고 차이 계산
+                    const stockDiff = currentStock - minStock;                    // 상태 결정
+                    let status;
+                    if (stockDiff < 0) {
+                        status = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-100 shadow-sm dark:shadow-red-700">필요</span>';
+                    } else if (stockDiff > 0) {
+                        status = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-100 shadow-sm dark:shadow-green-700">여유</span>';
+                    } else {
+                        status = '<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-200 text-gray-800 dark:bg-gray-800 dark:text-gray-100 shadow-sm dark:shadow-gray-600">적당</span>';
+                    }                    // 테이블 행 생성
+                    newRow.innerHTML = `
+                        <td class="py-3 px-4 text-center">${part.location || ''}</td>
+                        <td class="py-3 px-4 text-center">${part.name || ''}</td>
+                        <td class="py-3 px-4 text-center">${part.company || ''}</td>
+                        <td class="py-3 px-4 text-center">${part.category || ''}</td>
+                        <td class="py-3 px-4 text-center">${part.minStock || '0'}</td>
+                        <td class="py-3 px-4 text-center">${part.inDate || ''}</td>
+                        <td class="py-3 px-4 text-center">${part.currentStock || '0'}</td>
+                        <td class="py-3 px-4 text-center">${part.purchasePrice || ''}</td>
+                        <td class="py-3 px-4 text-center">${part.equipmentGroup || ''}</td>
+                        <td class="py-3 px-4 text-center">${part.boardName || ''}</td>
+                        <td class="py-3 px-4 text-center">${part.serialNumber || ''}</td>
+                        <td class="py-3 px-4 text-center">${part.operator || ''}</td>
+                        <td class="py-3 px-4 text-center">${status}</td>
+                    `;
+                    
+                    tbody.appendChild(newRow);
+                });
+            }
+            
+            // 엑셀 데이터 가져오기
+            const result = await window.partsAPI.getExcelData();
+            
+            if (result.success) {
+                // 원본 데이터 저장
+                originalData = [...result.data];
+                currentData = [...result.data];
+                
+                // 테이블 초기 렌더링
+                renderTable(currentData);
+                
+                console.log('테이블 초기 데이터 로드 완료');
+            } else {
+                console.error('데이터 로드 실패:', result.error);
+            }
+            
+            // 로고 이미지 클릭 시 페이지 새로고침 이벤트 핸들러 추가
+            const homeRefreshButton = document.getElementById('homeRefreshButton');
+            if (homeRefreshButton) {
+                homeRefreshButton.addEventListener('click', (e) => {
+                    e.preventDefault(); // 기본 동작 방지
+                    console.log('페이지 새로고침');
+                    window.location.reload(true); // 캐시를 무시하고 완전히 새로고침
+                });
+            }
+            
+            // 입고 처리 관련 요소
+            const importBtn = document.querySelector('button i.fa-file-import').parentElement;
+            const importModal = document.getElementById('importModal');
+            const closeImportModalBtn = document.getElementById('closeImportModalBtn');
+            const importTableBody = document.getElementById('importTableBody');
+            
+            // 입고량 입력 모달 관련 요소
+            const importAmountModal = document.getElementById('importAmountModal');
+            const selectedPartInfo = document.getElementById('selectedPartInfo').querySelector('span');
+            const currentStockInfo = document.getElementById('currentStockInfo').querySelector('span');
+            const importAmount = document.getElementById('importAmount');
+            const cancelImportBtn = document.getElementById('cancelImportBtn');
+            const confirmImportBtn = document.getElementById('confirmImportBtn');
+            
+            // 선택된 부품 정보 저장 변수
+            let selectedPart = null;
+            
+            // 입고 처리 버튼 클릭 이벤트
+            importBtn.addEventListener('click', async () => {
+                try {
+                    // 데이터 로드
+                    const result = await window.partsAPI.getExcelData();
+                    
+                    if (result.success) {
+                        // 입고 모달 테이블 초기화
+                        importTableBody.innerHTML = '';
+                          // 테이블에 데이터 추가
+                        result.data.forEach((part, index) => {
+                            const row = document.createElement('tr');
+                            row.classList.add('border-b', 'hover:bg-orange-50', 'cursor-pointer');
+                            row.setAttribute('data-index', index);
+                            
+                            row.innerHTML = `
+                                <td class="py-2 px-4 text-center">${part.location || ''}</td>
+                                <td class="py-2 px-4 text-center">${part.name || ''}</td>
+                                <td class="py-2 px-4 text-center">${part.company || ''}</td>
+                                <td class="py-2 px-4 text-center">${part.category || ''}</td>
+                                <td class="py-2 px-4 text-center">${part.minStock || '0'}</td>
+                                <td class="py-2 px-4 text-center">${part.inDate || ''}</td>
+                                <td class="py-2 px-4 text-center">${part.currentStock || '0'}</td>
+                            `;
+                              // 더블 클릭 이벤트 추가
+                            row.addEventListener('dblclick', async () => {
+                                selectedPart = result.data[index];
+                                
+                                // 선택된 부품 정보 표시
+                                selectedPartInfo.textContent = selectedPart.name;
+                                currentStockInfo.textContent = selectedPart.currentStock || '0';
+                                
+                                // 입고량 입력 필드 초기화
+                                importAmount.value = '1';
+                                document.getElementById('importCompany').value = '';
+                                document.getElementById('importPurchasePrice').value = '';
+                                
+                                // 구매처 데이터리스트 로드
+                                try {
+                                    const dbDataResult = await window.partsAPI.getDbData();
+                                    if (dbDataResult.success && dbDataResult.data.companies) {
+                                        const companyList = document.getElementById('importCompanyList');
+                                        companyList.innerHTML = '';
+                                        
+                                        dbDataResult.data.companies.forEach(company => {
+                                            const option = document.createElement('option');
+                                            option.value = company;
+                                            companyList.appendChild(option);
+                                        });
+                                    }
+                                } catch (error) {
+                                    console.warn('구매처 데이터 로드 실패:', error);
+                                }
+                                
+                                // 입고량 입력 모달 표시
+                                importAmountModal.classList.remove('hidden');
+                            });
+                            
+                            importTableBody.appendChild(row);
+                        });
+                        
+                        // 입고 처리 모달 표시
+                        importModal.classList.remove('hidden');
+                    } else {
+                        console.error('데이터 로드 실패:', result.error);
+                        alert('데이터를 로드하는 중 오류가 발생했습니다.');
+                    }
+                } catch (error) {
+                    console.error('입고 처리 모달 열기 중 오류 발생:', error);
+                    alert('입고 처리 모달을 여는 중 오류가 발생했습니다.');
+                }
+            });
+            
+            // 입고 모달 닫기 버튼 이벤트
+            closeImportModalBtn.addEventListener('click', () => {
+                importModal.classList.add('hidden');
+            });
+            
+            // 입고량 입력 모달 취소 버튼 이벤트
+            cancelImportBtn.addEventListener('click', () => {
+                importAmountModal.classList.add('hidden');
+            });
+              // 입고량 입력 모달 확인 버튼 이벤트
+            confirmImportBtn.addEventListener('click', async () => {
+                try {
+                    // 입력된 데이터 가져오기
+                    const amount = parseInt(importAmount.value);
+                    const company = document.getElementById('importCompany').value;
+                    const purchasePrice = document.getElementById('importPurchasePrice').value;
+                    
+                    // 유효성 검사
+                    if (isNaN(amount) || amount <= 0) {
+                        alert('유효한 입고량을 입력해주세요.');
+                        return;
+                    }
+                    
+                    // 현재 재고 업데이트
+                    const currentStock = parseInt(selectedPart.currentStock || 0);
+                    const newStock = currentStock + amount;
+                    
+                    console.log('업데이트 요청 데이터:', {
+                        name: selectedPart.name,
+                        currentStock: newStock,
+                        action: 'import',
+                        amount: amount,
+                        company: company,
+                        purchasePrice: purchasePrice
+                    });
+                    
+                    // API 호출하여 DB 업데이트
+                    const updateResult = await window.partsAPI.updateStock({
+                        name: selectedPart.name,
+                        currentStock: newStock,
+                        action: 'import',
+                        amount: amount,
+                        category: selectedPart.category,
+                        company: company,
+                        purchasePrice: purchasePrice
+                    });
+                    
+                    if (updateResult.success) {                        // 입출고 이력 추가
+                        const historyData = {
+                            name: selectedPart.name,
+                            location: selectedPart.location,
+                            type: '입고',
+                            amount: amount,
+                            date: new Date().toLocaleDateString('ko-KR'),
+                            category: selectedPart.category,
+                            company: company,
+                            purchasePrice: purchasePrice
+                        };
+                        
+                        console.log('입출고 이력 추가 요청 데이터:', historyData);
+                        
+                        const historyResult = await window.partsAPI.addHistoryData(historyData);
+                        if (!historyResult.success) {
+                            console.warn('이력 추가 실패:', historyResult.error);
+                        } else {
+                            console.log('이력 추가 성공:', historyResult);
+                        }
+                        
+                        // 모달 닫기
+                        importAmountModal.classList.add('hidden');
+                        importModal.classList.add('hidden');
+                        
+                        // 입력 필드 초기화
+                        document.getElementById('importAmount').value = '';
+                        document.getElementById('importCompany').value = '';
+                        document.getElementById('importPurchasePrice').value = '';
+                        
+                        alert(`${selectedPart.name} 부품의 재고가 ${amount}개 입고되었습니다.`);
+                        
+                        // 메인 테이블 데이터 다시 로드
+                        const mainTableData = await window.partsAPI.getExcelData();
+                        if (mainTableData.success) {
+                            originalData = [...mainTableData.data];
+                            currentData = [...mainTableData.data];
+                            renderTable(currentData);
+                        }
+                    } else {
+                        alert(`재고 업데이트 실패: ${updateResult.error}`);
+                    }
+                } catch (error) {
+                    console.error('재고 업데이트 중 오류 발생:', error);
+                    alert('재고를 업데이트하는 중 오류가 발생했습니다: ' + error.message);
+                }
+            });
+            
+            // 출고 처리 모달 및 버튼 관련 요소
+            const exportBtn = document.querySelector('button i.fa-file-export').parentElement;
+            const exportModal = document.getElementById('exportModal');
+            const closeExportModalBtn = document.getElementById('closeExportModalBtn');
+            const exportTableBody = document.getElementById('exportTableBody');
+            
+            // 출고량 입력 모달 관련 요소
+            const exportAmountModal = document.getElementById('exportAmountModal');
+            const selectedPartExportInfo = document.getElementById('selectedPartExportInfo').querySelector('span');
+            const currentStockExportInfo = document.getElementById('currentStockExportInfo').querySelector('span');
+            const exportAmount = document.getElementById('exportAmount');
+            const cancelExportBtn = document.getElementById('cancelExportBtn');
+            const confirmExportBtn = document.getElementById('confirmExportBtn');
+            
+            // 선택된 부품 정보 저장 변수 (출고용)
+            let selectedExportPart = null;
+            
+            // 출고 처리 버튼 클릭 이벤트
+            exportBtn.addEventListener('click', async () => {
+                try {
+                    // 데이터 로드
+                    const result = await window.partsAPI.getExcelData();
+                    
+                    if (result.success) {
+                        // 출고 모달 테이블 초기화
+                        exportTableBody.innerHTML = '';
+                          // 테이블에 데이터 추가
+                        result.data.forEach((part, index) => {
+                            const row = document.createElement('tr');
+                            row.classList.add('border-b', 'hover:bg-orange-50', 'cursor-pointer');
+                            row.setAttribute('data-index', index);
+                            
+                            row.innerHTML = `
+                                <td class="py-2 px-4 text-center">${part.location || ''}</td>
+                                <td class="py-2 px-4 text-center">${part.name || ''}</td>
+                                <td class="py-2 px-4 text-center">${part.company || ''}</td>
+                                <td class="py-2 px-4 text-center">${part.category || ''}</td>
+                                <td class="py-2 px-4 text-center">${part.minStock || '0'}</td>
+                                <td class="py-2 px-4 text-center">${part.inDate || ''}</td>
+                                <td class="py-2 px-4 text-center">${part.currentStock || '0'}</td>
+                            `;
+                            
+                            // 더블 클릭 이벤트 추가
+                            row.addEventListener('dblclick', () => {
+                                selectedExportPart = result.data[index];
+                                
+                                // 선택된 부품 정보 표시
+                                selectedPartExportInfo.textContent = selectedExportPart.name;
+                                currentStockExportInfo.textContent = selectedExportPart.currentStock || '0';
+                                
+                                // 출고량 입력 필드 초기화
+                                exportAmount.value = '1';
+                                
+                                // 최대 출고 가능 수량 설정
+                                const maxExport = parseInt(selectedExportPart.currentStock || 0);
+                                exportAmount.max = maxExport;
+                                
+                                // 출고량 입력 모달 표시
+                                exportAmountModal.classList.remove('hidden');
+                            });
+                            
+                            exportTableBody.appendChild(row);
+                        });
+                        
+                        // 출고 처리 모달 표시
+                        exportModal.classList.remove('hidden');
+                    } else {
+                        console.error('데이터 로드 실패:', result.error);
+                        alert('데이터를 로드하는 중 오류가 발생했습니다.');
+                    }
+                } catch (error) {
+                    console.error('출고 처리 모달 열기 중 오류 발생:', error);
+                    alert('출고 처리 모달을 여는 중 오류가 발생했습니다.');
+                }
+            });
+            
+            // 출고 모달 닫기 버튼 이벤트
+            closeExportModalBtn.addEventListener('click', () => {
+                exportModal.classList.add('hidden');
+            });
+            
+            // 출고량 입력 모달 취소 버튼 이벤트
+            cancelExportBtn.addEventListener('click', () => {
+                exportAmountModal.classList.add('hidden');
+            });
+              // 출고량 입력 모달 확인 버튼 이벤트
+            confirmExportBtn.addEventListener('click', async () => {
+                try {
+                    // 입력된 데이터 가져오기
+                    const amount = parseInt(exportAmount.value);
+                    const equipmentGroup = document.getElementById('exportEquipmentGroup').value;
+                    const boardName = document.getElementById('exportBoardName').value;
+                    const serialNumber = document.getElementById('exportSerialNumber').value;
+                    const operator = document.getElementById('exportOperator').value;
+                    
+                    // 유효성 검사
+                    if (isNaN(amount) || amount <= 0) {
+                        alert('유효한 출고량을 입력해주세요.');
+                        return;
+                    }
+                    
+                    // 현재 재고가 출고량보다 적은지 확인
+                    const currentStock = parseInt(selectedExportPart.currentStock || 0);
+                    if (amount > currentStock) {
+                        alert(`현재 재고(${currentStock}개)보다 많은 수량을 출고할 수 없습니다.`);
+                        return;
+                    }
+                    
+                    // 새 재고 계산 (현재 재고 - 출고량)
+                    const newStock = currentStock - amount;
+                    
+                    console.log('업데이트 요청 데이터:', {
+                        name: selectedExportPart.name,
+                        currentStock: newStock,
+                        action: 'export',
+                        amount: amount,
+                        equipmentGroup: equipmentGroup,
+                        boardName: boardName,
+                        serialNumber: serialNumber,
+                        operator: operator
+                    });
+                    
+                    // API 호출하여 DB 업데이트
+                    const updateResult = await window.partsAPI.updateStock({
+                        name: selectedExportPart.name,
+                        currentStock: newStock,
+                        action: 'export',
+                        amount: amount,
+                        category: selectedExportPart.category
+                    });
+                      if (updateResult.success) {
+                        // 입출고 이력 추가 (출고)
+                        const historyData = {
+                            name: selectedExportPart.name,
+                            location: selectedExportPart.location,
+                            type: '출고',
+                            amount: amount,
+                            date: new Date().toLocaleDateString('ko-KR'),
+                            category: selectedExportPart.category,
+                            company: '', // 출고 시에는 구매처 정보 없음
+                            purchasePrice: '', // 출고 시에는 구매금액 정보 없음
+                            equipmentGroup: equipmentGroup,
+                            boardName: boardName,
+                            serialNumber: serialNumber,
+                            operator: operator
+                        };
+                        
+                        console.log('출고 이력 추가 요청 데이터:', historyData);
+                        
+                        const historyResult = await window.partsAPI.addHistoryData(historyData);
+                        if (!historyResult.success) {
+                            console.warn('출고 이력 추가 실패:', historyResult.error);
+                        } else {
+                            console.log('출고 이력 추가 성공:', historyResult);
+                        }
+                        
+                        // 모달 닫기
+                        exportAmountModal.classList.add('hidden');
+                        exportModal.classList.add('hidden');
+                        
+                        // 입력 필드 초기화
+                        document.getElementById('exportAmount').value = '';
+                        document.getElementById('exportEquipmentGroup').value = '';
+                        document.getElementById('exportBoardName').value = '';
+                        document.getElementById('exportSerialNumber').value = '';
+                        document.getElementById('exportOperator').value = '';
+                        
+                        alert(`${selectedExportPart.name} 부품의 재고에서 ${amount}개가 출고되었습니다.`);
+                        
+                        // 메인 테이블 데이터 다시 로드
+                        const mainTableData = await window.partsAPI.getExcelData();
+                        if (mainTableData.success) {
+                            originalData = [...mainTableData.data];
+                            currentData = [...mainTableData.data];
+                            renderTable(currentData);
+                        }
+                    } else {
+                        alert(`재고 업데이트 실패: ${updateResult.error}`);
+                    }
+                } catch (error) {
+                    console.error('재고 업데이트 중 오류 발생:', error);
+                    alert('재고를 업데이트하는 중 오류가 발생했습니다: ' + error.message);
+                }
+            });
+            
+        } catch (error) {
+            console.error('초기 데이터 로드 중 오류 발생:', error);
+        }
+    });
+    </script>
+    <script>
+    // 다크모드 토글 버튼 이벤트 핸들러
+    document.addEventListener('DOMContentLoaded', () => {
+        // 다크모드 토글 버튼 초기화
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const moonIcon = document.getElementById('moonIcon');
+        const sunIcon = document.getElementById('sunIcon');
+        
+        if (darkModeToggle) {
+            // 현재 테마 상태에 따라 아이콘 설정
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            if (isDarkMode) {
+                moonIcon.style.display = 'none';
+                sunIcon.style.display = 'inline-block';
+            } else {
+                moonIcon.style.display = 'inline-block';
+                sunIcon.style.display = 'none';
+            }
+            
+            // 클릭 이벤트 핸들러 설정
+            darkModeToggle.onclick = function() {
+                console.log('다크모드 토글 버튼 클릭됨');
+                
+                // 현재 테마 확인
+                const isDarkMode = document.documentElement.classList.contains('dark');
+                console.log('현재 다크모드 상태:', isDarkMode);
+                
+                if (isDarkMode) {
+                    // 다크모드 -> 라이트모드 전환
+                    document.documentElement.classList.remove('dark');
+                    localStorage.theme = 'light';
+                    console.log('라이트 모드로 전환됨');
+                    
+                    // 아이콘 전환: 달 표시, 해 숨김
+                    moonIcon.style.display = 'inline-block';
+                    sunIcon.style.display = 'none';
+                } else {
+                    // 라이트모드 -> 다크모드 전환
+                    document.documentElement.classList.add('dark');
+                    localStorage.theme = 'dark';
+                    console.log('다크 모드로 전환됨');
+                    
+                    // 아이콘 전환: 달 숨김, 해 표시
+                    moonIcon.style.display = 'none';
+                    sunIcon.style.display = 'inline-block';
+                }
+            };
+        } else {
+            console.error('다크모드 토글 버튼을 찾을 수 없습니다');
+        }    });
+    </script>
+    
+    <script>
+    // 사용자 인증 확인 함수
+    async function checkUserAuthentication() {
+        try {
+            console.log('사용자 인증 상태 확인 중...');
+            const authStatus = await window.partsAPI.checkAuthStatus();
+            
+            if (!authStatus.isAuthenticated) {
+                // 인증되지 않았으면 로그인 페이지로 리다이렉트
+                console.log('인증되지 않은 사용자 - 로그인 페이지로 이동');
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            // 사용자 정보 표시
+            const currentUserElement = document.getElementById('currentUser');
+            if (currentUserElement && authStatus.user) {
+                currentUserElement.textContent = `${authStatus.user.username} (${authStatus.user.role})`;
+                console.log('사용자 정보 표시됨:', authStatus.user);
+            }
+        } catch (error) {
+            console.error('인증 상태 확인 중 오류:', error);
+            // 오류 발생 시에도 로그인 페이지로 이동
+            window.location.href = 'login.html';
+        }
+    }
+    
+    // 로그아웃 함수
+    async function logout() {
+        try {
+            console.log('로그아웃 요청...');
+            const result = await window.partsAPI.userLogout();
+            
+            if (result.success) {
+                console.log('로그아웃 성공');
+                // 로그인 페이지로 리다이렉트
+                window.location.href = 'login.html';
+            } else {
+                console.error('로그아웃 실패:', result.error);
+                alert('로그아웃 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            console.error('로그아웃 중 오류:', error);
+            // 오류가 있어도 로그인 페이지로 이동
+            window.location.href = 'login.html';
+        }
+    }
+    </script>
+    
+<!-- 입고 처리 모달 창 -->
+    <div id="importModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-40">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-3/4 max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">입고 처리</h2>
+                <button id="closeImportModalBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="mb-4">입고 처리할 부품을 더블 클릭하세요.</p>
+            <div class="overflow-x-auto">                <table class="min-w-full divide-y divide-gray-200">
+                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">위치</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">품명</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">구매처</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">카테고리</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">최소 재고</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">입고일</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">현재 재고</th>
+                        </tr>
+                    </thead>
+                    <tbody id="importTableBody">
+                        <!-- 데이터가 동적으로 추가됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>    <!-- 입고량 입력 모달 창 -->
+    <div id="importAmountModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-96 max-w-lg">
+            <h2 class="text-lg font-semibold mb-4 dark:text-white">입고량 입력</h2>
+            <p id="selectedPartInfo" class="mb-4 dark:text-gray-300">선택한 부품: <span class="font-medium"></span></p>
+            <p id="currentStockInfo" class="mb-4 dark:text-gray-300">현재 재고: <span class="font-medium"></span></p>
+            
+            <div class="mb-4">
+                <label for="importAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300">입고량</label>
+                <input type="number" id="importAmount" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" min="1" step="1" required>
+            </div>
+            
+            <div class="mb-4">
+                <label for="importCompany" class="block text-sm font-medium text-gray-700 dark:text-gray-300">구매처</label>
+                <input type="text" id="importCompany" list="importCompanyList" autocomplete="off" 
+                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" 
+                       placeholder="예: 삼성전자">
+                <datalist id="importCompanyList"></datalist>
+            </div>
+            
+            <div class="mb-4">
+                <label for="importPurchasePrice" class="block text-sm font-medium text-gray-700 dark:text-gray-300">구매 금액</label>
+                <input type="number" id="importPurchasePrice" 
+                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" 
+                       min="0" step="1" placeholder="예: 50000">
+            </div>
+            
+            <div class="flex justify-end space-x-4">
+                <button type="button" id="cancelImportBtn" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-700">취소</button>
+                <button type="button" id="confirmImportBtn" class="px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600">확인</button>
+            </div>
+        </div>
+    </div>
+
+   <!-- 출고 처리 모달 창 -->
+    <div id="exportModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-40">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-3/4 max-h-screen overflow-y-auto">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-lg font-semibold">출고 처리</h2>
+                <button id="closeExportModalBtn" class="text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <p class="mb-4">출고 처리할 부품을 더블 클릭하세요.</p>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">                    <thead>
+                        <tr>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">위치</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">품명</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">구매처</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">카테고리</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">최소 재고</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">입고일</th>
+                            <th class="px-4 py-2 text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">현재 재고</th>
+                        </tr>
+                    </thead>
+                    <tbody id="exportTableBody">
+                        <!-- 데이터가 동적으로 추가됩니다 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>    <!-- 출고량 입력 모달 창 -->
+    <div id="exportAmountModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-96 max-w-lg">
+            <h2 class="text-lg font-semibold mb-4 dark:text-white">출고량 입력</h2>
+            <p id="selectedPartExportInfo" class="mb-4 dark:text-gray-300">선택한 부품: <span class="font-medium"></span></p>
+            <p id="currentStockExportInfo" class="mb-4 dark:text-gray-300">현재 재고: <span class="font-medium"></span></p>
+            
+            <div class="mb-4">
+                <label for="exportAmount" class="block text-sm font-medium text-gray-700 dark:text-gray-300">출고량</label>
+                <input type="number" id="exportAmount" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" min="1" step="1" required>
+            </div>
+            
+            <div class="mb-4">
+                <label for="exportEquipmentGroup" class="block text-sm font-medium text-gray-700 dark:text-gray-300">설비군</label>
+                <input type="text" id="exportEquipmentGroup" list="exportEquipmentGroupList" autocomplete="off" 
+                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" 
+                       placeholder="예: SMT라인">
+                <datalist id="exportEquipmentGroupList"></datalist>
+            </div>
+            
+            <div class="mb-4">
+                <label for="exportBoardName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Board명</label>
+                <input type="text" id="exportBoardName" list="exportBoardNameList" autocomplete="off" 
+                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" 
+                       placeholder="예: MainBoard_V1.2">
+                <datalist id="exportBoardNameList"></datalist>
+            </div>
+            
+            <div class="mb-4">
+                <label for="exportSerialNumber" class="block text-sm font-medium text-gray-700 dark:text-gray-300">S/N</label>
+                <input type="text" id="exportSerialNumber" list="exportSerialNumberList" autocomplete="off" 
+                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" 
+                       placeholder="예: SN2025060001">
+                <datalist id="exportSerialNumberList"></datalist>
+            </div>
+            
+            <div class="mb-4">
+                <label for="exportOperator" class="block text-sm font-medium text-gray-700 dark:text-gray-300">작업자</label>
+                <input type="text" id="exportOperator" list="exportOperatorList" autocomplete="off" 
+                       class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500" 
+                       placeholder="예: 홍길동">
+                <datalist id="exportOperatorList"></datalist>
+            </div>
+            
+            <div class="flex justify-end space-x-4">
+                <button type="button" id="cancelExportBtn" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-700">취소</button>
+                <button type="button" id="confirmExportBtn" class="px-4 py-2 bg-custom text-white rounded-md hover:bg-orange-700">확인</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
