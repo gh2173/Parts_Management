@@ -121,5 +121,25 @@ contextBridge.exposeInMainWorld('partsAPI', {
         } catch (error) {
             return { success: false, error: error.message };
         }
+    },
+
+    // 재고 수정 API
+    updateStockItem: async (data) => {
+        try {
+            const result = await ipcRenderer.invoke('update-stock-item', data);
+            return result;
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    // 재고 삭제 API
+    deleteStockItem: async (rowNumber, name) => {
+        try {
+            const result = await ipcRenderer.invoke('delete-stock-item', rowNumber, name);
+            return result;
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
     }
 });

@@ -1111,6 +1111,118 @@ ipcMain.handle('delete-history-data', async (event, rowIndex) => {
   }
 });
 
+// 재고 수정 핸들러
+ipcMain.handle('update-stock-item', async (event, data) => {
+  try {
+    // 최신 파일 다운로드
+    await downloadFileFromFTP();
+
+    // 엑셀 파일 로드
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(localTempFile);
+
+    const stockSheet = workbook.getWorksheet(1); // 재고 시트
+    const historySheet = workbook.getWorksheet(2); // 입출고 이력 시트
+
+    if (!stockSheet) {
+      return { success: false, error: '재고 시트를 찾을 수 없습니다.' };
+    }
+
+    // 재고 시트에서 해당 행 업데이트
+    const stockRow = stockSheet.getRow(data.rowNumber);
+    stockRow.getCell(1).value = data.location;
+    stockRow.getCell(2).value = data.name;
+    stockRow.getCell(3).value = data.company;
+    stockRow.getCell(4).value = data.category;
+    stockRow.getCell(5).value = data.minStock;
+    stockRow.getCell(6).value = data.inDate;
+    stockRow.getCell(7).value = data.currentStock;
+    stockRow.getCell(8).value = data.purchasePrice;
+    stockRow.getCell(9).value = data.equipmentGroup;
+    stockRow.getCell(10).value = data.boardName;
+    stockRow.getCell(11).value = data.serialNumber;
+    stockRow.getCell(12).value = data.operator;
+    stockRow.getCell(13).value = data.unitPrice;
+    stockRow.commit();
+
+    // 품명이 변경된 경우, 입출고 이력의 모든 관련 레코드 품명 업데이트
+    if (historySheet && data.oldName !== data.name) {
+      historySheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return; // 헤더 건너뛰기
+
+        const historyName = row.getCell(2).value;
+        if (historyName === data.oldName) {
+          row.getCell(2).value = data.name;
+          row.commit();
+        }
+      });
+    }
+
+    // 엑셀 파일 저장
+    await workbook.xlsx.writeFile(localTempFile);
+
+    // FTP 업로드
+    await uploadFileToFTP();
+
+    return { success: true, message: '재고가 성공적으로 수정되었습니다.' };
+  } catch (error) {
+    console.error('재고 수정 중 오류:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// 재고 삭제 핸들러
+ipcMain.handle('delete-stock-item', async (event, rowNumber, name) => {
+  try {
+    // 최신 파일 다운로드
+    await downloadFileFromFTP();
+
+    // 엑셀 파일 로드
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(localTempFile);
+
+    const stockSheet = workbook.getWorksheet(1); // 재고 시트
+    const historySheet = workbook.getWorksheet(2); // 입출고 이력 시트
+
+    if (!stockSheet) {
+      return { success: false, error: '재고 시트를 찾을 수 없습니다.' };
+    }
+
+    // 재고 시트에서 해당 행 삭제
+    stockSheet.spliceRows(rowNumber, 1);
+
+    // 입출고 이력에서 해당 품명의 모든 레코드 삭제
+    if (historySheet) {
+      const rowsToDelete = [];
+
+      historySheet.eachRow((row, rowNumber) => {
+        if (rowNumber === 1) return; // 헤더 건너뛰기
+
+        const historyName = row.getCell(2).value;
+        if (historyName === name) {
+          rowsToDelete.push(rowNumber);
+        }
+      });
+
+      // 역순으로 삭제 (인덱스 변경 방지)
+      for (let i = rowsToDelete.length - 1; i >= 0; i--) {
+        historySheet.spliceRows(rowsToDelete[i], 1);
+      }
+    }
+
+    // 엑셀 파일 저장
+    await workbook.xlsx.writeFile(localTempFile);
+
+    // FTP 업로드
+    await uploadFileToFTP();
+
+    return { success: true, message: '재고 및 관련 이력이 성공적으로 삭제되었습니다.' };
+  } catch (error) {
+    console.error('재고 삭제 중 오류:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // 로그인 관련 핸들러들
 ipcMain.handle('register-admin', async (event, userData) => {
   return await authService.registerAdmin(userData);

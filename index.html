@@ -273,6 +273,34 @@
             fill: #000000 !important;
         }
 
+        /* ECharts Canvas 내부 SVG 텍스트 요소들 */
+        .dark canvas + svg text,
+        .dark canvas + svg tspan,
+        .dark div[data-zr-dom-id] text,
+        .dark div[data-zr-dom-id] tspan,
+        .dark canvas[data-zr-dom-id] + svg text,
+        .dark canvas[data-zr-dom-id] + svg tspan {
+            fill: #ffffff !important;
+        }
+
+        /* 더 구체적인 ECharts 범례 선택자 */
+        .dark .echarts-legend text,
+        .dark .echarts-legend tspan,
+        .dark g[class*="legend"] text,
+        .dark g[class*="legend"] tspan,
+        .dark text[class*="legend"],
+        .dark tspan[class*="legend"] {
+            fill: #ffffff !important;
+        }
+
+        /* 범례 비활성화 상태 */
+        .dark .echarts-legend-inactive text,
+        .dark .echarts-legend-inactive tspan,
+        .dark g[class*="legend"][class*="inactive"] text,
+        .dark g[class*="legend"][class*="inactive"] tspan {
+            fill: #000000 !important;
+        }
+
     </style>
 </head>
 <body class="min-h-screen bg-orange-50 dark:bg-orange-100">
@@ -1995,9 +2023,9 @@
                         bottom: 10,
                         textStyle: {
                             fontSize: 12,
-                            color: '#ffffff'  // 기본 상태에서 흰색
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'  // 다크모드에 따라 조건부 색상
                         },
-                        inactiveColor: '#000000'  // 클릭하여 제외된 상태에서 검은색
+                        inactiveColor: document.documentElement.classList.contains('dark') ? '#666666' : '#cccccc'  // 다크모드에 따라 조건부 비활성 색상
                     },
                     series: [{
                         type: 'pie',
@@ -2984,11 +3012,22 @@
                         itemWidth: 14,
                         itemHeight: 14,
                         textStyle: {
-                            color: '#ffffff',  // 기본 상태에서 흰색
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333',  // 다크모드에 따라 조건부 색상
                             fontSize: 12,
                             fontWeight: 'bold'
                         },
-                        inactiveColor: '#000000'  // 클릭하여 제외된 상태에서 검은색
+                        inactiveColor: document.documentElement.classList.contains('dark') ? '#666666' : '#cccccc',  // 다크모드에 따라 조건부 비활성 색상
+                        formatter: function(name) {
+                            return document.documentElement.classList.contains('dark') ? `{dark|${name}}` : `{light|${name}}`;
+                        },
+                        rich: {
+                            dark: {
+                                color: '#ffffff'  // 다크모드용 리치 텍스트
+                            },
+                            light: {
+                                color: '#333333'  // 라이트모드용 리치 텍스트
+                            }
+                        }
                     },
                     series: [{
                         name: '카테고리별 출고량',
@@ -3046,6 +3085,14 @@
                         setTimeout(() => forceWhiteTextInDarkMode(), 100);
                         setTimeout(() => forceWhiteTextInDarkMode(), 200);
                         setTimeout(() => forceWhiteTextInDarkMode(), 500);
+                        
+                        // ECharts 범례 텍스트 색상 강제 적용
+                        setTimeout(() => forceEChartsLegendColor(), 10);
+                        setTimeout(() => forceEChartsLegendColor(), 50);
+                        setTimeout(() => forceEChartsLegendColor(), 100);
+                        setTimeout(() => forceEChartsLegendColor(), 200);
+                        setTimeout(() => forceEChartsLegendColor(), 500);
+                        setTimeout(() => forceEChartsLegendColor(), 1000);
                     }
                 }, 50);
                 
@@ -3180,6 +3227,18 @@
                 canvasElements.forEach(canvas => {
                     canvas.style.setProperty('color', '#ffffff', 'important');
                 });
+                
+                // ECharts 범례 텍스트 특별 처리
+                setTimeout(() => {
+                    const legendTexts = chartContainer.querySelectorAll('text[text-anchor], tspan, g[class*="legend"] text, g[class*="legend"] tspan');
+                    legendTexts.forEach(element => {
+                        element.style.setProperty('fill', '#ffffff', 'important');
+                        element.setAttribute('fill', '#ffffff');
+                        if (element.textContent && element.textContent.trim()) {
+                            element.style.setProperty('color', '#ffffff', 'important');
+                        }
+                    });
+                }, 100);
             }
             
             // 5. MutationObserver로 동적으로 추가되는 요소도 감시
@@ -3217,6 +3276,45 @@
             }, 1000);
             
             console.log('🔥 다크모드 무조건 흰색 텍스트 강제 적용 완료!');
+        }
+
+        // ECharts 범례 텍스트 색상 강제 적용 함수
+        function forceEChartsLegendColor() {
+            console.log('🎯 ECharts 범례 텍스트 색상 조건부 적용 시작');
+
+            const isDarkMode = document.documentElement.classList.contains('dark');
+            const textColor = isDarkMode ? '#ffffff' : '#333333';
+            const inactiveColor = isDarkMode ? '#666666' : '#cccccc';
+
+            // 모든 ECharts 컨테이너 찾기
+            const chartContainers = document.querySelectorAll('[id*="Chart"], .echarts-container, div[data-zr-dom-id]');
+            
+            chartContainers.forEach(container => {
+                // SVG 요소 내 모든 텍스트
+                const allTexts = container.querySelectorAll('text, tspan');
+                allTexts.forEach(textElement => {
+                    // 범례 텍스트로 보이는 것들 처리
+                    if (textElement.textContent && textElement.textContent.trim()) {
+                        textElement.style.setProperty('fill', textColor, 'important');
+                        textElement.setAttribute('fill', textColor);
+                        
+                        // 부모 요소가 범례인지 확인
+                        const parent = textElement.closest('g');
+                        if (parent) {
+                            parent.style.setProperty('fill', textColor, 'important');
+                        }
+                    }
+                });
+
+                // Canvas 기반 차트의 경우 - 다시 렌더링 트리거
+                const canvasElements = container.querySelectorAll('canvas[data-zr-dom-id]');
+                canvasElements.forEach(canvas => {
+                    // Canvas 컨테이너에 조건부 색상 속성 추가
+                    canvas.parentElement.style.setProperty('--legend-text-color', textColor, 'important');
+                });
+            });
+
+            console.log(`🎯 ECharts 범례 텍스트 색상 ${isDarkMode ? '다크모드' : '라이트모드'} 적용 완료`);
         }
         
         // 카테고리 모달 초기화

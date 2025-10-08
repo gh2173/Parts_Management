@@ -89,7 +89,19 @@
 
         .dark .bg-gray-200 {
             background-color: rgba(107, 114, 128, 0.3) !important;
-        }        /* 모달 다크모드 스타일 */
+        }
+
+        /* 테이블 행 호버 효과 */
+        #partsTableBody tr {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #partsTableBody tr:hover {
+            background-color: rgba(255, 165, 0, 0.2) !important;
+        }
+
+        /* 모달 다크모드 스타일 */
         .dark .bg-white {
             background-color: #1e1e1e !important;
             color: #f0f0f0 !important;
@@ -770,14 +782,18 @@
                     return;
                 }
                 
-                data.forEach((part) => {
+                data.forEach((part, index) => {
                     const newRow = document.createElement('tr');
                     newRow.classList.add('border-b');
-                    
+
+                    // 더블클릭 이벤트를 위한 데이터 저장 (Excel 행 번호는 헤더 포함하여 +2)
+                    newRow.dataset.rowNumber = index + 2;
+                    newRow.dataset.partData = JSON.stringify(part);
+
                     // 현재 재고와 최소 재고를 숫자로 변환
                     const currentStock = parseInt(part.currentStock || 0);
                     const minStock = parseInt(part.minStock || 0);
-                    
+
                     // 재고 차이 계산
                     const stockDiff = currentStock - minStock;                    // 상태 결정
                     let status;
@@ -803,7 +819,7 @@
                         <td class="py-3 px-4 text-center">${part.operator || ''}</td>
                         <td class="py-3 px-4 text-center">${status}</td>
                     `;
-                    
+
                     tbody.appendChild(newRow);
                 });
             }
@@ -1693,13 +1709,128 @@
         </div>
     </div>
 
+    <!-- 재고 수정 모달 -->
+    <div id="editStockModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-[600px] shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">재고 수정</h3>
+                <button id="closeEditStockModal" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <form id="editStockForm" class="space-y-4">
+                <input type="hidden" id="editStockRowNumber">
+                <input type="hidden" id="editStockOldName">
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">위치</label>
+                        <input type="text" id="editStockLocation" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">품명</label>
+                        <input type="text" id="editStockName" required class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">구매처</label>
+                        <input type="text" id="editStockCompany" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">카테고리</label>
+                        <input type="text" id="editStockCategory" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">최소 재고</label>
+                        <input type="number" id="editStockMinStock" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">입고일</label>
+                        <input type="date" id="editStockInDate" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">현재 재고</label>
+                        <input type="number" id="editStockCurrentStock" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">구매금액</label>
+                        <input type="text" id="editStockPurchasePrice" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">설비군</label>
+                        <input type="text" id="editStockEquipmentGroup" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">BOARD명</label>
+                        <input type="text" id="editStockBoardName" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">S/N</label>
+                        <input type="text" id="editStockSerialNumber" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">작업자</label>
+                        <input type="text" id="editStockOperator" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">단가</label>
+                    <input type="number" id="editStockUnitPrice" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                </div>
+
+                <div class="flex justify-end space-x-4 pt-4">
+                    <button type="button" id="deleteStockBtn" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">삭제</button>
+                    <button type="button" id="cancelEditStockBtn" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-700">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-custom text-white rounded-md hover:bg-orange-700">저장</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 재고 수정/삭제 비밀번호 확인 모달 -->
+    <div id="stockPasswordVerifyModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800">
+            <div class="mb-4">
+                <h3 class="text-lg font-medium text-gray-900 dark:text-white">비밀번호 확인</h3>
+            </div>
+            <form id="stockPasswordVerifyForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">비밀번호</label>
+                    <input type="password" id="stockPasswordInput" required class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500">
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="cancelStockPasswordBtn" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-700">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-custom text-white rounded-md hover:bg-orange-700">확인</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // ESC 키로 모달 닫기
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' || e.keyCode === 27) {
                 // 모든 모달 리스트
                 const modals = [
-                    'modal',                // 새 부품 등록
+                    'stockPasswordVerifyModal',  // 재고 비밀번호 확인
+                    'editStockModal',            // 재고 수정
+                    'modal',                     // 새 부품 등록
                     'importModal',
                     'importAmountModal',
                     'exportModal',
@@ -1710,8 +1841,18 @@
                 for (let i = modals.length - 1; i >= 0; i--) {
                     const modalElement = document.getElementById(modals[i]);
                     if (modalElement && !modalElement.classList.contains('hidden')) {
+                        // 재고 비밀번호 확인 모달
+                        if (modals[i] === 'stockPasswordVerifyModal') {
+                            const cancelBtn = document.getElementById('cancelStockPasswordBtn');
+                            if (cancelBtn) cancelBtn.click();
+                        }
+                        // 재고 수정 모달
+                        else if (modals[i] === 'editStockModal') {
+                            const cancelBtn = document.getElementById('cancelEditStockBtn');
+                            if (cancelBtn) cancelBtn.click();
+                        }
                         // 새 부품 등록 모달
-                        if (modals[i] === 'modal') {
+                        else if (modals[i] === 'modal') {
                             const cancelBtn = document.getElementById('cancelButton');
                             if (cancelBtn) cancelBtn.click();
                         }
@@ -1739,6 +1880,181 @@
                     }
                 }
             }
+        });
+
+        // ========== 재고 수정/삭제 기능 ==========
+
+        // 모달 및 폼 요소
+        const editStockModal = document.getElementById('editStockModal');
+        const editStockForm = document.getElementById('editStockForm');
+        const closeEditStockModal = document.getElementById('closeEditStockModal');
+        const cancelEditStockBtn = document.getElementById('cancelEditStockBtn');
+        const deleteStockBtn = document.getElementById('deleteStockBtn');
+
+        const stockPasswordVerifyModal = document.getElementById('stockPasswordVerifyModal');
+        const stockPasswordVerifyForm = document.getElementById('stockPasswordVerifyForm');
+        const stockPasswordInput = document.getElementById('stockPasswordInput');
+        const cancelStockPasswordBtn = document.getElementById('cancelStockPasswordBtn');
+
+        let currentStockAction = null; // 'update' 또는 'delete'
+        let currentStockData = null;
+
+        // 테이블 행 더블클릭 이벤트 (이벤트 위임 사용)
+        document.getElementById('partsTableBody').addEventListener('dblclick', function(e) {
+            const row = e.target.closest('tr');
+            if (!row || !row.dataset.rowNumber) return;
+
+            const partData = JSON.parse(row.dataset.partData);
+            const rowNumber = row.dataset.rowNumber;
+
+            // 모달에 데이터 채우기
+            document.getElementById('editStockRowNumber').value = rowNumber;
+            document.getElementById('editStockOldName').value = partData.name || '';
+            document.getElementById('editStockLocation').value = partData.location || '';
+            document.getElementById('editStockName').value = partData.name || '';
+            document.getElementById('editStockCompany').value = partData.company || '';
+            document.getElementById('editStockCategory').value = partData.category || '';
+            document.getElementById('editStockMinStock').value = partData.minStock || 0;
+
+            // 날짜 포맷팅 (YYYY-MM-DD)
+            if (partData.inDate) {
+                const dateValue = partData.inDate;
+                if (dateValue instanceof Date) {
+                    document.getElementById('editStockInDate').value = dateValue.toISOString().split('T')[0];
+                } else if (typeof dateValue === 'string') {
+                    // 이미 문자열인 경우 그대로 사용
+                    document.getElementById('editStockInDate').value = dateValue.split('T')[0];
+                }
+            } else {
+                document.getElementById('editStockInDate').value = '';
+            }
+
+            document.getElementById('editStockCurrentStock').value = partData.currentStock || 0;
+            document.getElementById('editStockPurchasePrice').value = partData.purchasePrice || '';
+            document.getElementById('editStockEquipmentGroup').value = partData.equipmentGroup || '';
+            document.getElementById('editStockBoardName').value = partData.boardName || '';
+            document.getElementById('editStockSerialNumber').value = partData.serialNumber || '';
+            document.getElementById('editStockOperator').value = partData.operator || '';
+            document.getElementById('editStockUnitPrice').value = partData.unitPrice || 0;
+
+            // 모달 열기
+            editStockModal.classList.remove('hidden');
+        });
+
+        // 모달 닫기 버튼들
+        closeEditStockModal.addEventListener('click', () => {
+            editStockModal.classList.add('hidden');
+        });
+
+        cancelEditStockBtn.addEventListener('click', () => {
+            editStockModal.classList.add('hidden');
+        });
+
+        // 수정 폼 제출 (저장 버튼)
+        editStockForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // 현재 수정할 데이터 수집
+            currentStockData = {
+                rowNumber: parseInt(document.getElementById('editStockRowNumber').value),
+                oldName: document.getElementById('editStockOldName').value,
+                location: document.getElementById('editStockLocation').value,
+                name: document.getElementById('editStockName').value,
+                company: document.getElementById('editStockCompany').value,
+                category: document.getElementById('editStockCategory').value,
+                minStock: parseInt(document.getElementById('editStockMinStock').value) || 0,
+                inDate: document.getElementById('editStockInDate').value,
+                currentStock: parseInt(document.getElementById('editStockCurrentStock').value) || 0,
+                purchasePrice: document.getElementById('editStockPurchasePrice').value,
+                equipmentGroup: document.getElementById('editStockEquipmentGroup').value,
+                boardName: document.getElementById('editStockBoardName').value,
+                serialNumber: document.getElementById('editStockSerialNumber').value,
+                operator: document.getElementById('editStockOperator').value,
+                unitPrice: parseFloat(document.getElementById('editStockUnitPrice').value) || 0
+            };
+
+            currentStockAction = 'update';
+
+            // 비밀번호 확인 모달 열기
+            editStockModal.classList.add('hidden');
+            stockPasswordVerifyModal.classList.remove('hidden');
+            stockPasswordInput.value = '';
+            stockPasswordInput.focus();
+        });
+
+        // 삭제 버튼
+        deleteStockBtn.addEventListener('click', () => {
+            if (!confirm('정말 이 재고 항목을 삭제하시겠습니까?\n관련된 모든 입출고 이력도 함께 삭제됩니다.')) {
+                return;
+            }
+
+            currentStockData = {
+                rowNumber: parseInt(document.getElementById('editStockRowNumber').value),
+                name: document.getElementById('editStockOldName').value
+            };
+
+            currentStockAction = 'delete';
+
+            // 비밀번호 확인 모달 열기
+            editStockModal.classList.add('hidden');
+            stockPasswordVerifyModal.classList.remove('hidden');
+            stockPasswordInput.value = '';
+            stockPasswordInput.focus();
+        });
+
+        // 비밀번호 확인 모달 취소
+        cancelStockPasswordBtn.addEventListener('click', () => {
+            stockPasswordVerifyModal.classList.add('hidden');
+            currentStockAction = null;
+            currentStockData = null;
+        });
+
+        // 비밀번호 확인 폼 제출
+        stockPasswordVerifyForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const password = stockPasswordInput.value;
+
+            // 비밀번호 검증
+            const verifyResult = await window.partsAPI.verifyPassword(password);
+
+            if (!verifyResult.success) {
+                alert('비밀번호가 일치하지 않습니다.');
+                stockPasswordInput.value = '';
+                stockPasswordInput.focus();
+                return;
+            }
+
+            // 비밀번호 확인 성공 - 액션 실행
+            stockPasswordVerifyModal.classList.add('hidden');
+
+            if (currentStockAction === 'update') {
+                // 수정 API 호출
+                const result = await window.partsAPI.updateStockItem(currentStockData);
+
+                if (result.success) {
+                    alert('재고가 성공적으로 수정되었습니다.');
+                    window.location.reload();
+                } else {
+                    alert('재고 수정에 실패했습니다: ' + result.error);
+                }
+            } else if (currentStockAction === 'delete') {
+                // 삭제 API 호출
+                const result = await window.partsAPI.deleteStockItem(
+                    currentStockData.rowNumber,
+                    currentStockData.name
+                );
+
+                if (result.success) {
+                    alert('재고가 성공적으로 삭제되었습니다.');
+                    window.location.reload();
+                } else {
+                    alert('재고 삭제에 실패했습니다: ' + result.error);
+                }
+            }
+
+            currentStockAction = null;
+            currentStockData = null;
         });
     </script>
 </body>
