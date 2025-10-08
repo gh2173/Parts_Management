@@ -1882,7 +1882,7 @@
                 console.log('차트 데이터 - 사용량:', usageData);
                 
                 // 차트 제목에 필터 정보 포함
-                let chartTitle = `🤖 AI Board별 부품 사용량 분석 (${partNames.length}개 품목)`;
+                let chartTitle = `Board별 부품 사용량 분석 `;
                 if (globalDateFilter.startDate || globalDateFilter.endDate) {
                     const startStr = globalDateFilter.startDate ? globalDateFilter.startDate.toLocaleDateString() : '시작';
                     const endStr = globalDateFilter.endDate ? globalDateFilter.endDate.toLocaleDateString() : '종료';
@@ -2010,7 +2010,6 @@
                     },
                     yAxis: {
                         type: 'value',
-                        name: '🤖 AI 사용량 분석 (개)',
                         nameTextStyle: {
                             color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
                             fontSize: 13,
