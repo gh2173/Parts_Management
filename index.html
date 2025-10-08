@@ -388,8 +388,19 @@
                     </div>
 
                     <div class="bg-orange-50 rounded-lg shadow p-6 dark:bg-orange-100">
-                        <h3 class="text-lg font-medium mb-4 dark:text-orange-900">카테고리별 구매금액</h3>
+                        <div class="flex justify-between items-center mb-4">
+                            <h3 class="text-lg font-medium dark:text-orange-900">카테고리별 구매금액</h3>
+                            <select id="categoryYearSelect" class="px-3 py-1 text-sm border border-gray-300 rounded-md focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                                <option value="all">전체</option>
+                            </select>
+                        </div>
                         <div id="flowChart" class="h-64"></div>
+                        <div class="mt-4 pt-3 border-t border-gray-300 dark:border-gray-600">
+                            <div class="text-center">
+                                <span id="totalCostLabel" class="text-sm font-medium">총 구매 비용: </span>
+                                <span id="totalPurchaseCost" class="text-lg font-bold">₩0</span>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="bg-orange-50 rounded-lg shadow p-6 dark:bg-orange-100">
@@ -1478,10 +1489,10 @@
 
                 // 1. 년도.월별 출고 현황 차트 업데이트 (날짜 필터 무시)
                 await updateStockChart();
-                
-                // 2. 입출고 현황 차트 업데이트 (날짜 필터 적용)
-                await updateFlowChart();
-                
+
+                // 2. 카테고리별 구매금액 차트는 날짜 필터 무시 (년도 필터만 사용)
+                // updateFlowChart는 년도 필터에서만 호출됨
+
                 // 3. Board별 부품 사용량 차트 업데이트 (날짜 필터 적용)
                 await updateBoardUsageChart();
                 
@@ -1915,12 +1926,12 @@
             }
         }
 
-        // 입출고 현황 차트 업데이트 함수 (날짜 필터 적용)
-        async function updateFlowChart() {
+        // 카테고리별 구매금액 차트 업데이트 함수 (년도 필터만 적용, 날짜 필터 무시)
+        async function updateFlowChart(selectedYear = 'all') {
             try {
                 const flowChart = echarts.init(document.getElementById('flowChart'));
-                
-                // 1. 입출고 내역 데이터 가져오기
+
+                // 1. 입출고 내역 데이터 가져오기 (날짜 필터 무시)
                 const result = await window.partsAPI.getHistoryData();
                 if (!result.success) {
                     console.error('입출고 내역 데이터를 가져오는데 실패했습니다:', result.error);
@@ -1941,23 +1952,37 @@
                             data: [{ value: 0, name: '데이터 없음' }]
                         }]
                     });
+                    // 총 구매 비용도 0으로 설정
+                    document.getElementById('totalPurchaseCost').textContent = '₩0';
                     return;
                 }
-                
+
                 console.log('입출고 내역 데이터:', result.data);
-                
-                // 날짜 필터 적용
-                let filteredData = filterDataByDate(result.data || [], 'date');
-                
+
+                // 날짜 필터 적용하지 않음 - 전체 데이터 사용
+                let filteredData = result.data || [];
+
+                // 년도 필터 적용 (선택된 경우에만)
+                if (selectedYear !== 'all') {
+                    filteredData = filteredData.filter(item => {
+                        if (!item.date) return false;
+                        const itemDate = new Date(item.date);
+                        return itemDate.getFullYear() === parseInt(selectedYear);
+                    });
+                }
+
                 // 2. 카테고리별 구매금액 집계
                 const categoryAmounts = {};
-                
+                let totalCost = 0;
+
                 if (filteredData && filteredData.length > 0) {
                     filteredData.forEach(item => {
                         if (item.category && item.purchasePrice && !isNaN(item.purchasePrice)) {
                             const category = item.category;
                             const amount = parseFloat(item.purchasePrice) || 0;
-                            
+
+                            totalCost += amount;
+
                             if (categoryAmounts[category]) {
                                 categoryAmounts[category] += amount;
                             } else {
@@ -1966,26 +1991,41 @@
                         }
                     });
                 }
-                
+
+                // 총 구매 비용 표시
+                const totalCostElement = document.getElementById('totalPurchaseCost');
+                const totalCostLabel = document.getElementById('totalCostLabel');
+                const isDark = document.documentElement.classList.contains('dark');
+
+                totalCostElement.textContent = `₩${totalCost.toLocaleString()}`;
+
+                // 텍스트 색상 설정
+                if (isDark) {
+                    totalCostLabel.style.color = '#ffffff';
+                    totalCostElement.style.color = '#fb923c'; // orange-400
+                } else {
+                    totalCostLabel.style.color = '#000000';
+                    totalCostElement.style.color = '#ea580c'; // orange-600
+                }
+
                 // 3. 차트 데이터 변환
                 const chartData = Object.entries(categoryAmounts).map(([category, amount]) => ({
                     name: category,
                     value: amount
                 }));
-                
+
                 // 4. 데이터가 없는 경우 처리
                 if (chartData.length === 0) {
                     chartData.push({ value: 0, name: '선택 기간 구매 내역 없음' });
+                    document.getElementById('totalPurchaseCost').textContent = '₩0';
                 }
-                
+
                 console.log('카테고리별 구매금액 차트 데이터:', chartData);
-                
-                // 5. 차트 제목에 필터 정보 포함
+
+                // 5. 차트 제목 (년도 필터 정보 포함)
                 let chartTitle = '카테고리별 구매금액';
-                if (globalDateFilter.startDate || globalDateFilter.endDate) {
-                    const startStr = globalDateFilter.startDate ? globalDateFilter.startDate.toLocaleDateString() : '시작';
-                    const endStr = globalDateFilter.endDate ? globalDateFilter.endDate.toLocaleDateString() : '종료';
-                    chartTitle += ` (${startStr} ~ ${endStr})`;
+                if (selectedYear !== 'all') {
+                    chartTitle += ` (${selectedYear})`;
                 }
                 
                 // 원형 차트 옵션 설정
@@ -2078,20 +2118,7 @@
                             scaleSize: 5
                         },
                         label: {
-                            show: true,
-                            formatter: function(params) {
-                                if (params.value === 0) {
-                                    return params.name;
-                                }
-                                return `${params.name}\n₩${params.value.toLocaleString()}`;
-                            },
-                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333',
-                            fontSize: 12,
-                            fontWeight: 'bold',
-                            textShadowBlur: 3,
-                            textShadowColor: 'rgba(0, 0, 0, 0.3)',
-                            textShadowOffsetX: 1,
-                            textShadowOffsetY: 1
+                            show: false  // 레이블 제거
                         }
                     }]
                 });
@@ -2665,7 +2692,10 @@
                     }
                       // 여기에 차트 업데이트 코드 추가
                     updateStockChart();
-                    updateFlowChart(); // 이 줄 추가
+                    // 현재 선택된 년도로 차트 업데이트
+                    const yearSelect = document.getElementById('categoryYearSelect');
+                    const selectedYear = yearSelect ? yearSelect.value : 'all';
+                    updateFlowChart(selectedYear);
                     updateBoardUsageChart();
                 };
             }
@@ -2789,12 +2819,82 @@
             // 채팅 히스토리 테이블 업데이트
             await updateChatHistoryTable();
 
-            // 입출고 현황 차트 업데이트
-            await updateFlowChart();
-            
+            // 카테고리별 구매금액 차트 년도&월 필터 초기화
+            console.log('카테고리 년도&월 필터 초기화 시작...');
+            await initializeCategoryYearFilter();
+            console.log('카테고리 년도&월 필터 초기화 완료');
+
+            // 입출고 현황 차트 업데이트 (전체 년도)
+            await updateFlowChart('all');
+
             // 초기 차트 업데이트 (날짜 필터와 함께)
             await updateAllChartsWithDateFilter();
         });
+
+        // 카테고리별 구매금액 차트 년도 필터 초기화 함수
+        async function initializeCategoryYearFilter() {
+            try {
+                // 입출고 내역 데이터 가져오기
+                const result = await window.partsAPI.getHistoryData();
+                if (!result.success || !result.data) {
+                    console.error('입출고 내역 데이터를 가져오는데 실패했습니다.');
+                    return;
+                }
+
+                console.log('년도 필터 초기화 - 데이터 개수:', result.data.length);
+
+                // 년도 추출
+                const years = new Set();
+                result.data.forEach(item => {
+                    if (item.date) {
+                        try {
+                            let dateObj;
+                            if (item.date instanceof Date) {
+                                dateObj = item.date;
+                            } else if (typeof item.date === 'string') {
+                                dateObj = new Date(item.date);
+                            } else {
+                                return;
+                            }
+
+                            const year = dateObj.getFullYear();
+                            if (!isNaN(year) && year > 2000 && year < 2100) {
+                                years.add(year);
+                            }
+                        } catch (e) {
+                            console.warn('날짜 파싱 실패:', item.date, e);
+                        }
+                    }
+                });
+
+                console.log('추출된 년도들:', Array.from(years));
+
+                // 년도를 배열로 변환하고 내림차순 정렬
+                const sortedYears = Array.from(years).sort((a, b) => b - a);
+
+                // 년도 콤보박스에 옵션 추가
+                const yearSelect = document.getElementById('categoryYearSelect');
+                if (yearSelect) {
+                    sortedYears.forEach(year => {
+                        const option = document.createElement('option');
+                        option.value = year;
+                        option.textContent = year;  // "년" 제거
+                        yearSelect.appendChild(option);
+                    });
+                    console.log('년도 옵션 추가 완료:', sortedYears.length, '개');
+
+                    // 년도 변경 시 차트 업데이트
+                    yearSelect.addEventListener('change', async (e) => {
+                        const selectedYear = e.target.value;
+                        console.log('년도 필터 변경:', selectedYear);
+                        await updateFlowChart(selectedYear);
+                    });
+                }
+
+            } catch (error) {
+                console.error('년도 필터 초기화 중 오류:', error);
+            }
+        }
 
         // 카테고리별 출고 분포 모달 관련 함수들
         function showCategoryModal(selectedMonth, allData) {
