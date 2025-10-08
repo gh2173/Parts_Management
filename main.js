@@ -574,6 +574,7 @@ ipcMain.handle('get-history-data', async () => {
         // 새로운 형식 (위치, 구매처, 구매금액, 설비군, Board명, S/N, 작업자 포함): 번호, 품명, 위치, 구분, 수량, 날짜, 카테고리, 구매처, 구매금액, 설비군, Board명, S/N, 작업자, 비고
         rowData = {
           id: row.getCell(1).value || rowNumber - 1,  // 번호
+          excelRowNumber: rowNumber,                  // Excel 행 번호 추가
           name: row.getCell(2).value || '',           // 품명
           location: row.getCell(3).value || '',       // 위치
           type: row.getCell(4).value || '',           // 구분 (입고/출고)
@@ -591,6 +592,7 @@ ipcMain.handle('get-history-data', async () => {
         // 기존 형식 (위치 없음): 번호, 품명, 구분, 수량, 날짜, 카테고리, 비고
         rowData = {
           id: row.getCell(1).value || rowNumber - 1,  // 번호
+          excelRowNumber: rowNumber,                  // Excel 행 번호 추가
           name: row.getCell(2).value || '',           // 품명
           location: '-',                              // 위치 정보 없음을 명시적으로 표시
           type: row.getCell(3).value || '',           // 구분 (입고/출고)
@@ -903,6 +905,106 @@ ipcMain.handle('add-history-data', async (event, data) => {
   }
 });
 
+// 입출고 이력 수정 API
+ipcMain.handle('update-history-data', async (event, data) => {
+  try {
+    console.log('입출고 이력 수정 요청:', data);
+
+    // 최신 파일 다운로드
+    await downloadFileFromFTP();
+
+    // 엑셀 파일 로드
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(localTempFile);
+
+    // 두 번째 시트 (입출고 이력)
+    const historySheet = workbook.getWorksheet(2);
+    if (!historySheet) {
+      return { success: false, error: '입출고 이력 시트를 찾을 수 없습니다.' };
+    }
+
+    // rowIndex는 Excel 행 번호
+    const excelRowNumber = data.rowIndex;
+    const row = historySheet.getRow(excelRowNumber);
+
+    if (!row) {
+      return { success: false, error: '해당 행을 찾을 수 없습니다.' };
+    }
+
+    // 데이터 업데이트 (열 순서: 번호, 품명, 위치, 구분, 수량, 날짜, 카테고리, 구매처, 구매금액, 설비군, Board명, S/N, 작업자, 비고)
+    // 번호는 유지 (getCell(1))
+    row.getCell(2).value = data.name || '';
+    row.getCell(3).value = data.location || '';
+    row.getCell(4).value = data.type || '';
+    row.getCell(5).value = parseInt(data.amount) || 0;
+    row.getCell(6).value = data.date || '';
+    row.getCell(7).value = data.category || '';
+    row.getCell(8).value = data.company || '';
+    row.getCell(9).value = parseFloat(data.purchasePrice) || 0;
+    row.getCell(10).value = data.equipmentGroup || '';
+    row.getCell(11).value = data.boardName || '';
+    row.getCell(12).value = data.serialNumber || '';
+    row.getCell(13).value = data.operator || '';
+
+    row.commit();
+
+    // 파일 저장
+    await workbook.xlsx.writeFile(localTempFile);
+    await uploadFileToFTP();
+
+    console.log('입출고 이력 수정 완료:', excelRowNumber);
+    return { success: true, message: '입출고 이력이 수정되었습니다.' };
+
+  } catch (error) {
+    console.error('입출고 이력 수정 중 오류 발생:', error);
+    return { success: false, error: error.message };
+  }
+});
+
+// 입출고 이력 삭제 API
+ipcMain.handle('delete-history-data', async (event, rowIndex) => {
+  try {
+    console.log('입출고 이력 삭제 요청:', rowIndex);
+
+    // 최신 파일 다운로드
+    await downloadFileFromFTP();
+
+    // 엑셀 파일 로드
+    const workbook = new ExcelJS.Workbook();
+    await workbook.xlsx.readFile(localTempFile);
+
+    // 두 번째 시트 (입출고 이력)
+    const historySheet = workbook.getWorksheet(2);
+    if (!historySheet) {
+      return { success: false, error: '입출고 이력 시트를 찾을 수 없습니다.' };
+    }
+
+    // rowIndex는 Excel 행 번호
+    const excelRowNumber = rowIndex;
+
+    // 행 삭제
+    historySheet.spliceRows(excelRowNumber, 1);
+
+    // 번호 재정렬
+    let rowNum = 1;
+    historySheet.eachRow((row, rowNumber) => {
+      if (rowNumber === 1) return; // 헤더 건너뛰기
+      row.getCell(1).value = rowNum++;
+    });
+
+    // 파일 저장
+    await workbook.xlsx.writeFile(localTempFile);
+    await uploadFileToFTP();
+
+    console.log('입출고 이력 삭제 완료:', excelRowNumber);
+    return { success: true, message: '입출고 이력이 삭제되었습니다.' };
+
+  } catch (error) {
+    console.error('입출고 이력 삭제 중 오류 발생:', error);
+    return { success: false, error: error.message };
+  }
+});
+
 // 로그인 관련 핸들러들
 ipcMain.handle('register-admin', async (event, userData) => {
   return await authService.registerAdmin(userData);
@@ -910,6 +1012,11 @@ ipcMain.handle('register-admin', async (event, userData) => {
 
 ipcMain.handle('user-login', async (event, loginData) => {
   return await authService.login(loginData);
+});
+
+// 비밀번호 검증 핸들러
+ipcMain.handle('verify-password', async (event, password) => {
+  return await authService.verifyPassword(password);
 });
 
 ipcMain.handle('user-logout', async (event) => {

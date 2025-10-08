@@ -91,5 +91,35 @@ contextBridge.exposeInMainWorld('partsAPI', {
         } catch (error) {
             return { success: false, error: error.message };
         }
+    },
+
+    // 비밀번호 검증 API
+    verifyPassword: async (password) => {
+        try {
+            const result = await ipcRenderer.invoke('verify-password', password);
+            return result;
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    // 입출고 이력 수정 API
+    updateHistoryData: async (data) => {
+        try {
+            const result = await ipcRenderer.invoke('update-history-data', data);
+            return result;
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
+    },
+
+    // 입출고 이력 삭제 API
+    deleteHistoryData: async (rowIndex) => {
+        try {
+            const result = await ipcRenderer.invoke('delete-history-data', rowIndex);
+            return result;
+        } catch (error) {
+            return { success: false, error: error.message };
+        }
     }
 });

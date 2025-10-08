@@ -122,13 +122,55 @@ class AuthService {
     }
   }
 
+  // 비밀번호 검증
+  async verifyPassword(password) {
+    try {
+      // 로그인 상태 확인
+      if (!this.isAuthenticated || !this.currentUser) {
+        return { success: false, error: '로그인 상태가 아닙니다.' };
+      }
+
+      console.log('비밀번호 검증 시도:', this.currentUser.username);
+
+      // 최신 파일 다운로드
+      await this.ftpService.downloadFile();
+
+      // 엑셀 파일 로드
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.readFile(this.ftpService.localTempFile);
+
+      // 세 번째 시트 (관리자 계정) 가져오기
+      const adminSheet = workbook.getWorksheet(3);
+      if (!adminSheet) {
+        return { success: false, error: '관리자 계정 정보를 찾을 수 없습니다.' };
+      }
+
+      // 현재 사용자 정보로 비밀번호 확인
+      const userInfo = this.validateAdminUser(adminSheet, {
+        username: this.currentUser.username,
+        password: password
+      });
+
+      if (!userInfo) {
+        return { success: false, error: '비밀번호가 올바르지 않습니다.' };
+      }
+
+      console.log('비밀번호 검증 성공');
+      return { success: true };
+
+    } catch (error) {
+      console.error('비밀번호 검증 중 오류:', error);
+      return { success: false, error: error.message };
+    }
+  }
+
   // 로그아웃
   async logout() {
     try {
       this.isAuthenticated = false;
       this.currentUser = null;
       this.sessionStore.clear();
-      
+
       console.log('로그아웃 완료');
       return { success: true };
     } catch (error) {

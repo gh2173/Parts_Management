@@ -92,6 +92,20 @@
             color: #f0f0f0 !important;
         }
 
+        /* 테이블 행 호버 효과 */
+        #historyTableBody tr {
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+
+        #historyTableBody tr:hover {
+            background-color: rgba(255, 165, 0, 0.2) !important;
+        }
+
+        .dark #historyTableBody tr:hover {
+            background-color: rgba(255, 165, 0, 0.3) !important;
+        }
+
         .dark .bg-green-50 {
             background-color: rgba(22, 101, 52, 0.3) !important;
         }
@@ -616,6 +630,11 @@
     <script>
         // 전역 변수로 원본 데이터 저장
         let originalHistoryData = [];
+
+        // 이력 수정/삭제 관련 전역 변수
+        let currentEditAction = null; // 'edit' or 'delete'
+        let currentEditRowIndex = null;
+        let currentEditData = null;
         
         // 데이터 렌더링 함수 (글로벌 스코프)
         function renderHistoryData(data) {
@@ -663,7 +682,52 @@
                 historyTableBody.appendChild(row);
             });
         }
-        
+
+        // 테이블 행에 더블클릭 이벤트 추가 (글로벌 함수)
+        function addRowDoubleClickEvent() {
+            const historyTableBody = document.getElementById('historyTableBody');
+            if (!historyTableBody) return;
+
+            historyTableBody.addEventListener('dblclick', function(e) {
+                const row = e.target.closest('tr');
+                if (!row || !row.cells || row.cells.length < 11) return;
+
+                // 행 인덱스 가져오기 (NO 컬럼 대신 날짜를 기준으로 데이터 찾기)
+                const dateCell = row.cells[0].textContent.trim();
+                const nameCell = row.cells[1].textContent.trim();
+
+                // 날짜와 품명으로 데이터 찾기
+                const rowData = originalHistoryData.find(item =>
+                    item.date === dateCell && item.name === nameCell
+                );
+
+                if (!rowData) {
+                    console.error('데이터를 찾을 수 없습니다:', dateCell, nameCell);
+                    return;
+                }
+
+                // 수정 모달에 데이터 채우기
+                currentEditRowIndex = rowData.excelRowNumber; // Excel 행 번호 사용
+                currentEditData = rowData;
+
+                document.getElementById('editDate').value = rowData.date || '';
+                document.getElementById('editLocation').value = rowData.location || '';
+                document.getElementById('editName').value = rowData.name || '';
+                document.getElementById('editCategory').value = rowData.category || '';
+                document.getElementById('editType').value = rowData.type || '';
+                document.getElementById('editAmount').value = rowData.amount || '';
+                document.getElementById('editCompany').value = rowData.company || '';
+                document.getElementById('editPurchasePrice').value = rowData.purchasePrice || '';
+                document.getElementById('editEquipmentGroup').value = rowData.equipmentGroup || '';
+                document.getElementById('editBoardName').value = rowData.boardName || '';
+                document.getElementById('editSerialNumber').value = rowData.serialNumber || '';
+                document.getElementById('editOperator').value = rowData.operator || '';
+
+                // 수정 모달 표시
+                document.getElementById('editHistoryModal').classList.remove('hidden');
+            });
+        }
+
         // 입고 테이블 렌더링 함수
         function renderImportTable(data) {
             const importTableBody = document.getElementById('importTableBody');
@@ -1393,7 +1457,10 @@
                     
                     // 새 부품 등록 모달 초기화
                     initializeNewPartModal();
-                    
+
+                    // 더블클릭 이벤트 추가
+                    addRowDoubleClickEvent();
+
                     console.log('입출고 이력 데이터 로드 완료');
                 } else {
                     console.error('입출고 이력 데이터 로드 실패:', historyResult.error);
@@ -1921,6 +1988,229 @@
             }
 
             // ...existing code...
+    </script>
+
+    <!-- 이력 수정 모달 -->
+    <div id="editHistoryModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-2/3 max-h-screen overflow-y-auto">
+            <h2 class="text-lg font-semibold mb-4 dark:text-white">입출고 이력 수정</h2>
+            <form id="editHistoryForm">
+                <input type="hidden" id="editRowIndex">
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">날짜</label>
+                        <input type="date" id="editDate" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">위치</label>
+                        <input type="text" id="editLocation" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">품명</label>
+                        <input type="text" id="editName" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">카테고리</label>
+                        <input type="text" id="editCategory" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">타입</label>
+                        <select id="editType" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" required>
+                            <option value="입고">입고</option>
+                            <option value="출고">출고</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">수량</label>
+                        <input type="number" id="editAmount" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" required>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">구매처</label>
+                        <input type="text" id="editCompany" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">구매 금액</label>
+                        <input type="number" id="editPurchasePrice" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">설비군</label>
+                        <input type="text" id="editEquipmentGroup" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Board명</label>
+                        <input type="text" id="editBoardName" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">S/N</label>
+                        <input type="text" id="editSerialNumber" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">작업자</label>
+                        <input type="text" id="editOperator" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md">
+                    </div>
+                </div>
+
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="deleteHistoryBtn" class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
+                        <i class="fas fa-trash mr-1"></i>삭제
+                    </button>
+                    <button type="button" id="editHistoryCancelBtn" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-700">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600">
+                        <i class="fas fa-save mr-1"></i>저장
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- 비밀번호 확인 모달 -->
+    <div id="passwordVerifyModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-6 w-96">
+            <h2 class="text-lg font-semibold mb-4 dark:text-white">비밀번호 확인</h2>
+            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">수정/삭제를 위해 현재 로그인한 계정의 비밀번호를 입력하세요.</p>
+            <form id="passwordVerifyForm">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">비밀번호</label>
+                    <input type="password" id="verifyPassword" class="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md" required autocomplete="current-password">
+                </div>
+                <div class="flex justify-end space-x-4">
+                    <button type="button" id="passwordVerifyCancelBtn" class="px-4 py-2 bg-gray-300 dark:bg-gray-600 dark:text-white rounded-md hover:bg-gray-400 dark:hover:bg-gray-700">취소</button>
+                    <button type="submit" class="px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600">확인</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // DOM이 로드된 후 이벤트 리스너 등록
+        document.addEventListener('DOMContentLoaded', function() {
+            // 수정 모달 취소 버튼
+            document.getElementById('editHistoryCancelBtn').addEventListener('click', function() {
+            document.getElementById('editHistoryModal').classList.add('hidden');
+            currentEditRowIndex = null;
+            currentEditData = null;
+        });
+
+        // 수정 폼 제출
+        document.getElementById('editHistoryForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            currentEditAction = 'edit';
+
+            // 비밀번호 확인 모달 표시
+            document.getElementById('passwordVerifyModal').classList.remove('hidden');
+            document.getElementById('verifyPassword').value = '';
+        });
+
+        // 삭제 버튼
+        document.getElementById('deleteHistoryBtn').addEventListener('click', function() {
+            if (!confirm('정말 이 이력을 삭제하시겠습니까?')) return;
+
+            currentEditAction = 'delete';
+
+            // 비밀번호 확인 모달 표시
+            document.getElementById('passwordVerifyModal').classList.remove('hidden');
+            document.getElementById('verifyPassword').value = '';
+        });
+
+        // 비밀번호 확인 모달 취소
+        document.getElementById('passwordVerifyCancelBtn').addEventListener('click', function() {
+            document.getElementById('passwordVerifyModal').classList.add('hidden');
+            document.getElementById('verifyPassword').value = '';
+            currentEditAction = null;
+        });
+
+        // 비밀번호 확인 폼 제출
+        document.getElementById('passwordVerifyForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+
+            const password = document.getElementById('verifyPassword').value;
+
+            try {
+                // 비밀번호 검증
+                const verifyResult = await window.partsAPI.verifyPassword(password);
+
+                if (!verifyResult.success) {
+                    alert(verifyResult.error || '비밀번호가 올바르지 않습니다.');
+                    return;
+                }
+
+                // 비밀번호 확인 성공 - 액션 수행
+                if (currentEditAction === 'edit') {
+                    // 수정 처리
+                    const updatedData = {
+                        rowIndex: currentEditRowIndex,
+                        date: document.getElementById('editDate').value,
+                        location: document.getElementById('editLocation').value,
+                        name: document.getElementById('editName').value,
+                        category: document.getElementById('editCategory').value,
+                        type: document.getElementById('editType').value,
+                        amount: parseInt(document.getElementById('editAmount').value),
+                        company: document.getElementById('editCompany').value,
+                        purchasePrice: parseFloat(document.getElementById('editPurchasePrice').value) || 0,
+                        equipmentGroup: document.getElementById('editEquipmentGroup').value,
+                        boardName: document.getElementById('editBoardName').value,
+                        serialNumber: document.getElementById('editSerialNumber').value,
+                        operator: document.getElementById('editOperator').value
+                    };
+
+                    const updateResult = await window.partsAPI.updateHistoryData(updatedData);
+
+                    if (updateResult.success) {
+                        alert('이력이 성공적으로 수정되었습니다.');
+
+                        // 모달 닫기
+                        document.getElementById('passwordVerifyModal').classList.add('hidden');
+                        document.getElementById('editHistoryModal').classList.add('hidden');
+
+                        // 데이터 새로고침
+                        const historyResult = await window.partsAPI.getHistoryData();
+                        if (historyResult && historyResult.length > 0) {
+                            originalHistoryData = historyResult;
+                            renderHistoryData(historyResult);
+                        }
+                    } else {
+                        alert('수정 실패: ' + (updateResult.error || '알 수 없는 오류'));
+                    }
+
+                } else if (currentEditAction === 'delete') {
+                    // 삭제 처리
+                    const deleteResult = await window.partsAPI.deleteHistoryData(currentEditRowIndex);
+
+                    if (deleteResult.success) {
+                        alert('이력이 성공적으로 삭제되었습니다.');
+
+                        // 모달 닫기
+                        document.getElementById('passwordVerifyModal').classList.add('hidden');
+                        document.getElementById('editHistoryModal').classList.add('hidden');
+
+                        // 데이터 새로고침
+                        const historyResult = await window.partsAPI.getHistoryData();
+                        if (historyResult && historyResult.length > 0) {
+                            originalHistoryData = historyResult;
+                            renderHistoryData(historyResult);
+                        } else {
+                            originalHistoryData = [];
+                            renderHistoryData([]);
+                        }
+                    } else {
+                        alert('삭제 실패: ' + (deleteResult.error || '알 수 없는 오류'));
+                    }
+                }
+
+                // 초기화
+                currentEditAction = null;
+                currentEditRowIndex = null;
+                currentEditData = null;
+                document.getElementById('verifyPassword').value = '';
+
+            } catch (error) {
+                console.error('비밀번호 검증 중 오류:', error);
+                alert('오류가 발생했습니다: ' + error.message);
+            }
+        });
+        }); // DOMContentLoaded 닫기
     </script>
 </body>
 </html>
