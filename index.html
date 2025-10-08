@@ -355,7 +355,7 @@
             <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div class="grid grid-cols-3 gap-6 mb-8">
                     <div class="bg-orange-50 rounded-lg shadow p-6 dark:bg-orange-100">
-                        <h3 class="text-lg font-medium mb-4 dark:text-orange-900">년도.월별 출고 현황</h3>
+                        <h3 class="text-lg font-medium mb-4 dark:text-orange-900">연도&월별 출고 현황</h3>
                         <div id="stockChart" class="h-64"></div>
                     </div>
 
@@ -1613,7 +1613,7 @@
                 console.log('월별 출고 현황 - 최종 데이터:', { categories, values, percentages });
                 
                 // 6. 차트 제목 (날짜 필터 정보 제외)
-                const chartTitle = '년도.월별 출고 현황 (전체 기간)';
+                const chartTitle = '연도&월별 출고 현황 (전체 기간)';
                 
                 // 7. 가로 막대 차트 설정
                 stockChart.setOption({
