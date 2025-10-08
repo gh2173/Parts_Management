@@ -121,6 +121,158 @@
             font-weight: 500 !important;
         }
 
+        /* 차트 클릭 가능 표시 */
+        #stockChart {
+            cursor: pointer;
+        }
+        
+        /* 카테고리 모달 스타일 개선 */
+        #categoryModal {
+            backdrop-filter: blur(4px);
+        }
+        
+        #categoryModal .bg-white, 
+        #categoryModal .dark\\:bg-gray-900 {
+            transition: all 0.3s ease;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        /* 다크모드에서 카테고리 모달의 모든 텍스트를 무조건 흰색으로 강제 적용 */
+        .dark #categoryModal,
+        .dark #categoryModal *,
+        .dark #categoryModal *::before,
+        .dark #categoryModal *::after,
+        .dark #categoryModal > *,
+        .dark #categoryModal > * > *,
+        .dark #categoryModal > * > * > *,
+        .dark #categoryModal > * > * > * > *,
+        .dark #categoryModal > * > * > * > * > * {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+        }
+        
+        /* 절대적으로 모든 요소 강제 흰색 */
+        .dark #categoryModal h1,
+        .dark #categoryModal h2, 
+        .dark #categoryModal h3,
+        .dark #categoryModal h4,
+        .dark #categoryModal h5,
+        .dark #categoryModal h6,
+        .dark #categoryModal p,
+        .dark #categoryModal span,
+        .dark #categoryModal div,
+        .dark #categoryModal button,
+        .dark #categoryModal i,
+        .dark #categoryModal strong,
+        .dark #categoryModal b,
+        .dark #categoryModal em,
+        .dark #categoryModal label,
+        .dark #categoryModal a,
+        .dark #categoryModal li,
+        .dark #categoryModal ul,
+        .dark #categoryModal ol,
+        .dark #categoryModal td,
+        .dark #categoryModal th,
+        .dark #categoryModal tr,
+        .dark #categoryModal table,
+        .dark #categoryModal input,
+        .dark #categoryModal textarea,
+        .dark #categoryModal select,
+        .dark #categoryModal option {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;
+        }
+        
+        /* 모든 가능한 색상 클래스 무시 */
+        .dark #categoryModal [class*="text-"],
+        .dark #categoryModal [class*="color-"],
+        .dark #categoryModal .text-white,
+        .dark #categoryModal .text-black,
+        .dark #categoryModal .text-red-50,
+        .dark #categoryModal .text-red-100,
+        .dark #categoryModal .text-red-200,
+        .dark #categoryModal .text-red-300,
+        .dark #categoryModal .text-red-400,
+        .dark #categoryModal .text-red-500,
+        .dark #categoryModal .text-red-600,
+        .dark #categoryModal .text-red-700,
+        .dark #categoryModal .text-red-800,
+        .dark #categoryModal .text-red-900,
+        .dark #categoryModal .text-gray-50,
+        .dark #categoryModal .text-gray-100,
+        .dark #categoryModal .text-gray-200,
+        .dark #categoryModal .text-gray-300,
+        .dark #categoryModal .text-gray-400,
+        .dark #categoryModal .text-gray-500,
+        .dark #categoryModal .text-gray-600,
+        .dark #categoryModal .text-gray-700,
+        .dark #categoryModal .text-gray-800,
+        .dark #categoryModal .text-gray-900,
+        .dark #categoryModal .dark\\:text-white,
+        .dark #categoryModal .dark\\:text-gray-100,
+        .dark #categoryModal .dark\\:text-gray-200,
+        .dark #categoryModal .dark\\:text-gray-300,
+        .dark #categoryModal .dark\\:text-gray-400,
+        .dark #categoryModal .dark\\:text-gray-500,
+        .dark #categoryModal .dark\\:text-gray-600,
+        .dark #categoryModal .dark\\:text-gray-700,
+        .dark #categoryModal .dark\\:text-gray-800,
+        .dark #categoryModal .dark\\:text-gray-900 {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8) !important;
+        }
+        
+        /* ECharts 차트 내부 모든 텍스트 강제 흰색 */
+        .dark #categoryChart,
+        .dark #categoryChart *,
+        .dark #categoryChart text,
+        .dark #categoryChart tspan,
+        .dark #categoryChart g,
+        .dark #categoryChart svg,
+        .dark #categoryChart path,
+        .dark #categoryChart rect,
+        .dark #categoryChart circle {
+            fill: #ffffff !important;
+            color: #ffffff !important;
+            stroke: #ffffff !important;
+        }
+        
+        /* 버튼과 아이콘 절대 흰색 */
+        .dark #categoryModal button,
+        .dark #categoryModal button *,
+        .dark #categoryModal i,
+        .dark #categoryModal .fas,
+        .dark #categoryModal .far,
+        .dark #categoryModal .fab,
+        .dark #categoryModal .fa {
+            color: #ffffff !important;
+            fill: #ffffff !important;
+        }
+        
+        /* 최종 안전장치 - 모든 것을 흰색으로 */
+        .dark #categoryModal {
+            --tw-text-opacity: 1 !important;
+        }
+        
+        .dark #categoryModal * {
+            --tw-text-opacity: 1 !important;
+        }
+
+        /* ECharts 범례 텍스트 스타일 강제 적용 */
+        .dark div[class*="echarts"] text,
+        .dark div[class*="echarts"] tspan {
+            fill: #ffffff !important;
+        }
+        
+        /* ECharts 범례 비활성화 상태 텍스트 */
+        .dark div[class*="echarts"] .echarts-legend-inactive text,
+        .dark div[class*="echarts"] .echarts-legend-inactive tspan {
+            fill: #000000 !important;
+        }
+
     </style>
 </head>
 <body class="min-h-screen bg-orange-50 dark:bg-orange-100">
@@ -203,7 +355,7 @@
             <div class="max-w-8xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                 <div class="grid grid-cols-3 gap-6 mb-8">
                     <div class="bg-orange-50 rounded-lg shadow p-6 dark:bg-orange-100">
-                        <h3 class="text-lg font-medium mb-4 dark:text-orange-900">카테고리별 출고 현황</h3>
+                        <h3 class="text-lg font-medium mb-4 dark:text-orange-900">년도.월별 출고 현황</h3>
                         <div id="stockChart" class="h-64"></div>
                     </div>
 
@@ -288,6 +440,27 @@
                     <button type="submit" class="px-4 py-2 bg-custom text-white rounded-md hover:bg-orange-700">등록</button>
                 </div>
             </form>
+        </div>
+    </div>
+    
+    <!-- 카테고리별 출고 분포 모달 -->
+    <div id="categoryModal" class="fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center hidden z-40">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-[600px] max-w-[90vw] max-h-[90vh] overflow-y-auto dark:bg-gray-900 border-2 border-gray-200 dark:border-gray-600" style="color: #ffffff !important;">
+            <div class="flex justify-between items-center mb-4">
+                <h2 id="categoryModalTitle" class="text-xl font-bold text-white" style="color: #ffffff !important; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;">카테고리별 출고 현황</h2>
+                <button id="closeCategoryModal" class="text-white hover:text-white transition-colors p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700" style="color: #ffffff !important;">
+                    <i class="fas fa-times text-xl" style="color: #ffffff !important;"></i>
+                </button>
+            </div>
+            <div class="mb-4 bg-gray-50 dark:bg-gray-800 p-4 rounded-lg">
+                <div id="categoryChart" class="h-80" style="color: #ffffff !important;"></div>
+            </div>
+            <div id="categoryDetails" class="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                <h4 class="text-sm font-bold text-white mb-3" style="color: #ffffff !important; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;">📊 상세 정보</h4>
+                <div id="categoryList" class="space-y-2 text-sm" style="color: #ffffff !important;">
+                    <!-- 카테고리별 상세 정보가 여기에 동적으로 추가됩니다 -->
+                </div>
+            </div>
         </div>
     </div>
     
@@ -1275,13 +1448,13 @@
                 loadingMessage.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i>차트 업데이트 중...';
                 document.body.appendChild(loadingMessage);
 
-                // 1. 재고 현황 차트 업데이트
+                // 1. 년도.월별 출고 현황 차트 업데이트 (날짜 필터 무시)
                 await updateStockChart();
                 
-                // 2. 입출고 현황 차트 업데이트  
+                // 2. 입출고 현황 차트 업데이트 (날짜 필터 적용)
                 await updateFlowChart();
                 
-                // 3. Board별 부품 사용량 차트 업데이트
+                // 3. Board별 부품 사용량 차트 업데이트 (날짜 필터 적용)
                 await updateBoardUsageChart();
                 
                 // 4. 실시간 알림 업데이트
@@ -1330,12 +1503,12 @@
             }
         }
 
-        // 재고 현황 차트 업데이트 함수 (날짜 필터 적용)
+        // 년도.월별 출고 현황 차트 업데이트 함수 (날짜 필터 무시)
         async function updateStockChart() {
             try {
                 const stockChart = echarts.init(document.getElementById('stockChart'));
                 
-                // 1. 입출고 내역 데이터 가져오기
+                // 1. 입출고 내역 데이터 가져오기 (날짜 필터 적용하지 않음)
                 const result = await window.partsAPI.getHistoryData();
                 if (!result.success) {
                     console.error('입출고 내역 데이터를 가져오는데 실패했습니다:', result.error);
@@ -1349,132 +1522,113 @@
                     return;
                 }
                 
-                console.log('입출고 내역 데이터:', result.data);
+                console.log('월별 출고 현황 - 전체 데이터:', result.data);
                 
-                // 날짜 필터 적용
-                let filteredData = filterDataByDate(result.data || [], 'date');
+                // 날짜 필터 적용하지 않고 전체 데이터 사용
+                let allData = result.data || [];
                 
-                console.log('날짜 필터 적용 후 데이터:', filteredData);
-                
-                // 2. 출고 데이터만 필터링 (타입 필드 대소문자 구분 없이 확인)
-                const outflowData = filteredData.filter(item => {
-                    // 출고 데이터만 필터링 (대소문자 구분 없이)
+                // 2. 출고 데이터만 필터링
+                const outflowData = allData.filter(item => {
                     const type = (item.type || '').toLowerCase();
                     return type === '출고' || type === 'out' || type === 'outflow';
                 });
                 
-                console.log('필터링된 출고 데이터:', outflowData);
+                console.log('월별 출고 현황 - 출고 데이터:', outflowData);
                 
-                // 데이터가 없는 경우 테스트 데이터 생성
-                if (outflowData.length === 0) {
-                    console.log('실제 출고 데이터가 없어 테스트 데이터를 사용합니다.');
-                    // 테스트 데이터 추가
-                    outflowData.push(
-                        { name: 'PCB', quantity: 45, type: '출고' },
-                        { name: 'IC', quantity: 25, type: '출고' },
-                        { name: '저항', quantity: 15, type: '출고' },
-                        { name: '기타', quantity: 15, type: '출고' }
-                    );
-                }
-
-                // 3. 품명별로 출고 수량 합계 계산
-                const categorySummary = {};
+                // 3. 년도.월별로 출고 수량 집계
+                const monthlyOutflow = {};
 
                 outflowData.forEach(item => {
-                    const categoryName = item.category || '기타'; // 카테고리로 변경
+                    if (!item.date) return; // 날짜 정보가 없으면 스킵
                     
-                    // 다양한 필드명으로 수량 시도
-                    let quantity = 0;
-                    const possibleFields = ['quantity', 'count', 'amount', 'stock', 'value'];
+                    try {
+                        const itemDate = new Date(item.date);
+                        if (isNaN(itemDate.getTime())) return; // 유효하지 않은 날짜면 스킵
+                        
+                        // YYYY.MM 형식으로 변환
+                        const yearMonth = `${itemDate.getFullYear()}.${String(itemDate.getMonth() + 1).padStart(2, '0')}`;
+                        
+                        // 다양한 필드명으로 수량 시도
+                        let quantity = 0;
+                        const possibleFields = ['quantity', 'count', 'amount', 'stock', 'value'];
 
-                    // 여러 필드명 시도
-                    for (const field of possibleFields) {
-                        if (item[field] !== undefined && item[field] !== null) {
-                            const rawValue = item[field];
-                            
-                            // 숫자 변환 시도
-                            if (!isNaN(Number(rawValue))) {
-                                quantity = Number(rawValue);
-                                console.log(`${field} 필드에서 수량 ${quantity} 찾음`);
-                                break;
-                            } 
-                            // 문자열에서 숫자 추출 시도
-                            else if (typeof rawValue === 'string') {
-                                const matches = rawValue.match(/\d+/);
-                                if (matches && matches.length > 0) {
-                                    quantity = Number(matches[0]);
-                                    console.log(`${field} 필드의 문자열에서 수량 ${quantity} 추출`);
+                        for (const field of possibleFields) {
+                            if (item[field] !== undefined && item[field] !== null) {
+                                const rawValue = item[field];
+                                
+                                if (!isNaN(Number(rawValue))) {
+                                    quantity = Number(rawValue);
                                     break;
+                                } else if (typeof rawValue === 'string') {
+                                    const matches = rawValue.match(/\d+/);
+                                    if (matches && matches.length > 0) {
+                                        quantity = Number(matches[0]);
+                                        break;
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    // 수량이 0이면 기본값 1로 설정
-                    if (quantity === 0) {
-                        quantity = 1;
-                        console.log(`카테고리: ${categoryName}의 수량을 찾을 수 없어 기본값 1 사용`);
+                        // 수량이 0이면 기본값 1로 설정
+                        if (quantity === 0) {
+                            quantity = 1;
+                        }
+                        
+                        if (!monthlyOutflow[yearMonth]) {
+                            monthlyOutflow[yearMonth] = 0;
+                        }
+                        
+                        monthlyOutflow[yearMonth] += quantity;
+                        
+                    } catch (error) {
+                        console.warn('날짜 처리 중 오류:', error, item);
                     }
-                    
-                    if (!categorySummary[categoryName]) {
-                        categorySummary[categoryName] = 0;
-                    }
-                    
-                    categorySummary[categoryName] += quantity;
                 });
                 
-                // 4. 차트 데이터 형식으로 변환
-                const chartData = Object.keys(categorySummary).map(name => {
-                    return {
-                        name: name,
-                        value: categorySummary[name]
-                    };
-                });
-                
-                // 5. 데이터가 없는 경우 처리
-                if (chartData.length === 0) {
-                    chartData.push({
-                        name: '선택 기간 출고 데이터 없음',
-                        value: 1
-                    });
+                // 4. 데이터가 없는 경우 테스트 데이터 생성
+                if (Object.keys(monthlyOutflow).length === 0) {
+                    console.log('실제 월별 출고 데이터가 없어 테스트 데이터를 사용합니다.');
+                    const currentDate = new Date();
+                    for (let i = 5; i >= 0; i--) {
+                        const testDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
+                        const yearMonth = `${testDate.getFullYear()}.${String(testDate.getMonth() + 1).padStart(2, '0')}`;
+                        monthlyOutflow[yearMonth] = Math.floor(Math.random() * 50) + 10; // 10-60 사이 랜덤값
+                    }
                 }
                 
-                console.log('최종 차트 데이터:', chartData);
+                // 5. 월별 데이터를 시간순으로 정렬 (최근 12개월만 표시)
+                const sortedMonths = Object.keys(monthlyOutflow)
+                    .sort((a, b) => a.localeCompare(b))
+                    .slice(-12); // 최근 12개월만
                 
-                // 6. 차트 제목에 필터 정보 포함
-                let chartTitle = '카테고리별 출고 현황';
-                if (globalDateFilter.startDate || globalDateFilter.endDate) {
-                    const startStr = globalDateFilter.startDate ? globalDateFilter.startDate.toLocaleDateString() : '시작';
-                    const endStr = globalDateFilter.endDate ? globalDateFilter.endDate.toLocaleDateString() : '종료';
-                    chartTitle += ` (${startStr} ~ ${endStr})`;
-                }
+                const categories = sortedMonths;
+                const values = sortedMonths.map(month => monthlyOutflow[month]);
                 
-                // 가로 막대 차트 설정
-                // 퍼센테이지 계산을 위한 총합 구하기
-                const totalValue = chartData.reduce((sum, item) => sum + item.value, 0);
-                
-                // 퍼센테이지가 큰 순서대로 정렬
-                const sortedData = chartData.sort((a, b) => b.value - a.value);
-                
-                // Y축 카테고리 이름과 X축 퍼센테이지 데이터 분리
-                const categories = sortedData.map(item => item.name);
-                const percentages = sortedData.map(item => 
-                    totalValue > 0 ? ((item.value / totalValue) * 100).toFixed(1) : 0
+                // 퍼센테이지 계산을 위한 총합
+                const totalValue = values.reduce((sum, value) => sum + value, 0);
+                const percentages = values.map(value => 
+                    totalValue > 0 ? ((value / totalValue) * 100).toFixed(1) : 0
                 );
-                const values = sortedData.map(item => item.value);
                 
+                console.log('월별 출고 현황 - 최종 데이터:', { categories, values, percentages });
+                
+                // 6. 차트 제목 (날짜 필터 정보 제외)
+                const chartTitle = '년도.월별 출고 현황 (전체 기간)';
+                
+                // 7. 가로 막대 차트 설정
                 stockChart.setOption({
                     animation: true,
                     animationDuration: 1500,
                     animationEasing: 'elasticOut',
                     animationDelay: function (idx) {
-                        return idx * 200;
+                        return idx * 100;
                     },
                     title: {
                         text: chartTitle,
                         left: 'center',
                         textStyle: {
                             fontSize: 14,
+                            fontWeight: 'bold',
                             color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
                         }
                     },
@@ -1488,33 +1642,46 @@
                             const index = data.dataIndex;
                             const value = values[index];
                             const percentage = percentages[index];
-                            return `${data.name}<br/>출고량: ${value}개<br/>비율: ${percentage}%`;
+                            return `📅 ${data.name}<br/>📦 출고량: ${value}개<br/>📊 비율: ${percentage}%`;
                         },
-                        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(30, 30, 30, 0.9)' : 'rgba(255, 255, 255, 0.9)',
-                        borderColor: document.documentElement.classList.contains('dark') ? '#333' : '#ccc',
+                        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(30, 30, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)',
+                        borderColor: document.documentElement.classList.contains('dark') ? '#555' : '#ddd',
+                        borderWidth: 1,
+                        borderRadius: 8,
                         textStyle: {
-                            color: document.documentElement.classList.contains('dark') ? '#fff' : '#333'
-                        }
+                            color: document.documentElement.classList.contains('dark') ? '#fff' : '#333',
+                            fontSize: 12
+                        },
+                        padding: [8, 12]
                     },
                     grid: {
-                        left: '15%',
+                        left: '20%',
                         right: '10%',
-                        top: '15%',
-                        bottom: '10%',
+                        top: '20%',
+                        bottom: '15%',
                         containLabel: true
                     },
                     xAxis: {
                         type: 'value',
-                        max: 100,
+                        max: Math.max(...percentages) * 1.1, // 최대값의 110%로 설정
                         axisLabel: {
-                            formatter: '{value}',
+                            formatter: '{value}%',
                             textStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333',
+                                fontSize: 11
                             }
                         },
                         axisLine: {
                             lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                                color: document.documentElement.classList.contains('dark') ? '#555' : '#ddd',
+                                width: 1
+                            }
+                        },
+                        splitLine: {
+                            lineStyle: {
+                                color: document.documentElement.classList.contains('dark') ? 
+                                    'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                                type: 'dashed'
                             }
                         }
                     },
@@ -1523,63 +1690,199 @@
                         data: categories,
                         axisLabel: {
                             textStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333',
+                                fontSize: 11,
+                                fontWeight: 'bold'
                             }
                         },
                         axisLine: {
                             lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                                color: document.documentElement.classList.contains('dark') ? '#555' : '#ddd',
+                                width: 1
                             }
+                        },
+                        axisTick: {
+                            show: false
                         }
                     },
                     series: [{
-                        name: '출고 비율',
+                        name: '월별 출고량',
                         type: 'bar',
                         data: percentages.map((percentage, index) => ({
                             value: percentage,
                             itemStyle: {
                                 color: function() {
-                                    const colors = [
-                                        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
-                                        '#FECA57', '#A29BFE', '#FD79A8', '#E17055'
+                                    // 월별로 다른 그라데이션 색상
+                                    const monthColors = [
+                                        // 1월 - 차가운 블루
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#4facfe'},
+                                                {offset: 1, color: '#00f2fe'}
+                                            ]
+                                        },
+                                        // 2월 - 발렌타인 핑크
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#f093fb'},
+                                                {offset: 1, color: '#f5576c'}
+                                            ]
+                                        },
+                                        // 3월 - 봄 그린
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#43e97b'},
+                                                {offset: 1, color: '#38f9d7'}
+                                            ]
+                                        },
+                                        // 4월 - 벚꽃 핑크
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#fa709a'},
+                                                {offset: 1, color: '#fee140'}
+                                            ]
+                                        },
+                                        // 5월 - 신록 그린
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#a8edea'},
+                                                {offset: 1, color: '#fed6e3'}
+                                            ]
+                                        },
+                                        // 6월 - 여름 오렌지
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#ff9a9e'},
+                                                {offset: 1, color: '#fecfef'}
+                                            ]
+                                        },
+                                        // 7월 - 뜨거운 레드
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#ff6b6b'},
+                                                {offset: 1, color: '#ffa726'}
+                                            ]
+                                        },
+                                        // 8월 - 태양 옐로우
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#ffecd2'},
+                                                {offset: 1, color: '#fcb69f'}
+                                            ]
+                                        },
+                                        // 9월 - 가을 오렌지
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#ff9a56'},
+                                                {offset: 1, color: '#ff6b95'}
+                                            ]
+                                        },
+                                        // 10월 - 단풍 레드
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#f77062'},
+                                                {offset: 1, color: '#fe5196'}
+                                            ]
+                                        },
+                                        // 11월 - 늦가을 브라운
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#c471f5'},
+                                                {offset: 1, color: '#fa71cd'}
+                                            ]
+                                        },
+                                        // 12월 - 겨울 퍼플
+                                        {
+                                            type: 'linear',
+                                            x: 0, y: 0, x2: 1, y2: 0,
+                                            colorStops: [
+                                                {offset: 0, color: '#667eea'},
+                                                {offset: 1, color: '#764ba2'}
+                                            ]
+                                        }
                                     ];
-                                    return colors[index % colors.length];
-                                }
+                                    return monthColors[index % monthColors.length];
+                                }(),
+                                borderRadius: [0, 8, 8, 0],
+                                shadowBlur: 15,
+                                shadowColor: 'rgba(0, 0, 0, 0.2)',
+                                shadowOffsetX: 3,
+                                shadowOffsetY: 3
                             }
                         })),
                         label: {
                             show: true,
                             position: 'right',
                             formatter: function(params) {
-                                return '🏃‍♂️ ' + params.value + '%';
+                                const index = params.dataIndex;
+                                const value = values[index];
+                                return `📦 ${value}개 (${params.value}%)`;
                             },
                             color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333',
-                            fontSize: 12,
+                            fontSize: 10,
                             fontWeight: 'bold'
                         },
                         emphasis: {
                             itemStyle: {
-                                shadowBlur: 20,
-                                shadowOffsetX: 3,
-                                shadowOffsetY: 3,
-                                shadowColor: 'rgba(0, 0, 0, 0.4)'
+                                shadowBlur: 25,
+                                shadowOffsetX: 5,
+                                shadowOffsetY: 5,
+                                shadowColor: 'rgba(0, 0, 0, 0.4)',
+                                scale: true,
+                                scaleSize: 5
                             }
                         },
-                        barMaxWidth: 30
+                        barMaxWidth: 25
                     }]
                 });
                 
-                console.log('카테고리별 출고 현황 차트가 업데이트되었습니다.', chartData);
+                // 차트 클릭 이벤트 추가 - 월별 막대를 클릭하면 해당 월의 카테고리별 분포 모달 표시
+                stockChart.off('click'); // 기존 이벤트 제거
+                stockChart.on('click', function(params) {
+                    if (params.componentType === 'series') {
+                        const clickedMonth = categories[params.dataIndex];
+                        console.log('클릭된 월:', clickedMonth);
+                        showCategoryModal(clickedMonth, allData);
+                    }
+                });
+                
+                console.log('년도.월별 출고 현황 차트가 업데이트되었습니다.');
                 
             } catch (error) {
-                console.error('재고 현황 차트 업데이트 중 오류 발생:', error);
+                console.error('월별 출고 현황 차트 업데이트 중 오류 발생:', error);
                 const stockChart = echarts.init(document.getElementById('stockChart'));
                 stockChart.setOption({
-                    series: [{
-                        data: [
-                            { value: 1, name: '오류 발생' }
-                        ]
-                    }]
+                    title: {
+                        text: '차트 업데이트 중 오류가 발생했습니다',
+                        left: 'center',
+                        textStyle: {
+                            fontSize: 14,
+                            color: '#ff4757'
+                        }
+                    },
+                    series: []
                 });
             }
         }
@@ -1692,8 +1995,9 @@
                         bottom: 10,
                         textStyle: {
                             fontSize: 12,
-                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
-                        }
+                            color: '#ffffff'  // 기본 상태에서 흰색
+                        },
+                        inactiveColor: '#000000'  // 클릭하여 제외된 상태에서 검은색
                     },
                     series: [{
                         type: 'pie',
@@ -2432,6 +2736,9 @@
             // 알림 버튼 및 드롭다운 초기화
             setupNotifications();
 
+            // 카테고리 모달 초기화
+            setupCategoryModal();
+
             // 메신저 기능 초기화 (이 부분을 추가)
             setupMessenger();            // 채팅 히스토리 테이블 초기화 및 필터 설정 (이 부분 추가)
             await updateChatHistoryTable();
@@ -2461,9 +2768,505 @@
             await updateAllChartsWithDateFilter();
         });
 
+        // 카테고리별 출고 분포 모달 관련 함수들
+        function showCategoryModal(selectedMonth, allData) {
+            try {
+                console.log('카테고리 모달 표시 시작:', selectedMonth);
+                
+                const modal = document.getElementById('categoryModal');
+                const modalTitle = document.getElementById('categoryModalTitle');
+                const categoryList = document.getElementById('categoryList');
+                
+                if (!modal || !modalTitle || !categoryList) {
+                    console.error('카테고리 모달 요소를 찾을 수 없습니다.');
+                    console.error('modal:', modal, 'modalTitle:', modalTitle, 'categoryList:', categoryList);
+                    return;
+                }
+                
+                console.log('모달 요소들이 정상적으로 찾아졌습니다.');
+                
+                // 모달 제목 설정
+                const [year, month] = selectedMonth.split('.');
+                modalTitle.textContent = `${year}년 ${month}월 카테고리별 출고 현황`;
+                console.log('모달 제목 설정:', modalTitle.textContent);
+                
+                // 해당 월의 출고 데이터 필터링
+                const monthData = allData.filter(item => {
+                    if (!item.date || !item.type) return false;
+                    
+                    try {
+                        const itemDate = new Date(item.date);
+                        if (isNaN(itemDate.getTime())) return false;
+                        
+                        const itemYearMonth = `${itemDate.getFullYear()}.${String(itemDate.getMonth() + 1).padStart(2, '0')}`;
+                        const type = (item.type || '').toLowerCase();
+                        
+                        return itemYearMonth === selectedMonth && 
+                               (type === '출고' || type === 'out' || type === 'outflow');
+                    } catch (error) {
+                        return false;
+                    }
+                });
+                
+                console.log(`${selectedMonth} 출고 데이터:`, monthData);
+                
+                // 카테고리별 집계
+                const categoryData = {};
+                let totalQuantity = 0;
+                
+                monthData.forEach(item => {
+                    const categoryName = item.category || item.name || '기타';
+                    
+                    // 수량 추출
+                    let quantity = 0;
+                    const possibleFields = ['quantity', 'count', 'amount', 'stock', 'value'];
+                    
+                    for (const field of possibleFields) {
+                        if (item[field] !== undefined && item[field] !== null) {
+                            const rawValue = item[field];
+                            if (!isNaN(Number(rawValue))) {
+                                quantity = Number(rawValue);
+                                break;
+                            } else if (typeof rawValue === 'string') {
+                                const matches = rawValue.match(/\d+/);
+                                if (matches && matches.length > 0) {
+                                    quantity = Number(matches[0]);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (quantity === 0) quantity = 1;
+                    
+                    if (!categoryData[categoryName]) {
+                        categoryData[categoryName] = 0;
+                    }
+                    categoryData[categoryName] += quantity;
+                    totalQuantity += quantity;
+                });
+                
+                console.log('카테고리별 집계 결과:', categoryData, '총 수량:', totalQuantity);
+                
+                // 데이터가 없는 경우 테스트 데이터 생성
+                if (Object.keys(categoryData).length === 0) {
+                    console.log('실제 데이터가 없어 테스트 데이터 생성');
+                    categoryData = {
+                        'PCB': 15,
+                        'IC': 10,
+                        '저항': 8,
+                        '콘덴서': 5,
+                        '기타': 3
+                    };
+                    totalQuantity = Object.values(categoryData).reduce((sum, val) => sum + val, 0);
+                }
+                
+                // 차트 데이터 생성
+                const chartData = Object.entries(categoryData).map(([name, value]) => ({
+                    name: name,
+                    value: value
+                })).sort((a, b) => b.value - a.value);
+                
+                console.log('카테고리 차트 데이터:', chartData);
+                
+                // 모달 먼저 표시 (차트 컨테이너가 렌더링되도록)
+                modal.classList.remove('hidden');
+                console.log('모달 표시됨');
+                
+                // 모달 표시 즉시 강제 흰색 적용
+                forceWhiteTextInDarkMode();
+                
+                // 10ms 후 다시 적용
+                setTimeout(() => {
+                    forceWhiteTextInDarkMode();
+                }, 10);
+                
+                // 50ms 후 다시 적용
+                setTimeout(() => {
+                    forceWhiteTextInDarkMode();
+                }, 50);
+                
+                // 모달이 완전히 렌더링된 후 차트 그리기 (약간의 지연)
+                setTimeout(() => {
+                    console.log('차트 그리기 시작');
+                    
+                    // 차트 컨테이너 확인
+                    const chartContainer = document.getElementById('categoryChart');
+                    console.log('차트 컨테이너:', chartContainer);
+                    console.log('차트 컨테이너 크기:', chartContainer ? chartContainer.getBoundingClientRect() : 'null');
+                    
+                    // 차트 그리기
+                    updateCategoryChart(chartData, totalQuantity);
+                    
+                    // 상세 정보 업데이트
+                    updateCategoryDetails(chartData, totalQuantity);
+                    
+                    // 차트 렌더링 후 여러 번 강제 적용
+                    setTimeout(() => forceWhiteTextInDarkMode(), 50);
+                    setTimeout(() => forceWhiteTextInDarkMode(), 100);
+                    setTimeout(() => forceWhiteTextInDarkMode(), 200);
+                    setTimeout(() => forceWhiteTextInDarkMode(), 500);
+                    setTimeout(() => forceWhiteTextInDarkMode(), 1000);
+                }, 100);
+                
+            } catch (error) {
+                console.error('카테고리 모달 표시 중 오류:', error);
+            }
+        }
+        
+        function updateCategoryChart(chartData, totalQuantity) {
+            try {
+                const chartContainer = document.getElementById('categoryChart');
+                if (!chartContainer) {
+                    console.error('카테고리 차트 컨테이너를 찾을 수 없습니다.');
+                    return;
+                }
+                
+                // 기존 차트 인스턴스가 있다면 제거
+                if (window.categoryChartInstance) {
+                    window.categoryChartInstance.dispose();
+                }
+                
+                // 새 차트 인스턴스 생성
+                window.categoryChartInstance = echarts.init(chartContainer);
+                
+                console.log('카테고리 차트 데이터 확인:', chartData, '총량:', totalQuantity);
+                
+                if (chartData.length === 0) {
+                    window.categoryChartInstance.setOption({
+                        title: {
+                            text: '해당 월에 출고 데이터가 없습니다',
+                            left: 'center',
+                            top: 'middle',
+                            textStyle: {
+                                fontSize: 18,
+                                fontWeight: 'bold',
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#374151'
+                            }
+                        }
+                    });
+                    return;
+                }
+                
+                // 파이 차트 설정
+                window.categoryChartInstance.setOption({
+                    animation: true,
+                    animationDuration: 1000,
+                    animationEasing: 'cubicOut',
+                    tooltip: {
+                        trigger: 'item',
+                        formatter: function(params) {
+                            const percentage = ((params.value / totalQuantity) * 100).toFixed(1);
+                            return `
+                                <div style="
+                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                                    border: none;
+                                    border-radius: 8px;
+                                    padding: 10px;
+                                    color: white;
+                                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+                                ">
+                                    <div style="font-weight: bold; margin-bottom: 5px;">
+                                        📦 ${params.name}
+                                    </div>
+                                    <div>출고량: ${params.value}개</div>
+                                    <div>비율: ${percentage}%</div>
+                                </div>
+                            `;
+                        },
+                        backgroundColor: 'transparent',
+                        borderColor: 'transparent'
+                    },
+                    legend: {
+                        orient: 'horizontal',
+                        bottom: '5%',
+                        left: 'center',
+                        itemWidth: 14,
+                        itemHeight: 14,
+                        textStyle: {
+                            color: '#ffffff',  // 기본 상태에서 흰색
+                            fontSize: 12,
+                            fontWeight: 'bold'
+                        },
+                        inactiveColor: '#000000'  // 클릭하여 제외된 상태에서 검은색
+                    },
+                    series: [{
+                        name: '카테고리별 출고량',
+                        type: 'pie',
+                        radius: ['25%', '55%'],
+                        center: ['50%', '50%'],
+                        avoidLabelOverlap: true,
+                        itemStyle: {
+                            borderRadius: 8,
+                            borderColor: '#fff',
+                            borderWidth: 2,
+                            shadowBlur: 20,
+                            shadowColor: 'rgba(0, 0, 0, 0.3)'
+                        },
+                        label: {
+                            show: false
+                        },
+                        emphasis: {
+                            label: {
+                                show: true,
+                                fontSize: 13,
+                                fontWeight: 'bold'
+                            },
+                            itemStyle: {
+                                shadowBlur: 30,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
+                            }
+                        },
+                        data: chartData.map((item, index) => ({
+                            ...item,
+                            itemStyle: {
+                                color: function() {
+                                    const colors = [
+                                        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
+                                        '#FECA57', '#A29BFE', '#FD79A8', '#E17055',
+                                        '#74B9FF', '#55A3FF', '#26D0CE', '#6C5CE7'
+                                    ];
+                                    return colors[index % colors.length];
+                                }()
+                            }
+                        }))
+                    }]
+                });
+                
+                // 차트 크기 재조정 (모달 크기에 맞춤)
+                setTimeout(() => {
+                    if (window.categoryChartInstance) {
+                        window.categoryChartInstance.resize();
+                        console.log('카테고리 차트 크기 재조정 완료');
+                        
+                        // 차트 렌더링 완료 후 강제로 여러 번 흰색 적용
+                        setTimeout(() => forceWhiteTextInDarkMode(), 10);
+                        setTimeout(() => forceWhiteTextInDarkMode(), 50);
+                        setTimeout(() => forceWhiteTextInDarkMode(), 100);
+                        setTimeout(() => forceWhiteTextInDarkMode(), 200);
+                        setTimeout(() => forceWhiteTextInDarkMode(), 500);
+                    }
+                }, 50);
+                
+            } catch (error) {
+                console.error('카테고리 차트 업데이트 중 오류:', error);
+            }
+        }
+        
+        function updateCategoryDetails(chartData, totalQuantity) {
+            try {
+                const categoryList = document.getElementById('categoryList');
+                if (!categoryList) return;
+                
+                categoryList.innerHTML = '';
+                
+                if (chartData.length === 0) {
+                    categoryList.innerHTML = '<div class="text-center py-8 text-gray-600 dark:text-white font-medium text-lg">📭 출고 데이터가 없습니다.</div>';
+                    return;
+                }
+                
+                chartData.forEach((item, index) => {
+                    const percentage = ((item.value / totalQuantity) * 100).toFixed(1);
+                    const colors = [
+                        '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', 
+                        '#FECA57', '#A29BFE', '#FD79A8', '#E17055',
+                        '#74B9FF', '#55A3FF', '#26D0CE', '#6C5CE7'
+                    ];
+                    const color = colors[index % colors.length];
+                    
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'flex items-center justify-between p-3 bg-white dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm';
+                    itemElement.innerHTML = `
+                        <div class="flex items-center">
+                            <div class="w-4 h-4 rounded-full mr-3 border-2 border-white shadow-md" style="background-color: ${color}"></div>
+                            <span class="font-bold text-gray-800 dark:text-white">${item.name}</span>
+                        </div>
+                        <div class="text-right">
+                            <div class="font-bold text-lg text-gray-900 dark:text-white">${item.value}개</div>
+                            <div class="text-sm text-gray-600 dark:text-white font-medium">${percentage}%</div>
+                        </div>
+                    `;
+                    categoryList.appendChild(itemElement);
+                });
+                
+            } catch (error) {
+                console.error('카테고리 상세 정보 업데이트 중 오류:', error);
+            }
+        }
+        
+        // 다크모드에서 모든 텍스트를 무조건 흰색으로 강제 적용하는 함수
+        function forceWhiteTextInDarkMode() {
+            if (!document.documentElement.classList.contains('dark')) {
+                return; // 다크모드가 아니면 실행하지 않음
+            }
+            
+            console.log('🔥 다크모드에서 무조건 흰색 텍스트 강제 적용 시작!');
+            
+            const modal = document.getElementById('categoryModal');
+            if (!modal) return;
+            
+            // 1. 모달 전체에 강제 흰색 적용
+            modal.style.setProperty('color', '#ffffff', 'important');
+            
+            // 2. 모든 요소를 찾아서 무조건 흰색 적용
+            const allElements = modal.querySelectorAll('*');
+            console.log(`총 ${allElements.length}개 요소에 흰색 적용`);
+            
+            allElements.forEach((element, index) => {
+                // 모든 요소에 무조건 흰색 적용
+                element.style.setProperty('color', '#ffffff', 'important');
+                element.style.setProperty('fill', '#ffffff', 'important');
+                element.style.setProperty('text-shadow', '0 1px 3px rgba(0, 0, 0, 0.8)', 'important');
+                
+                // 모든 가능한 color 속성 강제 적용
+                element.style.setProperty('--tw-text-opacity', '1', 'important');
+                element.style.setProperty('stroke', '#ffffff', 'important');
+                
+                // 클래스 속성도 강제로 제거하고 인라인 스타일로 적용
+                if (element.className && typeof element.className === 'string') {
+                    // 색상 관련 클래스들 찾아서 제거
+                    const colorClasses = element.className.split(' ').filter(cls => 
+                        !cls.includes('text-') && 
+                        !cls.includes('color-') && 
+                        !cls.includes('fill-')
+                    );
+                    element.className = colorClasses.join(' ');
+                }
+                
+                // 인라인 스타일로 다시 한번 강제 적용
+                element.setAttribute('style', 
+                    element.getAttribute('style') + 
+                    '; color: #ffffff !important; fill: #ffffff !important; text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8) !important;'
+                );
+            });
+            
+            // 3. 특정 태그들에 대해 추가로 강제 적용
+            const textTags = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'p', 'span', 'div', 'button', 'i', 'strong', 'b', 'em', 'label', 'a', 'li', 'td', 'th'];
+            
+            textTags.forEach(tag => {
+                const elements = modal.querySelectorAll(tag);
+                elements.forEach(element => {
+                    element.style.setProperty('color', '#ffffff', 'important');
+                    element.style.setProperty('fill', '#ffffff', 'important');
+                    element.style.setProperty('text-shadow', '0 1px 3px rgba(0, 0, 0, 0.8)', 'important');
+                    
+                    // 텍스트 노드도 강제 적용
+                    if (element.childNodes) {
+                        element.childNodes.forEach(node => {
+                            if (node.nodeType === Node.TEXT_NODE && node.parentElement) {
+                                node.parentElement.style.setProperty('color', '#ffffff', 'important');
+                            }
+                        });
+                    }
+                });
+            });
+            
+            // 4. ECharts 차트 내부 모든 텍스트 강제 흰색
+            const chartContainer = modal.querySelector('#categoryChart');
+            if (chartContainer) {
+                // SVG 내부 모든 텍스트 요소
+                const svgTexts = chartContainer.querySelectorAll('text, tspan, g, path, rect, circle');
+                svgTexts.forEach(element => {
+                    element.style.setProperty('fill', '#ffffff', 'important');
+                    element.style.setProperty('color', '#ffffff', 'important');
+                    element.style.setProperty('stroke', '#ffffff', 'important');
+                    element.setAttribute('fill', '#ffffff');
+                    element.setAttribute('color', '#ffffff');
+                });
+                
+                // Canvas 기반 차트도 처리
+                const canvasElements = chartContainer.querySelectorAll('canvas');
+                canvasElements.forEach(canvas => {
+                    canvas.style.setProperty('color', '#ffffff', 'important');
+                });
+            }
+            
+            // 5. MutationObserver로 동적으로 추가되는 요소도 감시
+            const observer = new MutationObserver((mutations) => {
+                mutations.forEach((mutation) => {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeType === Node.ELEMENT_NODE) {
+                            node.style.setProperty('color', '#ffffff', 'important');
+                            node.style.setProperty('fill', '#ffffff', 'important');
+                            
+                            // 하위 요소들도 모두 처리
+                            const subElements = node.querySelectorAll('*');
+                            subElements.forEach(subElement => {
+                                subElement.style.setProperty('color', '#ffffff', 'important');
+                                subElement.style.setProperty('fill', '#ffffff', 'important');
+                            });
+                        }
+                    });
+                });
+            });
+            
+            observer.observe(modal, { 
+                childList: true, 
+                subtree: true, 
+                attributes: true,
+                attributeFilter: ['style', 'class']
+            });
+            
+            // 6. 1초 후 한번 더 강제 적용 (차트 렌더링 완료 후)
+            setTimeout(() => {
+                allElements.forEach(element => {
+                    element.style.setProperty('color', '#ffffff', 'important');
+                    element.style.setProperty('fill', '#ffffff', 'important');
+                });
+            }, 1000);
+            
+            console.log('🔥 다크모드 무조건 흰색 텍스트 강제 적용 완료!');
+        }
+        
+        // 카테고리 모달 초기화
+        function setupCategoryModal() {
+            const modal = document.getElementById('categoryModal');
+            const closeButton = document.getElementById('closeCategoryModal');
+            
+            // 모달 닫기 공통 함수
+            function closeCategoryModal() {
+                modal.classList.add('hidden');
+                // 차트 인스턴스 정리
+                if (window.categoryChartInstance) {
+                    window.categoryChartInstance.dispose();
+                    window.categoryChartInstance = null;
+                    console.log('카테고리 차트 인스턴스 정리됨');
+                }
+            }
+            
+            // X 버튼으로 모달 닫기
+            if (closeButton) {
+                closeButton.addEventListener('click', function() {
+                    closeCategoryModal();
+                });
+            }
+            
+            // 모달 외부 클릭으로 닫기
+            if (modal) {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === modal) {
+                        closeCategoryModal();
+                    }
+                });
+            }
+        }
+
         // ESC 키로 모달 닫기
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' || e.keyCode === 27) {
+                // 카테고리 모달 닫기
+                const categoryModal = document.getElementById('categoryModal');
+                if (categoryModal && !categoryModal.classList.contains('hidden')) {
+                    categoryModal.classList.add('hidden');
+                    // 차트 인스턴스 정리
+                    if (window.categoryChartInstance) {
+                        window.categoryChartInstance.dispose();
+                        window.categoryChartInstance = null;
+                        console.log('ESC로 카테고리 차트 인스턴스 정리됨');
+                    }
+                }
+                
                 // 챗봇 모달 닫기
                 const chatModal = document.getElementById('chatModal');
                 if (chatModal && !chatModal.classList.contains('hidden')) {
