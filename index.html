@@ -2461,6 +2461,17 @@
             // 초기 차트 업데이트 (날짜 필터와 함께)
             await updateAllChartsWithDateFilter();
         });
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                // 챗봇 모달 닫기
+                const chatModal = document.getElementById('chatModal');
+                if (chatModal && !chatModal.classList.contains('hidden')) {
+                    chatModal.classList.add('hidden');
+                }
+            }
+        });
     </script>
 </body>
 </html>

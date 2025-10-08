@@ -1692,5 +1692,54 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                // 모든 모달 리스트
+                const modals = [
+                    'modal',                // 새 부품 등록
+                    'importModal',
+                    'importAmountModal',
+                    'exportModal',
+                    'exportAmountModal'
+                ];
+
+                // 열려있는 모달 찾아서 닫기 (뒤에서부터 - z-index가 높은 것부터)
+                for (let i = modals.length - 1; i >= 0; i--) {
+                    const modalElement = document.getElementById(modals[i]);
+                    if (modalElement && !modalElement.classList.contains('hidden')) {
+                        // 새 부품 등록 모달
+                        if (modals[i] === 'modal') {
+                            const cancelBtn = document.getElementById('cancelButton');
+                            if (cancelBtn) cancelBtn.click();
+                        }
+                        // 입고 수량 입력 모달
+                        else if (modals[i] === 'importAmountModal') {
+                            const cancelBtn = document.getElementById('cancelImportBtn');
+                            if (cancelBtn) cancelBtn.click();
+                        }
+                        // 출고 수량 입력 모달
+                        else if (modals[i] === 'exportAmountModal') {
+                            const cancelBtn = document.getElementById('cancelExportBtn');
+                            if (cancelBtn) cancelBtn.click();
+                        }
+                        // 입고 처리 모달
+                        else if (modals[i] === 'importModal') {
+                            modalElement.classList.add('hidden');
+                        }
+                        // 출고 처리 모달
+                        else if (modals[i] === 'exportModal') {
+                            modalElement.classList.add('hidden');
+                        }
+
+                        // 한 번에 하나의 모달만 닫기
+                        break;
+                    }
+                }
+            }
+        });
+    </script>
 </body>
 </html>

@@ -219,17 +219,39 @@
                 </div>                <table class="w-full border-collapse border border-gray-300">
                     <thead class="bg-orange-500 text-white dark:bg-orange-700">
                         <tr>
-                            <th class="px-4 py-2 text-center">날짜</th>
-                            <th class="px-4 py-2 text-center">품목</th>
-                            <th class="px-4 py-2 text-center">카테고리</th>
-                            <th class="px-4 py-2 text-center">타입</th>
-                            <th class="px-4 py-2 text-center">수량</th>
-                            <th class="px-4 py-2 text-center">구매처</th>
-                            <th class="px-4 py-2 text-center">구매 금액</th>
-                            <th class="px-4 py-2 text-center">설비군</th>
-                            <th class="px-4 py-2 text-center">Board명</th>
-                            <th class="px-4 py-2 text-center">S/N</th>
-                            <th class="px-4 py-2 text-center">작업자</th>
+                            <th class="px-4 py-2 text-center cursor-pointer hover:bg-orange-600 dark:hover:bg-orange-800 transition-colors" onclick="sortTable('date')">
+                                날짜 <span id="sort-icon-date" class="ml-1"></span>
+                            </th>
+                            <th class="px-4 py-2 text-center cursor-pointer hover:bg-orange-600 dark:hover:bg-orange-800 transition-colors" onclick="sortTable('name')">
+                                품목 <span id="sort-icon-name" class="ml-1"></span>
+                            </th>
+                            <th class="px-4 py-2 text-center cursor-pointer hover:bg-orange-600 dark:hover:bg-orange-800 transition-colors" onclick="sortTable('category')">
+                                카테고리 <span id="sort-icon-category" class="ml-1"></span>
+                            </th>
+                            <th class="px-4 py-2 text-center cursor-pointer hover:bg-orange-600 dark:hover:bg-orange-800 transition-colors" onclick="sortTable('type')">
+                                타입 <span id="sort-icon-type" class="ml-1"></span>
+                            </th>
+                            <th class="px-4 py-2 text-center cursor-pointer hover:bg-orange-600 dark:hover:bg-orange-800 transition-colors" onclick="sortTable('amount')">
+                                수량 <span id="sort-icon-amount" class="ml-1"></span>
+                            </th>
+                            <th class="px-4 py-2 text-center cursor-pointer hover:bg-orange-600 dark:hover:bg-orange-800 transition-colors" onclick="sortTable('company')">
+                                구매처 <span id="sort-icon-company" class="ml-1"></span>
+                            </th>
+                            <th class="px-4 py-2 text-center cursor-pointer hover:bg-orange-600 dark:hover:bg-orange-800 transition-colors" onclick="sortTable('purchasePrice')">
+                                구매 금액 <span id="sort-icon-purchasePrice" class="ml-1"></span>
+                            </th>
+                            <th class="px-4 py-2 text-center cursor-pointer hover:bg-orange-600 dark:hover:bg-orange-800 transition-colors" onclick="sortTable('equipmentGroup')">
+                                설비군 <span id="sort-icon-equipmentGroup" class="ml-1"></span>
+                            </th>
+                            <th class="px-4 py-2 text-center cursor-pointer hover:bg-orange-600 dark:hover:bg-orange-800 transition-colors" onclick="sortTable('boardName')">
+                                Board명 <span id="sort-icon-boardName" class="ml-1"></span>
+                            </th>
+                            <th class="px-4 py-2 text-center cursor-pointer hover:bg-orange-600 dark:hover:bg-orange-800 transition-colors" onclick="sortTable('serialNumber')">
+                                S/N <span id="sort-icon-serialNumber" class="ml-1"></span>
+                            </th>
+                            <th class="px-4 py-2 text-center cursor-pointer hover:bg-orange-600 dark:hover:bg-orange-800 transition-colors" onclick="sortTable('operator')">
+                                작업자 <span id="sort-icon-operator" class="ml-1"></span>
+                            </th>
                         </tr>
                     </thead>
                     <tbody id="historyTableBody">
@@ -630,16 +652,26 @@
     <script>
         // 전역 변수로 원본 데이터 저장
         let originalHistoryData = [];
+        let currentDisplayData = []; // 현재 표시 중인 데이터 (정렬/필터 적용)
 
         // 이력 수정/삭제 관련 전역 변수
         let currentEditAction = null; // 'edit' or 'delete'
         let currentEditRowIndex = null;
         let currentEditData = null;
+
+        // 정렬 상태 저장
+        let sortState = {
+            column: null,
+            order: 'none' // 'none', 'asc', 'desc'
+        };
         
         // 데이터 렌더링 함수 (글로벌 스코프)
         function renderHistoryData(data) {
             const historyTableBody = document.getElementById('historyTableBody');
-            
+
+            // 현재 표시 데이터 업데이트
+            currentDisplayData = data;
+
             // 테이블 초기화
             historyTableBody.innerHTML = '';            // 데이터가 없을 경우
             if (!data || data.length === 0) {
@@ -652,19 +684,19 @@
                 historyTableBody.appendChild(emptyRow);
                 return;
             }
-            
+
             // 데이터 출력
             data.forEach(item => {
                 console.log('테이블 렌더링 데이터:', item); // 디버깅용
                 const row = document.createElement('tr');
-                
+
                 // 입고/출고에 따라 배경색 설정
                 if (item.type === '입고') {
                     row.classList.add('bg-green-50');
                 } else if (item.type === '출고') {
                     row.classList.add('bg-red-50');
                 }
-                
+
                 row.innerHTML = `
                     <td class="border border-gray-300 px-4 py-2 text-center">${item.date || '-'}</td>
                     <td class="border border-gray-300 px-4 py-2 text-center">${item.name || '-'}</td>
@@ -678,8 +710,85 @@
                     <td class="border border-gray-300 px-4 py-2 text-center">${item.serialNumber || '-'}</td>
                     <td class="border border-gray-300 px-4 py-2 text-center">${item.operator || '-'}</td>
                 `;
-                
+
                 historyTableBody.appendChild(row);
+            });
+        }
+
+        // 정렬 함수
+        function sortTable(column) {
+            // 정렬 순서 결정: none -> asc -> desc -> none
+            if (sortState.column === column) {
+                if (sortState.order === 'none') {
+                    sortState.order = 'asc';
+                } else if (sortState.order === 'asc') {
+                    sortState.order = 'desc';
+                } else {
+                    sortState.order = 'none';
+                }
+            } else {
+                sortState.column = column;
+                sortState.order = 'asc';
+            }
+
+            // 정렬 아이콘 업데이트
+            updateSortIcons();
+
+            // 정렬 적용
+            let sortedData;
+            if (sortState.order === 'none') {
+                // 정렬 해제 - 원본 데이터 사용
+                sortedData = [...originalHistoryData];
+            } else {
+                // 현재 표시 중인 데이터 정렬
+                sortedData = [...currentDisplayData].sort((a, b) => {
+                    let aVal = a[column];
+                    let bVal = b[column];
+
+                    // null/undefined 처리
+                    if (aVal === null || aVal === undefined || aVal === '' || aVal === '-') aVal = '';
+                    if (bVal === null || bVal === undefined || bVal === '' || bVal === '-') bVal = '';
+
+                    // 숫자형 컬럼 처리
+                    if (column === 'amount' || column === 'purchasePrice') {
+                        aVal = parseFloat(aVal) || 0;
+                        bVal = parseFloat(bVal) || 0;
+                    } else {
+                        // 문자열로 변환
+                        aVal = String(aVal).toLowerCase();
+                        bVal = String(bVal).toLowerCase();
+                    }
+
+                    // 비교
+                    if (aVal < bVal) return sortState.order === 'asc' ? -1 : 1;
+                    if (aVal > bVal) return sortState.order === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            // 테이블 다시 렌더링
+            renderHistoryData(sortedData);
+        }
+
+        // 정렬 아이콘 업데이트
+        function updateSortIcons() {
+            const columns = ['date', 'name', 'category', 'type', 'amount', 'company', 'purchasePrice', 'equipmentGroup', 'boardName', 'serialNumber', 'operator'];
+
+            columns.forEach(col => {
+                const icon = document.getElementById(`sort-icon-${col}`);
+                if (!icon) return;
+
+                if (col === sortState.column) {
+                    if (sortState.order === 'asc') {
+                        icon.innerHTML = '▲';
+                    } else if (sortState.order === 'desc') {
+                        icon.innerHTML = '▼';
+                    } else {
+                        icon.innerHTML = '';
+                    }
+                } else {
+                    icon.innerHTML = '';
+                }
             });
         }
 
@@ -2208,6 +2317,60 @@
             } catch (error) {
                 console.error('비밀번호 검증 중 오류:', error);
                 alert('오류가 발생했습니다: ' + error.message);
+            }
+        });
+
+        // ESC 키로 모달 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' || e.keyCode === 27) {
+                // 모든 모달 리스트
+                const modals = [
+                    'stockModal',
+                    'importModal',
+                    'importAmountModal',
+                    'exportModal',
+                    'exportAmountModal',
+                    'editHistoryModal',
+                    'passwordVerifyModal'
+                ];
+
+                // 열려있는 모달 찾아서 닫기 (뒤에서부터 - z-index가 높은 것부터)
+                for (let i = modals.length - 1; i >= 0; i--) {
+                    const modal = document.getElementById(modals[i]);
+                    if (modal && !modal.classList.contains('hidden')) {
+                        // 비밀번호 확인 모달인 경우 취소 버튼 클릭 시뮬레이션
+                        if (modals[i] === 'passwordVerifyModal') {
+                            document.getElementById('passwordVerifyCancelBtn').click();
+                        }
+                        // 이력 수정 모달인 경우 취소 버튼 클릭 시뮬레이션
+                        else if (modals[i] === 'editHistoryModal') {
+                            document.getElementById('editHistoryCancelBtn').click();
+                        }
+                        // 입고 수량 입력 모달
+                        else if (modals[i] === 'importAmountModal') {
+                            document.getElementById('closeImportAmountModalBtn').click();
+                        }
+                        // 출고 수량 입력 모달
+                        else if (modals[i] === 'exportAmountModal') {
+                            document.getElementById('closeExportAmountModalBtn').click();
+                        }
+                        // 입고 처리 모달
+                        else if (modals[i] === 'importModal') {
+                            document.getElementById('closeImportModalBtn').click();
+                        }
+                        // 출고 처리 모달
+                        else if (modals[i] === 'exportModal') {
+                            document.getElementById('closeExportModalBtn').click();
+                        }
+                        // 입고/출고 처리 모달
+                        else if (modals[i] === 'stockModal') {
+                            document.getElementById('stockCancelButton').click();
+                        }
+
+                        // 한 번에 하나의 모달만 닫기
+                        break;
+                    }
+                }
             }
         });
         }); // DOMContentLoaded 닫기
