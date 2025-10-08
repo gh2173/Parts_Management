@@ -923,6 +923,12 @@ ipcMain.handle('update-history-data', async (event, data) => {
       return { success: false, error: '입출고 이력 시트를 찾을 수 없습니다.' };
     }
 
+    // 첫 번째 시트 (재고 관리)
+    const stockSheet = workbook.getWorksheet(1);
+    if (!stockSheet) {
+      return { success: false, error: '재고 시트를 찾을 수 없습니다.' };
+    }
+
     // rowIndex는 Excel 행 번호
     const excelRowNumber = data.rowIndex;
     const row = historySheet.getRow(excelRowNumber);
@@ -931,12 +937,73 @@ ipcMain.handle('update-history-data', async (event, data) => {
       return { success: false, error: '해당 행을 찾을 수 없습니다.' };
     }
 
+    // 기존 데이터 저장 (재고 계산용)
+    const oldName = row.getCell(2).value || '';
+    const oldType = row.getCell(4).value || '';
+    const oldAmount = parseInt(row.getCell(5).value) || 0;
+
+    // 새 데이터
+    const newName = data.name || '';
+    const newType = data.type || '';
+    const newAmount = parseInt(data.amount) || 0;
+
+    // 재고 업데이트 로직
+    // 1. 기존 입출고 기록을 취소 (역산)
+    if (oldName) {
+      let oldStockRow = null;
+      let oldStockRowNumber = 0;
+
+      stockSheet.eachRow((stockRow, rowNum) => {
+        if (rowNum === 1) return; // 헤더 건너뛰기
+        const stockName = stockRow.getCell(2).value || '';
+        if (stockName === oldName) {
+          oldStockRow = stockRow;
+          oldStockRowNumber = rowNum;
+        }
+      });
+
+      if (oldStockRow) {
+        const currentStock = parseInt(oldStockRow.getCell(7).value) || 0;
+        // 기존 기록 취소 (입고였으면 빼고, 출고였으면 더함)
+        if (oldType === '입고') {
+          oldStockRow.getCell(7).value = currentStock - oldAmount;
+        } else if (oldType === '출고') {
+          oldStockRow.getCell(7).value = currentStock + oldAmount;
+        }
+      }
+    }
+
+    // 2. 새 입출고 기록 적용
+    if (newName) {
+      let newStockRow = null;
+      let newStockRowNumber = 0;
+
+      stockSheet.eachRow((stockRow, rowNum) => {
+        if (rowNum === 1) return; // 헤더 건너뛰기
+        const stockName = stockRow.getCell(2).value || '';
+        if (stockName === newName) {
+          newStockRow = stockRow;
+          newStockRowNumber = rowNum;
+        }
+      });
+
+      if (newStockRow) {
+        const currentStock = parseInt(newStockRow.getCell(7).value) || 0;
+        // 새 기록 적용
+        if (newType === '입고') {
+          newStockRow.getCell(7).value = currentStock + newAmount;
+        } else if (newType === '출고') {
+          newStockRow.getCell(7).value = currentStock - newAmount;
+        }
+      }
+    }
+
     // 데이터 업데이트 (열 순서: 번호, 품명, 위치, 구분, 수량, 날짜, 카테고리, 구매처, 구매금액, 설비군, Board명, S/N, 작업자, 비고)
     // 번호는 유지 (getCell(1))
-    row.getCell(2).value = data.name || '';
+    row.getCell(2).value = newName;
     row.getCell(3).value = data.location || '';
-    row.getCell(4).value = data.type || '';
-    row.getCell(5).value = parseInt(data.amount) || 0;
+    row.getCell(4).value = newType;
+    row.getCell(5).value = newAmount;
     row.getCell(6).value = data.date || '';
     row.getCell(7).value = data.category || '';
     row.getCell(8).value = data.company || '';
@@ -952,8 +1019,8 @@ ipcMain.handle('update-history-data', async (event, data) => {
     await workbook.xlsx.writeFile(localTempFile);
     await uploadFileToFTP();
 
-    console.log('입출고 이력 수정 완료:', excelRowNumber);
-    return { success: true, message: '입출고 이력이 수정되었습니다.' };
+    console.log('입출고 이력 및 재고 수정 완료:', excelRowNumber);
+    return { success: true, message: '입출고 이력 및 재고가 수정되었습니다.' };
 
   } catch (error) {
     console.error('입출고 이력 수정 중 오류 발생:', error);
@@ -979,8 +1046,47 @@ ipcMain.handle('delete-history-data', async (event, rowIndex) => {
       return { success: false, error: '입출고 이력 시트를 찾을 수 없습니다.' };
     }
 
+    // 첫 번째 시트 (재고 관리)
+    const stockSheet = workbook.getWorksheet(1);
+    if (!stockSheet) {
+      return { success: false, error: '재고 시트를 찾을 수 없습니다.' };
+    }
+
     // rowIndex는 Excel 행 번호
     const excelRowNumber = rowIndex;
+    const row = historySheet.getRow(excelRowNumber);
+
+    if (!row) {
+      return { success: false, error: '해당 행을 찾을 수 없습니다.' };
+    }
+
+    // 삭제할 데이터 저장 (재고 계산용)
+    const deleteName = row.getCell(2).value || '';
+    const deleteType = row.getCell(4).value || '';
+    const deleteAmount = parseInt(row.getCell(5).value) || 0;
+
+    // 재고 업데이트 (삭제 기록 취소)
+    if (deleteName) {
+      let stockRow = null;
+
+      stockSheet.eachRow((sRow, rowNum) => {
+        if (rowNum === 1) return; // 헤더 건너뛰기
+        const stockName = sRow.getCell(2).value || '';
+        if (stockName === deleteName) {
+          stockRow = sRow;
+        }
+      });
+
+      if (stockRow) {
+        const currentStock = parseInt(stockRow.getCell(7).value) || 0;
+        // 삭제된 기록 취소 (입고 삭제하면 재고 감소, 출고 삭제하면 재고 증가)
+        if (deleteType === '입고') {
+          stockRow.getCell(7).value = currentStock - deleteAmount;
+        } else if (deleteType === '출고') {
+          stockRow.getCell(7).value = currentStock + deleteAmount;
+        }
+      }
+    }
 
     // 행 삭제
     historySheet.spliceRows(excelRowNumber, 1);
@@ -996,8 +1102,8 @@ ipcMain.handle('delete-history-data', async (event, rowIndex) => {
     await workbook.xlsx.writeFile(localTempFile);
     await uploadFileToFTP();
 
-    console.log('입출고 이력 삭제 완료:', excelRowNumber);
-    return { success: true, message: '입출고 이력이 삭제되었습니다.' };
+    console.log('입출고 이력 및 재고 삭제 완료:', excelRowNumber);
+    return { success: true, message: '입출고 이력이 삭제되고 재고가 업데이트되었습니다.' };
 
   } catch (error) {
     console.error('입출고 이력 삭제 중 오류 발생:', error);
