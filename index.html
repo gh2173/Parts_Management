@@ -602,6 +602,21 @@
             try {
                 const historyResult = await window.partsAPI.getHistoryData();
                 console.log('입출고 이력 전체 데이터 개수:', historyResult ? historyResult.length : 0);
+                
+                // 🔍 디버깅: 실제 데이터 구조 확인
+                if (historyResult && historyResult.length > 0) {
+                    console.log('🔍 실제 데이터 샘플 (처음 3개):');
+                    historyResult.slice(0, 3).forEach((item, index) => {
+                        console.log(`샘플 ${index + 1}:`, {
+                            name: item.name,
+                            type: item.type,
+                            category: item.category,
+                            구분: item.구분,
+                            date: item.date,
+                            allKeys: Object.keys(item)
+                        });
+                    });
+                }
 
                 if (!historyResult || historyResult.length === 0) {
                     console.log(`${partName}: 입출고 이력 데이터가 없음`);
@@ -612,13 +627,29 @@
                 console.log(`\n[${partName}] 입고 이력 검색 시작...`);
                 const inboundHistory = historyResult.filter(item => {
                     const nameMatch = item.name && item.name.toString().trim() === partName.toString().trim();
-                    const typeMatch = item.type && item.type.toString().trim() === '입고';
+                    
+                    // 🔍 여러 가능한 구분 필드와 값들 시도
+                    let typeMatch = false;
+                    const possibleTypeFields = ['type', '구분', 'category', 'direction', 'flow'];
+                    const possibleInboundValues = ['입고', 'IN', 'in', 'inbound', '입력', 'INPUT'];
+                    
+                    for (const field of possibleTypeFields) {
+                        if (item[field]) {
+                            const fieldValue = item[field].toString().trim();
+                            if (possibleInboundValues.includes(fieldValue)) {
+                                typeMatch = true;
+                                break;
+                            }
+                        }
+                    }
 
                     // 디버깅: 품명이 일치하는 모든 항목 출력
                     if (nameMatch) {
                         console.log(`  ✓ 품명 일치 발견!`);
                         console.log(`    - 품명: "${item.name}"`);
-                        console.log(`    - 구분: "${item.type}"`);
+                        console.log(`    - type: "${item.type}"`);
+                        console.log(`    - 구분: "${item.구분}"`);
+                        console.log(`    - category: "${item.category}"`);
                         console.log(`    - 날짜 원본: ${item.date} (타입: ${typeof item.date})`);
                         console.log(`    - 입고 여부: ${typeMatch}`);
                     }
