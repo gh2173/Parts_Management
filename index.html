@@ -422,33 +422,6 @@
                         </div>
                     </div>
 
-                    <!-- 필터 UI -->
-                    <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div>
-                            <label for="equipmentGroupFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">설비군</label>
-                            <select id="equipmentGroupFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                <option value="">전체 설비군</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="boardNameFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Board명</label>
-                            <select id="boardNameFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                <option value="">전체 Board명</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="serialNumberFilter" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">S/N</label>
-                            <select id="serialNumberFilter" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-orange-500 focus:border-orange-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                                <option value="">전체 S/N</option>
-                            </select>
-                        </div>
-                        <div class="flex items-end">
-                            <button id="applyBoardFilter" class="w-full px-4 py-2 bg-orange-500 text-white rounded-md hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500">
-                                필터 적용
-                            </button>
-                        </div>
-                    </div>
-                    
                     <div id="integratedChart" class="h-96"></div>                </div>
                 
             </div>
@@ -946,7 +919,7 @@
                                 left: 'center',
                                 textStyle: {
                                     fontSize: 16,
-                                    color: '#ff4757'
+                                    color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#ff4757'
                                 }
                             },
                             series: []
@@ -1065,10 +1038,10 @@
                         textStyle: {
                             fontSize: 18,
                             fontWeight: 'bold',
-                            color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0066cc',
                             textShadowBlur: 10,
                             textShadowColor: document.documentElement.classList.contains('dark') ? 
-                                'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
+                                'rgba(255, 255, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
                         }
                     },
                     tooltip: {
@@ -1107,7 +1080,7 @@
                         backgroundColor: 'transparent',
                         borderColor: 'transparent',
                         textStyle: {
-                            color: '#ffffff'
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
                         }
                     },
                     grid: {
@@ -1129,24 +1102,24 @@
                             textStyle: {
                                 fontSize: 11,
                                 fontWeight: 'bold',
-                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0066cc',
                                 textShadowBlur: 3,
                                 textShadowColor: document.documentElement.classList.contains('dark') ? 
-                                    'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                                    'rgba(255, 255, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
                             }
                         },
                         axisLine: {
                             lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0066cc',
                                 width: 2,
                                 shadowBlur: 10,
                                 shadowColor: document.documentElement.classList.contains('dark') ? 
-                                    'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
+                                    'rgba(255, 255, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
                             }
                         },
                         axisTick: {
                             lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0066cc',
                                 width: 2
                             }
                         }
@@ -1155,37 +1128,37 @@
                         type: 'value',
                         name: '🤖 사용량 분석 (개)',
                         nameTextStyle: {
-                            color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0066cc',
                             fontSize: 13,
                             fontWeight: 'bold',
                             textShadowBlur: 5,
                             textShadowColor: document.documentElement.classList.contains('dark') ? 
-                                'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                                'rgba(255, 255, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
                         },
                         axisLabel: {
                             formatter: '{value}',
                             textStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0066cc',
                                 fontSize: 11,
                                 fontWeight: 'bold',
                                 textShadowBlur: 3,
                                 textShadowColor: document.documentElement.classList.contains('dark') ? 
-                                    'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                                    'rgba(255, 255, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
                             }
                         },
                         axisLine: {
                             lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0066cc',
                                 width: 2,
                                 shadowBlur: 10,
                                 shadowColor: document.documentElement.classList.contains('dark') ? 
-                                    'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
+                                    'rgba(255, 255, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
                             }
                         },
                         splitLine: {
                             lineStyle: {
                                 color: document.documentElement.classList.contains('dark') ? 
-                                    'rgba(0, 212, 255, 0.1)' : 'rgba(0, 102, 204, 0.1)',
+                                    'rgba(255, 255, 255, 0.1)' : 'rgba(0, 102, 204, 0.1)',
                                 width: 1,
                                 type: 'dashed'
                             }
@@ -1310,12 +1283,12 @@
                                 position: 'top',
                                 formatter: '🚀 {c}',
                                 textStyle: {
-                                    color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
+                                    color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#0066cc',
                                     fontSize: 12,
                                     fontWeight: 'bold',
                                     textShadowBlur: 8,
                                     textShadowColor: document.documentElement.classList.contains('dark') ? 
-                                        'rgba(0, 212, 255, 0.8)' : 'rgba(0, 102, 204, 0.6)',
+                                        'rgba(255, 255, 255, 0.8)' : 'rgba(0, 102, 204, 0.6)',
                                     textShadowOffsetX: 2,
                                     textShadowOffsetY: 2
                                 }
@@ -1325,7 +1298,7 @@
                                 silent: true,
                                 lineStyle: {
                                     color: document.documentElement.classList.contains('dark') ? 
-                                        'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
+                                        'rgba(255, 255, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
                                     width: 1,
                                     type: 'dashed'
                                 },
@@ -1372,7 +1345,7 @@
                         left: 'center',
                         textStyle: {
                             fontSize: 16,
-                            color: '#ff4757'
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#ff4757'
                         }
                     },
                     series: []
@@ -1662,21 +1635,16 @@
                 // 6. 차트 제목 (날짜 필터 정보 제외)
                 const chartTitle = '연도&월별 출고 현황 (전체 기간)';
                 
-                // 7. 가로 막대 차트 설정
+                // 7. 가로 막대 차트 설정 (단색 평면 스타일)
                 stockChart.setOption({
-                    animation: true,
-                    animationDuration: 1500,
-                    animationEasing: 'elasticOut',
-                    animationDelay: function (idx) {
-                        return idx * 100;
-                    },
+                    backgroundColor: 'transparent',
                     title: {
                         text: chartTitle,
                         left: 'center',
                         textStyle: {
                             fontSize: 14,
                             fontWeight: 'bold',
-                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333'
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#92400e'
                         }
                     },
                     tooltip: {
@@ -1689,17 +1657,8 @@
                             const index = data.dataIndex;
                             const value = values[index];
                             const percentage = percentages[index];
-                            return `📅 ${data.name}<br/>📦 출고량: ${value}개<br/>📊 비율: ${percentage}%`;
-                        },
-                        backgroundColor: document.documentElement.classList.contains('dark') ? 'rgba(30, 30, 30, 0.95)' : 'rgba(255, 255, 255, 0.95)',
-                        borderColor: document.documentElement.classList.contains('dark') ? '#555' : '#ddd',
-                        borderWidth: 1,
-                        borderRadius: 8,
-                        textStyle: {
-                            color: document.documentElement.classList.contains('dark') ? '#fff' : '#333',
-                            fontSize: 12
-                        },
-                        padding: [8, 12]
+                            return `${data.name}<br/>출고량: ${value}개<br/>비율: ${percentage}%`;
+                        }
                     },
                     grid: {
                         left: '20%',
@@ -1710,24 +1669,19 @@
                     },
                     xAxis: {
                         type: 'value',
-                        max: Math.max(...percentages) * 1.1, // 최대값의 110%로 설정
+                        max: Math.max(...percentages) * 1.1,
                         axisLabel: {
                             formatter: '{value}%',
-                            textStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333',
-                                fontSize: 11
-                            }
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#78350f'
                         },
                         axisLine: {
                             lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#555' : '#ddd',
-                                width: 1
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#d97706'
                             }
                         },
                         splitLine: {
                             lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? 
-                                    'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)',
+                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.2)' : '#fed7aa',
                                 type: 'dashed'
                             }
                         }
@@ -1736,16 +1690,12 @@
                         type: 'category',
                         data: categories,
                         axisLabel: {
-                            textStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333',
-                                fontSize: 11,
-                                fontWeight: 'bold'
-                            }
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#78350f',
+                            fontSize: 11
                         },
                         axisLine: {
                             lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#555' : '#ddd',
-                                width: 1
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#d97706'
                             }
                         },
                         axisTick: {
@@ -1755,150 +1705,35 @@
                     series: [{
                         name: '월별 출고량',
                         type: 'bar',
-                        data: percentages.map((percentage, index) => ({
-                            value: percentage,
-                            itemStyle: {
-                                color: function() {
-                                    // 월별로 다른 그라데이션 색상
-                                    const monthColors = [
-                                        // 1월 - 차가운 블루
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#4facfe'},
-                                                {offset: 1, color: '#00f2fe'}
-                                            ]
-                                        },
-                                        // 2월 - 발렌타인 핑크
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#f093fb'},
-                                                {offset: 1, color: '#f5576c'}
-                                            ]
-                                        },
-                                        // 3월 - 봄 그린
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#43e97b'},
-                                                {offset: 1, color: '#38f9d7'}
-                                            ]
-                                        },
-                                        // 4월 - 벚꽃 핑크
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#fa709a'},
-                                                {offset: 1, color: '#fee140'}
-                                            ]
-                                        },
-                                        // 5월 - 신록 그린
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#a8edea'},
-                                                {offset: 1, color: '#fed6e3'}
-                                            ]
-                                        },
-                                        // 6월 - 여름 오렌지
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#ff9a9e'},
-                                                {offset: 1, color: '#fecfef'}
-                                            ]
-                                        },
-                                        // 7월 - 뜨거운 레드
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#ff6b6b'},
-                                                {offset: 1, color: '#ffa726'}
-                                            ]
-                                        },
-                                        // 8월 - 태양 옐로우
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#ffecd2'},
-                                                {offset: 1, color: '#fcb69f'}
-                                            ]
-                                        },
-                                        // 9월 - 가을 오렌지
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#ff9a56'},
-                                                {offset: 1, color: '#ff6b95'}
-                                            ]
-                                        },
-                                        // 10월 - 단풍 레드
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#f77062'},
-                                                {offset: 1, color: '#fe5196'}
-                                            ]
-                                        },
-                                        // 11월 - 늦가을 브라운
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#c471f5'},
-                                                {offset: 1, color: '#fa71cd'}
-                                            ]
-                                        },
-                                        // 12월 - 겨울 퍼플
-                                        {
-                                            type: 'linear',
-                                            x: 0, y: 0, x2: 1, y2: 0,
-                                            colorStops: [
-                                                {offset: 0, color: '#667eea'},
-                                                {offset: 1, color: '#764ba2'}
-                                            ]
-                                        }
-                                    ];
-                                    return monthColors[index % monthColors.length];
-                                }(),
-                                borderRadius: [0, 8, 8, 0],
-                                shadowBlur: 15,
-                                shadowColor: 'rgba(0, 0, 0, 0.2)',
-                                shadowOffsetX: 3,
-                                shadowOffsetY: 3
-                            }
-                        })),
+                        data: percentages.map((percentage, index) => {
+                            // 랜덤 색상 배열
+                            const colors = [
+                                '#f97316', '#ef4444', '#3b82f6', '#10b981', '#8b5cf6',
+                                '#ec4899', '#14b8a6', '#f59e0b', '#6366f1', '#84cc16',
+                                '#06b6d4', '#f43f5e', '#8b5cf6', '#22c55e', '#eab308'
+                            ];
+                            return {
+                                value: percentage,
+                                itemStyle: {
+                                    color: colors[index % colors.length],
+                                    borderRadius: [0, 4, 4, 0]
+                                }
+                            };
+                        }),
                         label: {
                             show: true,
                             position: 'right',
                             formatter: function(params) {
                                 const index = params.dataIndex;
                                 const value = values[index];
-                                return `📦 ${value}개 (${params.value}%)`;
+                                return `${value}개 (${params.value}%)`;
                             },
-                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#333333',
-                            fontSize: 10,
-                            fontWeight: 'bold'
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#78350f',
+                            fontSize: 10
                         },
                         emphasis: {
                             itemStyle: {
-                                shadowBlur: 25,
-                                shadowOffsetX: 5,
-                                shadowOffsetY: 5,
-                                shadowColor: 'rgba(0, 0, 0, 0.4)',
-                                scale: true,
-                                scaleSize: 5
+                                opacity: 0.8
                             }
                         },
                         barMaxWidth: 25
@@ -2170,7 +2005,7 @@
                                 left: 'center',
                                 textStyle: {
                                     fontSize: 16,
-                                    color: '#ff4757'
+                                    color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#ff4757'
                                 }
                             },
                             series: []
@@ -2271,319 +2106,98 @@
                     });
                     return;
                 }
-                
-                // 3D AI 미래지향적 차트 옵션 설정
+
+                // 간단한 차트 옵션 설정
                 integratedChart.setOption({
-                    animation: true,
-                    animationDuration: 2000,
-                    animationEasing: 'cubicOut',
-                    animationDelay: function (idx) {
-                        return idx * 150;
-                    },
-                    backgroundColor: document.documentElement.classList.contains('dark') ? 
-                        'transparent' : 'transparent',
+                    backgroundColor: 'transparent',
                     title: {
                         text: chartTitle,
                         left: 'center',
                         top: '3%',
                         textStyle: {
-                            fontSize: 18,
+                            fontSize: 16,
                             fontWeight: 'bold',
-                            color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
-                            textShadowBlur: 10,
-                            textShadowColor: document.documentElement.classList.contains('dark') ? 
-                                'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#92400e'
                         }
                     },
                     tooltip: {
                         trigger: 'axis',
                         axisPointer: {
-                            type: 'shadow',
-                            shadowStyle: {
-                                color: 'rgba(0, 212, 255, 0.2)',
-                                shadowBlur: 20,
-                                shadowOffsetX: 5,
-                                shadowOffsetY: 5
-                            }
+                            type: 'shadow'
                         },
                         formatter: function(params) {
                             const data = params[0];
-                            return `
-                                <div style="
-                                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                                    border: none;
-                                    border-radius: 12px;
-                                    padding: 12px;
-                                    color: white;
-                                    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-                                    backdrop-filter: blur(10px);
-                                ">
-                                    <div style="font-weight: bold; margin-bottom: 8px;">
-                                        🎯 ${data.name}
-                                    </div>
-                                    <div style="display: flex; align-items: center;">
-                                        <span style="margin-right: 8px;">📊</span>
-                                        사용량: ${data.value}개
-                                    </div>
-                                </div>
-                            `;
-                        },
-                        backgroundColor: 'transparent',
-                        borderColor: 'transparent',
-                        textStyle: {
-                            color: '#ffffff'
+                            return `${data.name}<br/>사용량: ${data.value}개`;
                         }
                     },
                     grid: {
                         left: '8%',
                         right: '8%',
                         bottom: '15%',
-                        top: '20%',
+                        top: '15%',
                         containLabel: true
                     },
                     xAxis: {
                         type: 'category',
                         data: partNames,
-                        axisPointer: {
-                            type: 'shadow'
-                        },
                         axisLabel: {
                             rotate: 45,
                             interval: 0,
-                            textStyle: {
-                                fontSize: 11,
-                                fontWeight: 'bold',
-                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
-                                textShadowBlur: 3,
-                                textShadowColor: document.documentElement.classList.contains('dark') ? 
-                                    'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
-                            }
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#78350f'
                         },
                         axisLine: {
                             lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
-                                width: 2,
-                                shadowBlur: 10,
-                                shadowColor: document.documentElement.classList.contains('dark') ? 
-                                    'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
-                            }
-                        },
-                        axisTick: {
-                            lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
-                                width: 2
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#d97706'
                             }
                         }
                     },
                     yAxis: {
                         type: 'value',
-                        nameTextStyle: {
-                            color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
-                            fontSize: 13,
-                            fontWeight: 'bold',
-                            textShadowBlur: 5,
-                            textShadowColor: document.documentElement.classList.contains('dark') ? 
-                                'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
-                        },
                         axisLabel: {
-                            formatter: '{value}',
-                            textStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
-                                fontSize: 11,
-                                fontWeight: 'bold',
-                                textShadowBlur: 3,
-                                textShadowColor: document.documentElement.classList.contains('dark') ? 
-                                    'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
-                            }
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#78350f'
                         },
                         axisLine: {
                             lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
-                                width: 2,
-                                shadowBlur: 10,
-                                shadowColor: document.documentElement.classList.contains('dark') ? 
-                                    'rgba(0, 212, 255, 0.5)' : 'rgba(0, 102, 204, 0.3)',
+                                color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#d97706'
                             }
                         },
                         splitLine: {
                             lineStyle: {
-                                color: document.documentElement.classList.contains('dark') ? 
-                                    'rgba(0, 212, 255, 0.1)' : 'rgba(0, 102, 204, 0.1)',
-                                width: 1,
+                                color: document.documentElement.classList.contains('dark') ? 'rgba(255, 255, 255, 0.2)' : '#fed7aa',
                                 type: 'dashed'
                             }
                         }
                     },
                     series: [
                         {
-                            name: '🤖 AI 부품 사용량 분석',
+                            name: '부품 사용량',
                             type: 'bar',
-                            data: usageData.map((value, index) => ({
-                                value: value,
-                                itemStyle: {
-                                    // 3D 그라데이션 색상 배열
-                                    color: function() {
-                                        const futuristicColors = [
-                                            // 네온 사이버 그라데이션
-                                            {
-                                                type: 'linear',
-                                                x: 0, y: 0, x2: 0, y2: 1,
-                                                colorStops: [
-                                                    {offset: 0, color: '#ff006e'},
-                                                    {offset: 0.5, color: '#8338ec'},
-                                                    {offset: 1, color: '#3a86ff'}
-                                                ]
-                                            },
-                                            // 홀로그램 그라데이션
-                                            {
-                                                type: 'linear',
-                                                x: 0, y: 0, x2: 0, y2: 1,
-                                                colorStops: [
-                                                    {offset: 0, color: '#00f5ff'},
-                                                    {offset: 0.5, color: '#00d4ff'},
-                                                    {offset: 1, color: '#0066cc'}
-                                                ]
-                                            },
-                                            // AI 그린 그라데이션
-                                            {
-                                                type: 'linear',
-                                                x: 0, y: 0, x2: 0, y2: 1,
-                                                colorStops: [
-                                                    {offset: 0, color: '#39ff14'},
-                                                    {offset: 0.5, color: '#00ff88'},
-                                                    {offset: 1, color: '#00cc66'}
-                                                ]
-                                            },
-                                            // 퓨처 오렌지 그라데이션
-                                            {
-                                                type: 'linear',
-                                                x: 0, y: 0, x2: 0, y2: 1,
-                                                colorStops: [
-                                                    {offset: 0, color: '#ff9500'},
-                                                    {offset: 0.5, color: '#ff6b35'},
-                                                    {offset: 1, color: '#e65100'}
-                                                ]
-                                            },
-                                            // 네온 퍼플 그라데이션
-                                            {
-                                                type: 'linear',
-                                                x: 0, y: 0, x2: 0, y2: 1,
-                                                colorStops: [
-                                                    {offset: 0, color: '#d946ef'},
-                                                    {offset: 0.5, color: '#a855f7'},
-                                                    {offset: 1, color: '#7c3aed'}
-                                                ]
-                                            },
-                                            // 사이버 옐로우 그라데이션
-                                            {
-                                                type: 'linear',
-                                                x: 0, y: 0, x2: 0, y2: 1,
-                                                colorStops: [
-                                                    {offset: 0, color: '#ffd60a'},
-                                                    {offset: 0.5, color: '#ffbe0b'},
-                                                    {offset: 1, color: '#fb8500'}
-                                                ]
-                                            }
-                                        ];
-                                        return futuristicColors[index % futuristicColors.length];
-                                    }(),
-                                    borderRadius: [8, 8, 0, 0],
-                                    // 3D 효과를 위한 강력한 그림자
-                                    shadowBlur: 25,
-                                    shadowColor: 'rgba(0, 212, 255, 0.6)',
-                                    shadowOffsetX: 8,
-                                    shadowOffsetY: 12,
-                                    // 네온 발광 효과
-                                    borderColor: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
-                                    borderWidth: 2,
-                                    // 3D 깊이감을 위한 opacity 변화
-                                    opacity: 0.9
-                                }
-                            })),
-                            emphasis: {
-                                focus: 'series',
-                                itemStyle: {
-                                    shadowBlur: 40,
-                                    shadowOffsetX: 12,
-                                    shadowOffsetY: 18,
-                                    shadowColor: 'rgba(0, 212, 255, 0.8)',
-                                    borderWidth: 3,
-                                    borderColor: '#ffffff',
-                                    opacity: 1,
-                                    // 호버 시 스케일 업 효과
-                                    scale: 1.05
-                                },
-                                // 3D 변형 효과
-                                scaleSize: 8
-                            },
-                            barMaxWidth: 60,
-                            // 막대 간격 조정으로 3D 효과 강화
-                            barGap: '20%',
-                            // 막대 모서리를 둥글게 처리
-                            barBorderRadius: [8, 8, 0, 0],
-                            // 애니메이션 효과 추가
-                            animationDuration: 2000,
-                            animationEasing: 'elasticOut',
-                            animationDelay: function (idx) {
-                                return idx * 200;
-                            },
-                            // 3D 라벨 효과
-                            label: {
-                                show: true,
-                                position: 'top',
-                                formatter: '🚀 {c}',
-                                textStyle: {
-                                    color: document.documentElement.classList.contains('dark') ? '#00d4ff' : '#0066cc',
-                                    fontSize: 12,
-                                    fontWeight: 'bold',
-                                    textShadowBlur: 8,
-                                    textShadowColor: document.documentElement.classList.contains('dark') ? 
-                                        'rgba(0, 212, 255, 0.8)' : 'rgba(0, 102, 204, 0.6)',
-                                    textShadowOffsetX: 2,
-                                    textShadowOffsetY: 2
-                                }
-                            },
-                            // 3D 발광 효과를 위한 markLine 추가
-                            markLine: {
-                                silent: true,
-                                lineStyle: {
-                                    color: document.documentElement.classList.contains('dark') ? 
-                                        'rgba(0, 212, 255, 0.3)' : 'rgba(0, 102, 204, 0.2)',
-                                    width: 1,
-                                    type: 'dashed'
-                                },
-                                data: [
-                                    {type: 'average', name: 'AI 평균값'}
-                                ]
-                            }
-                        }
-                    ],
-                    // 3D 효과를 위한 추가 옵션
-                    graphic: [
-                        {
-                            type: 'group',
-                            left: 'center',
-                            top: '5%',
-                            children: [
-                                {
-                                    type: 'rect',
-                                    z: 100,
-                                    left: 'center',
-                                    top: 'middle',
-                                    shape: {
-                                        width: 0,
-                                        height: 0
-                                    },
-                                    style: {
-                                        fill: 'transparent'
+                            data: usageData.map((value, index) => {
+                                // 랜덤 색상 배열
+                                const colors = [
+                                    '#f97316', '#ef4444', '#3b82f6', '#10b981', '#8b5cf6',
+                                    '#ec4899', '#14b8a6', '#f59e0b', '#6366f1', '#84cc16',
+                                    '#06b6d4', '#f43f5e', '#8b5cf6', '#22c55e', '#eab308'
+                                ];
+                                return {
+                                    value: value,
+                                    itemStyle: {
+                                        color: colors[index % colors.length],
+                                        borderRadius: [4, 4, 0, 0]
                                     }
+                                };
+                            }),
+                            emphasis: {
+                                itemStyle: {
+                                    opacity: 0.8
                                 }
-                            ]
+                            },
+                            barMaxWidth: 50
                         }
                     ]
                 });
-                
-                console.log('3D AI Board별 부품 사용량 차트 업데이트 완료');
+
+                console.log('Board별 부품 사용량 차트 업데이트 완료');
                 
             } catch (error) {
                 console.error('Board별 부품 사용량 차트 업데이트 중 오류:', error);
@@ -2595,7 +2209,7 @@
                         left: 'center',
                         textStyle: {
                             fontSize: 16,
-                            color: '#ff4757'
+                            color: document.documentElement.classList.contains('dark') ? '#ffffff' : '#ff4757'
                         }
                     },
                     series: []
@@ -2810,16 +2424,8 @@
             await updateChatHistoryTable();
             setupChatHistoryFilter();
 
-            // Board별 부품 사용량 차트 및 필터 초기화
-            await initializeBoardUsageFilters();
+            // Board별 부품 사용량 차트 초기화
             await updateBoardUsageChart();
-
-            // 필터 적용 버튼 이벤트 리스너 추가
-            const applyFilterButton = document.getElementById('applyBoardFilter');
-            if (applyFilterButton) {
-                applyFilterButton.addEventListener('click', applyBoardUsageFilter);
-                console.log('필터 적용 버튼 이벤트 리스너 추가됨');
-            }
 
             // 채팅 히스토리 필터링 초기화
             setupChatHistoryFilter();
