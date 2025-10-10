@@ -597,7 +597,8 @@
             }
         }
 
-        // 부품명 기준으로 가장 최근 입고일 가져오기
+        /*
+        // 부품명 기준으로 가장 최근 입고일 가져오기 - 사용하지 않음
         async function getLastInboundDate(partName) {
             try {
                 const historyResult = await window.partsAPI.getHistoryData();
@@ -679,6 +680,7 @@
                 return '입고 내역 없음';
             }
         }
+        */
 
         async function updateNotificationDropdown(lowStockItems) {
             const notificationList = document.getElementById('notificationList');
@@ -710,9 +712,6 @@
                 const minStock = parseInt(item.minStock || 0);
                 const diff = minStock - currentStock; // 필요 수량
 
-                // 마지막 입고일 가져오기
-                const lastInboundDate = await getLastInboundDate(item.name);
-
                 const notificationItem = document.createElement('div');
                 notificationItem.className = 'py-2 px-4 border-b border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700';
 
@@ -725,7 +724,6 @@
                             <p class="text-sm font-medium text-gray-900 dark:text-gray-200">${item.location || '-'} / ${item.name} / ${item.category || '-'}</p>
                             <p class="text-xs text-red-500 dark:text-red-400">현재재고: ${currentStock} / 최소재고: ${minStock}</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">${diff}개 부족</p>
-                            <p class="text-xs text-blue-500 dark:text-blue-400">마지막 입고: ${lastInboundDate}</p>
                         </div>
                     </div>
                 `;
@@ -821,10 +819,6 @@
                         const currentStock = parseInt(item.currentStock || 0);
                         const minStock = parseInt(item.minStock || 0);
                         const diff = minStock - currentStock; // 필요 수량
-
-                        // 마지막 입고일 가져오기
-                        const lastInboundDate = await getLastInboundDate(item.name);
-
                         // 타이틀 생성 - 위치 / 품명 / 카테고리
                         const title = document.createElement('p');
                         title.className = 'text-sm font-medium dark:text-orange-900';
@@ -835,15 +829,9 @@
                         stockInfo.className = 'text-xs text-red-500 dark:text-red-400';
                         stockInfo.textContent = `최소재고: ${minStock} / 재고: ${currentStock} (${diff}개 부족)`;
 
-                        // 날짜 생성 - 마지막 입고일
-                        const date = document.createElement('p');
-                        date.className = 'text-xs text-orange-500';
-                        date.textContent = `마지막 입고: ${lastInboundDate}`;
-
                         // 컨텐츠에 요소 추가
                         contentDiv.appendChild(title);
                         contentDiv.appendChild(stockInfo);
-                        contentDiv.appendChild(date);
 
                         // 모든 요소 조합
                         alertDiv.appendChild(iconDiv);
