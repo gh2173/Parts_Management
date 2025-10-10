@@ -559,14 +559,27 @@
         async function getLastInboundDate(partName) {
             try {
                 const historyResult = await window.partsAPI.getHistoryData();
+                console.log('입출고 이력 전체 데이터:', historyResult);
+
                 if (!historyResult || historyResult.length === 0) {
+                    console.log(`${partName}: 입출고 이력 데이터가 없음`);
                     return '없음';
                 }
 
                 // 해당 부품의 입고 이력만 필터링
-                const inboundHistory = historyResult.filter(item =>
-                    item.name === partName && item.type === '입고'
-                );
+                console.log(`${partName} 필터링 시작...`);
+                const inboundHistory = historyResult.filter(item => {
+                    const nameMatch = item.name && item.name.toString().trim() === partName.toString().trim();
+                    const typeMatch = item.type && item.type.toString().trim() === '입고';
+
+                    if (nameMatch) {
+                        console.log(`  - 품명 일치: ${item.name}, 구분: ${item.type}, 날짜: ${item.date}`);
+                    }
+
+                    return nameMatch && typeMatch;
+                });
+
+                console.log(`${partName}의 입고 이력 개수:`, inboundHistory.length);
 
                 if (inboundHistory.length === 0) {
                     return '없음';
@@ -579,7 +592,10 @@
                     return dateB - dateA; // 내림차순 정렬
                 });
 
-                return inboundHistory[0].date || '없음';
+                const lastDate = inboundHistory[0].date || '없음';
+                console.log(`${partName}의 마지막 입고일:`, lastDate);
+
+                return lastDate;
             } catch (error) {
                 console.error('마지막 입고일 조회 오류:', error);
                 return '없음';
@@ -736,6 +752,11 @@
                         title.className = 'text-sm font-medium dark:text-orange-900';
                         title.textContent = `${item.location || '-'} / ${item.name} / ${item.category || '-'}`;
 
+                        // 재고 정보 생성 - 최소재고 / 현재재고
+                        const stockInfo = document.createElement('p');
+                        stockInfo.className = 'text-xs text-red-500 dark:text-red-400';
+                        stockInfo.textContent = `최소재고: ${minStock} / 재고: ${currentStock} (${diff}개 부족)`;
+
                         // 날짜 생성 - 마지막 입고일
                         const date = document.createElement('p');
                         date.className = 'text-xs text-orange-500';
@@ -743,6 +764,7 @@
 
                         // 컨텐츠에 요소 추가
                         contentDiv.appendChild(title);
+                        contentDiv.appendChild(stockInfo);
                         contentDiv.appendChild(date);
 
                         // 모든 요소 조합
