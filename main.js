@@ -427,6 +427,7 @@ ipcMain.handle('get-excel-data', async () => {
       if (rowNumber === 1) return; // 첫 번째 행(헤더)은 건너뜀
 
       data.push({
+        excelRowNumber: rowNumber, // ⭐ 실제 Excel 행 번호 추가!
         location: row.getCell(1).value || '', // 위치
         name: row.getCell(2).value || '', // 품명
         company: row.getCell(3).value || '', // 구매처

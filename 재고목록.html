@@ -786,8 +786,8 @@
                     const newRow = document.createElement('tr');
                     newRow.classList.add('border-b');
 
-                    // 더블클릭 이벤트를 위한 데이터 저장 (Excel 행 번호는 헤더 포함하여 +2)
-                    newRow.dataset.rowNumber = index + 2;
+                    // 더블클릭 이벤트를 위한 데이터 저장 (실제 Excel 행 번호 사용)
+                    newRow.dataset.rowNumber = part.excelRowNumber || (index + 2);
                     newRow.dataset.partData = JSON.stringify(part);
 
                     // 현재 재고와 최소 재고를 숫자로 변환
