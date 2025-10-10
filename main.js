@@ -1126,8 +1126,11 @@ ipcMain.handle('update-stock-item', async (event, data) => {
 // 재고 삭제 핸들러
 ipcMain.handle('delete-stock-item', async (event, rowNumber, name) => {
   try {
+    console.log(`재고 삭제 요청 - 행번호: ${rowNumber}, 품명: ${name}`);
+
     // 최신 파일 다운로드
     await downloadFileFromFTP();
+    console.log('FTP에서 파일 다운로드 완료');
 
     // 엑셀 파일 로드
     const workbook = new ExcelJS.Workbook();
@@ -1141,6 +1144,7 @@ ipcMain.handle('delete-stock-item', async (event, rowNumber, name) => {
     }
 
     // 재고 시트에서 해당 행 삭제
+    console.log(`재고 시트에서 행 ${rowNumber} 삭제 중...`);
     stockSheet.spliceRows(rowNumber, 1);
 
     // 입출고 이력에서 해당 품명의 모든 레코드 삭제
@@ -1156,6 +1160,7 @@ ipcMain.handle('delete-stock-item', async (event, rowNumber, name) => {
         }
       });
 
+      console.log(`입출고 이력에서 ${rowsToDelete.length}개 행 삭제 중...`);
       // 역순으로 삭제 (인덱스 변경 방지)
       for (let i = rowsToDelete.length - 1; i >= 0; i--) {
         historySheet.spliceRows(rowsToDelete[i], 1);
@@ -1163,11 +1168,16 @@ ipcMain.handle('delete-stock-item', async (event, rowNumber, name) => {
     }
 
     // 엑셀 파일 저장
+    console.log('로컬 파일 저장 중...');
     await workbook.xlsx.writeFile(localTempFile);
+    console.log('로컬 파일 저장 완료');
 
     // FTP 업로드
+    console.log('FTP 업로드 시작...');
     await uploadFileToFTP();
+    console.log('FTP 업로드 완료');
 
+    console.log('재고 삭제 성공');
     return { success: true, message: '재고 및 관련 이력이 성공적으로 삭제되었습니다.' };
   } catch (error) {
     console.error('재고 삭제 중 오류:', error);
