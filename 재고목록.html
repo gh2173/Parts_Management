@@ -2034,7 +2034,21 @@
 
                 if (result.success) {
                     alert('재고가 성공적으로 수정되었습니다.');
-                    window.location.reload();
+                    // FTP 업로드가 완전히 완료될 때까지 약간의 지연 후 데이터 다시 로드
+                    setTimeout(async () => {
+                        try {
+                            const refreshResult = await window.partsAPI.getExcelData();
+                            if (refreshResult.success) {
+                                originalData = [...refreshResult.data];
+                                currentData = [...refreshResult.data];
+                                renderTable(currentData);
+                                console.log('데이터 새로고침 완료');
+                            }
+                        } catch (error) {
+                            console.error('데이터 새로고침 실패:', error);
+                            window.location.reload();
+                        }
+                    }, 1500); // 1.5초 지연 (FTP 업로드 완료 대기)
                 } else {
                     alert('재고 수정에 실패했습니다: ' + result.error);
                 }
@@ -2047,7 +2061,21 @@
 
                 if (result.success) {
                     alert('재고가 성공적으로 삭제되었습니다.');
-                    window.location.reload();
+                    // FTP 업로드가 완전히 완료될 때까지 약간의 지연 후 데이터 다시 로드
+                    setTimeout(async () => {
+                        try {
+                            const refreshResult = await window.partsAPI.getExcelData();
+                            if (refreshResult.success) {
+                                originalData = [...refreshResult.data];
+                                currentData = [...refreshResult.data];
+                                renderTable(currentData);
+                                console.log('데이터 새로고침 완료');
+                            }
+                        } catch (error) {
+                            console.error('데이터 새로고침 실패:', error);
+                            window.location.reload();
+                        }
+                    }, 1500); // 1.5초 지연 (FTP 업로드 완료 대기)
                 } else {
                     alert('재고 삭제에 실패했습니다: ' + result.error);
                 }
