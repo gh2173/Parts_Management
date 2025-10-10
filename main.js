@@ -15,115 +15,67 @@ let mainWindow;
 // 인증 서비스 인스턴스
 let authService;
 
-// =============== FTP 서버 설정 (운영용 - 주석처리) ===============
-// const ftpConfig = {
-//   host: "192.168.223.225",
-//   user: "vega",
-//   password: "vegagcc",
-//   secure: false
-// };
+// =============== FTP 서버 설정 (운영용) ===============
+const ftpConfig = {
+  host: "192.168.223.225",
+  user: "vega",
+  password: "vegagcc",
+  secure: false
+};
 
-// =============== FTP 파일 경로 (운영용 - 주석처리) ===============
-// const ftpFilePath = "/untitle/장비솔루션_파트재고.xlsx";
-// const localTempDir = path.join(os.tmpdir(), 'electron-app-temp');
-// const localTempFile = path.join(localTempDir, '장비솔루션_파트재고.xlsx');
+// =============== FTP 파일 경로 (운영용) ===============
+const ftpFilePath = "/untitle/장비솔루션_파트재고.xlsx";
+const localTempDir = path.join(os.tmpdir(), 'electron-app-temp');
+const localTempFile = path.join(localTempDir, '장비솔루션_파트재고.xlsx');
 
-// =============== 테스트용 로컬 파일 경로 ===============
-const localTempFile = path.join(__dirname, '장비솔루션_파트재고.xlsx');
+// =============== 임시 디렉토리 생성 (운영용) ===============
+if (!fs.existsSync(localTempDir)) {
+  fse.ensureDirSync(localTempDir);
+}
 
-// =============== 임시 디렉토리 생성 (운영용 - 주석처리) ===============
-// if (!fs.existsSync(localTempDir)) {
-//   fse.ensureDirSync(localTempDir);
-// }
-
-// =============== FTP 서버 함수들 (운영용 - 주석처리) ===============
-// async function downloadFileFromFTP() {
-//   const client = new ftp.Client();
-//   client.ftp.verbose = false; // 디버깅 메시지 끄기
-//   
-//   try {
-//     console.log('FTP 서버 연결 중...');
-//     await client.access(ftpConfig);
-//     console.log('FTP 서버 연결 성공');
-//     
-//     console.log(`파일 다운로드 중: ${ftpFilePath}`);
-//     await client.downloadTo(localTempFile, ftpFilePath);
-//     console.log(`파일 다운로드 완료: ${localTempFile}`);
-//     
-//     return true;
-//   } catch (error) {
-//     console.error('FTP 다운로드 오류:', error);
-//     throw error;
-//   } finally {
-//     client.close();
-//   }
-// }
-
-// =============== 테스트용 로컬 파일 함수들 ===============
-// 로컬 파일 확인 및 생성 함수 (FTP 다운로드 대체)
+// =============== FTP 서버 함수들 (운영용) ===============
 async function downloadFileFromFTP() {
+  const client = new ftp.Client();
+  client.ftp.verbose = false; // 디버깅 메시지 끄기
+
   try {
-    // 파일이 존재하는지 확인
-    if (fs.existsSync(localTempFile)) {
-      console.log(`로컬 파일 확인됨: ${localTempFile}`);
-      return true;
-    } else {
-      // 파일이 없으면 빈 Excel 파일 생성
-      console.log(`파일이 없어 새로 생성: ${localTempFile}`);
-      const workbook = new ExcelJS.Workbook();
-      
-      // 기본 시트들 생성
-      const worksheet1 = workbook.addWorksheet('부품재고');
-      const worksheet2 = workbook.addWorksheet('입출고이력');
-      const worksheet3 = workbook.addWorksheet('관리자_계정');
-      
-      // 기본 헤더 추가
-      worksheet1.addRow(['위치', '품명', '업체명', '규격', '재고수량', '단위', '단가', '최소재고']);
-      worksheet2.addRow(['날짜', '품명', '입출고구분', '수량', '담당자']);
-      worksheet3.addRow(['ID', 'PW', 'PW찾기코드']);
-      
-      await workbook.xlsx.writeFile(localTempFile);
-      console.log(`새 Excel 파일 생성 완료: ${localTempFile}`);
-      return true;
-    }
+    console.log('FTP 서버 연결 중...');
+    await client.access(ftpConfig);
+    console.log('FTP 서버 연결 성공');
+
+    console.log(`파일 다운로드 중: ${ftpFilePath}`);
+    await client.downloadTo(localTempFile, ftpFilePath);
+    console.log(`파일 다운로드 완료: ${localTempFile}`);
+
+    return true;
   } catch (error) {
-    console.error('로컬 파일 처리 오류:', error);
+    console.error('FTP 다운로드 오류:', error);
     throw error;
+  } finally {
+    client.close();
   }
 }
 
-// =============== FTP 업로드 함수 (운영용 - 주석처리) ===============
-// async function uploadFileToFTP() {
-//   const client = new ftp.Client();
-//   client.ftp.verbose = false; // 디버깅 메시지 끄기
-//   
-//   try {
-//     console.log('FTP 서버 연결 중...');
-//     await client.access(ftpConfig);
-//     console.log('FTP 서버 연결 성공');
-//     
-//     console.log(`파일 업로드 중: ${ftpFilePath}`);
-//     await client.uploadFrom(localTempFile, ftpFilePath);
-//     console.log(`파일 업로드 완료: ${ftpFilePath}`);
-//     
-//     return true;
-//   } catch (error) {
-//     console.error('FTP 업로드 오류:', error);
-//     throw error;
-//   } finally {
-//     client.close();
-//   }
-// }
-
-// =============== 테스트용 로컬 파일 업로드 함수 (FTP 업로드 대체) ===============
+// =============== FTP 업로드 함수 (운영용) ===============
 async function uploadFileToFTP() {
+  const client = new ftp.Client();
+  client.ftp.verbose = false; // 디버깅 메시지 끄기
+
   try {
-    // 로컬 파일 시스템에서는 업로드 과정이 필요없음 (이미 로컬에 저장됨)
-    console.log(`로컬 파일 저장 완료: ${localTempFile}`);
+    console.log('FTP 서버 연결 중...');
+    await client.access(ftpConfig);
+    console.log('FTP 서버 연결 성공');
+
+    console.log(`파일 업로드 중: ${ftpFilePath}`);
+    await client.uploadFrom(localTempFile, ftpFilePath);
+    console.log(`파일 업로드 완료: ${ftpFilePath}`);
+
     return true;
   } catch (error) {
-    console.error('로컬 파일 저장 오류:', error);
+    console.error('FTP 업로드 오류:', error);
     throw error;
+  } finally {
+    client.close();
   }
 }
 
