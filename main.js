@@ -15,6 +15,9 @@ let mainWindow;
 // 인증 서비스 인스턴스
 let authService;
 
+// FTP 작업 잠금 플래그 (동시 업로드/다운로드 방지)
+let ftpLock = false;
+
 // =============== FTP 서버 설정 (운영용) ===============
 const ftpConfig = {
   host: "192.168.223.225",
@@ -35,17 +38,38 @@ if (!fs.existsSync(localTempDir)) {
 
 // =============== FTP 서버 함수들 (운영용) ===============
 async function downloadFileFromFTP() {
+  // FTP 작업 잠금 확인 및 대기
+  while (ftpLock) {
+    console.log('다른 FTP 작업이 진행 중... 대기 중...');
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  ftpLock = true; // 잠금 설정
+  console.log('FTP 다운로드 잠금 획득');
+
   const client = new ftp.Client();
-  client.ftp.verbose = false; // 디버깅 메시지 끄기
+  client.ftp.verbose = true; // 디버깅 메시지 켜기 (문제 확인용)
 
   try {
     console.log('FTP 서버 연결 중...');
     await client.access(ftpConfig);
     console.log('FTP 서버 연결 성공');
 
+    // 다운로드 전 FTP 서버 파일 크기 확인
+    try {
+      const ftpFileSize = await client.size(ftpFilePath);
+      console.log(`FTP 서버의 파일 크기: ${ftpFileSize} bytes`);
+    } catch (sizeError) {
+      console.warn('FTP 파일 크기 확인 실패:', sizeError.message);
+    }
+
     console.log(`파일 다운로드 중: ${ftpFilePath}`);
     await client.downloadTo(localTempFile, ftpFilePath);
     console.log(`파일 다운로드 완료: ${localTempFile}`);
+
+    // 다운로드 후 로컬 파일 크기 확인
+    const stats = fs.statSync(localTempFile);
+    console.log(`다운로드된 로컬 파일 크기: ${stats.size} bytes, 수정시간: ${stats.mtime}`);
 
     return true;
   } catch (error) {
@@ -53,22 +77,51 @@ async function downloadFileFromFTP() {
     throw error;
   } finally {
     client.close();
+    ftpLock = false; // 잠금 해제
+    console.log('FTP 다운로드 잠금 해제');
   }
 }
 
 // =============== FTP 업로드 함수 (운영용) ===============
 async function uploadFileToFTP() {
+  // FTP 작업 잠금 확인 및 대기
+  while (ftpLock) {
+    console.log('다른 FTP 작업이 진행 중... 대기 중...');
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+
+  ftpLock = true; // 잠금 설정
+  console.log('FTP 업로드 잠금 획득');
+
   const client = new ftp.Client();
-  client.ftp.verbose = false; // 디버깅 메시지 끄기
+  client.ftp.verbose = true; // 디버깅 메시지 켜기 (문제 확인용)
 
   try {
     console.log('FTP 서버 연결 중...');
     await client.access(ftpConfig);
     console.log('FTP 서버 연결 성공');
 
+    // 로컬 파일 존재 및 크기 확인
+    const stats = fs.statSync(localTempFile);
+    console.log(`업로드할 로컬 파일 크기: ${stats.size} bytes, 수정시간: ${stats.mtime}`);
+
     console.log(`파일 업로드 중: ${ftpFilePath}`);
     await client.uploadFrom(localTempFile, ftpFilePath);
     console.log(`파일 업로드 완료: ${ftpFilePath}`);
+
+    // 업로드 후 FTP 서버의 파일 크기 확인
+    try {
+      const ftpFileSize = await client.size(ftpFilePath);
+      console.log(`FTP 서버의 파일 크기: ${ftpFileSize} bytes`);
+
+      if (ftpFileSize !== stats.size) {
+        console.error(`경고: 파일 크기 불일치! 로컬: ${stats.size}, FTP: ${ftpFileSize}`);
+      } else {
+        console.log('파일 크기 일치 확인됨 - 업로드 성공');
+      }
+    } catch (sizeError) {
+      console.warn('FTP 파일 크기 확인 실패:', sizeError.message);
+    }
 
     return true;
   } catch (error) {
@@ -76,6 +129,8 @@ async function uploadFileToFTP() {
     throw error;
   } finally {
     client.close();
+    ftpLock = false; // 잠금 해제
+    console.log('FTP 업로드 잠금 해제');
   }
 }
 
@@ -1143,9 +1198,17 @@ ipcMain.handle('delete-stock-item', async (event, rowNumber, name) => {
       return { success: false, error: '재고 시트를 찾을 수 없습니다.' };
     }
 
+    // 삭제 전 재고 시트 행 개수 확인
+    const beforeRowCount = stockSheet.rowCount;
+    console.log(`삭제 전 재고 시트 총 행 개수: ${beforeRowCount}`);
+
     // 재고 시트에서 해당 행 삭제
     console.log(`재고 시트에서 행 ${rowNumber} 삭제 중...`);
     stockSheet.spliceRows(rowNumber, 1);
+
+    // 삭제 후 재고 시트 행 개수 확인
+    const afterRowCount = stockSheet.rowCount;
+    console.log(`삭제 후 재고 시트 총 행 개수: ${afterRowCount} (${beforeRowCount - afterRowCount}개 행 삭제됨)`);
 
     // 입출고 이력에서 해당 품명의 모든 레코드 삭제
     if (historySheet) {
@@ -1167,8 +1230,20 @@ ipcMain.handle('delete-stock-item', async (event, rowNumber, name) => {
       }
     }
 
-    // 엑셀 파일 저장
+    // 엑셀 파일 저장 전 파일 상태 확인
     console.log('로컬 파일 저장 중...');
+    console.log(`저장할 파일 경로: ${localTempFile}`);
+
+    // 파일이 잠겨있는지 확인
+    try {
+      const fd = fs.openSync(localTempFile, 'r+');
+      fs.closeSync(fd);
+      console.log('파일 쓰기 가능 확인됨');
+    } catch (lockError) {
+      console.error('파일이 잠겨있거나 접근할 수 없습니다:', lockError.message);
+      throw new Error('파일이 다른 프로그램에서 사용 중입니다. Excel 등에서 파일을 닫아주세요.');
+    }
+
     await workbook.xlsx.writeFile(localTempFile);
     console.log('로컬 파일 저장 완료');
 
