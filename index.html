@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Board Parts 관리 시스템</title>
+    <title>장비솔루션 파트 Board Parts 관리 시스템 v.3.1.1</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&amp;display=swap" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
     <link href="https://ai-public.creatie.ai/gen_page/tailwind-custom.css" rel="stylesheet"/>
@@ -2847,7 +2847,7 @@
                         },
                         inactiveColor: document.documentElement.classList.contains('dark') ? '#666666' : '#cccccc',  // 다크모드에 따라 조건부 비활성 색상
                         formatter: function(name) {
-                            return document.documentElement.classList.contains('dark') ? `{dark|${name}}` : `{light|${name}}`;
+                            return document.documentElement.classList.contains('dark') ? `{dark|${name}}` : `${name}`;
                         },
                         rich: {
                             dark: {
