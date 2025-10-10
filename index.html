@@ -555,78 +555,19 @@
         }
 
         // 알림 드롭다운 내용 업데이트 함수
-        // 날짜를 YYYY/MM/DD 형식으로 변환하는 함수
-        function formatDate(dateValue) {
-            if (!dateValue) return '입고 내역 없음';
-
-            try {
-                let date;
-
-                // Excel 날짜 숫자인 경우 (예: 44927)
-                if (typeof dateValue === 'number') {
-                    // Excel 날짜는 1900년 1월 1일부터의 일수
-                    const excelEpoch = new Date(1900, 0, 1);
-                    date = new Date(excelEpoch.getTime() + (dateValue - 2) * 24 * 60 * 60 * 1000);
-                }
-                // 문자열인 경우
-                else if (typeof dateValue === 'string') {
-                    date = new Date(dateValue);
-                }
-                // Date 객체인 경우
-                else if (dateValue instanceof Date) {
-                    date = dateValue;
-                }
-                else {
-                    return '입고 내역 없음';
-                }
-
-                // 유효한 날짜인지 확인
-                if (isNaN(date.getTime())) {
-                    return '입고 내역 없음';
-                }
-
-                // YYYY/MM/DD 형식으로 변환
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-
-                return `${year}/${month}/${day}`;
-            } catch (error) {
-                console.error('날짜 변환 오류:', error);
-                return '입고 내역 없음';
-            }
-        }
-
         // 부품명 기준으로 가장 최근 입고일 가져오기
         async function getLastInboundDate(partName) {
             try {
                 const historyResult = await window.partsAPI.getHistoryData();
                 console.log('입출고 이력 전체 데이터 개수:', historyResult ? historyResult.length : 0);
-                
-                // 🔍 디버깅: 실제 데이터 구조 확인
-                if (historyResult && historyResult.length > 0) {
-                    console.log('🔍 실제 데이터 샘플 (처음 3개):');
-                    historyResult.slice(0, 3).forEach((item, index) => {
-                        console.log(`샘플 ${index + 1} - 모든 필드:`, item);
-                        console.log(`  - Object.keys():`, Object.keys(item));
-                        console.log(`  - Object.values():`, Object.values(item));
-                    });
-                    
-                    console.log('🔍 Parts 입출고 이력 테이블 열 매핑:');
-                    const firstItem = historyResult[0];
-                    const keys = Object.keys(firstItem);
-                    console.log(`  - 1번째 열(날짜) 후보: ${keys[0]} = "${firstItem[keys[0]]}"`);
-                    console.log(`  - 2번째 열(품목) 후보: ${keys[1]} = "${firstItem[keys[1]]}"`);
-                    console.log(`  - 4번째 열(타입) 후보: ${keys[3]} = "${firstItem[keys[3]]}"`);
-                }
 
                 if (!historyResult || historyResult.length === 0) {
                     console.log(`${partName}: 입출고 이력 데이터가 없음`);
-                    return '입고 내역 없음';
+                    return '없음';
                 }
 
                 // 해당 부품의 입고 이력만 필터링
-                console.log(`\n[${partName}] 입고 이력 검색 시작...`);
+                console.log(`${partName} 필터링 시작...`);
                 const inboundHistory = historyResult.filter(item => {
                     const keys = Object.keys(item);
                     
@@ -638,23 +579,21 @@
                     const nameMatch = item[itemField] && item[itemField].toString().trim() === partName.toString().trim();
                     const typeMatch = item[typeField] && item[typeField].toString().trim() === '입고';
 
-                    // 디버깅: 품명이 일치하는 모든 항목 출력
                     if (nameMatch) {
-                        console.log(`  ✓ 품목 일치 발견!`);
-                        console.log(`    - 1번째 열(날짜): "${item[dateField]}"`);
-                        console.log(`    - 2번째 열(품목): "${item[itemField]}"`);
-                        console.log(`    - 4번째 열(타입): "${item[typeField]}"`);
+                        console.log(`  ✓ 품명 일치 발견!`);
+                        console.log(`    - 품명: "${item.name}"`);
+                        console.log(`    - 구분: "${item.type}"`);
+                        console.log(`    - 날짜 원본: ${item.date} (타입: ${typeof item.date})`);
                         console.log(`    - 입고 여부: ${typeMatch}`);
                     }
 
                     return nameMatch && typeMatch;
                 });
 
-                console.log(`[${partName}] 입고 이력 개수: ${inboundHistory.length}`);
+                console.log(`${partName}의 입고 이력 개수:`, inboundHistory.length);
 
                 if (inboundHistory.length === 0) {
-                    console.log(`[${partName}] 입고 이력이 없습니다.\n`);
-                    return '입고 내역 없음';
+                    return '없음';
                 }
 
                 // 날짜 기준으로 정렬하여 가장 최근 날짜 찾기
@@ -667,16 +606,14 @@
                     return dateB - dateA; // 내림차순 정렬
                 });
 
-                const keys = Object.keys(inboundHistory[0]);
-                const dateField = keys[0];  // 1번째 열 (날짜)
-                const lastDateRaw = inboundHistory[0][dateField];
+                const lastDateRaw = inboundHistory[0].date;
                 const lastDate = formatDate(lastDateRaw);
                 console.log(`[${partName}] 마지막 입고일: ${lastDate}\n`);
 
                 return lastDate;
             } catch (error) {
                 console.error('마지막 입고일 조회 오류:', error);
-                return '입고 내역 없음';
+                return '없음';
             }
         }
 
