@@ -326,20 +326,7 @@
                                     <i class="fas fa-sign-out-alt mr-1"></i>로그아웃
                                 </button>
                             </div>
-                            <!-- 날짜 범위 필터 추가 -->
-                            <div class="flex items-center space-x-2 bg-orange-200 dark:bg-orange-700 rounded-lg p-2">
-                                <i class="fas fa-calendar-alt text-orange-800 dark:text-orange-200"></i>
-                                <input type="date" id="startDateFilter" class="text-sm border-none bg-transparent text-orange-800 dark:text-orange-200 focus:outline-none cursor-pointer" title="시작 날짜">
-                                <span class="text-orange-800 dark:text-orange-200">~</span>
-                                <input type="date" id="endDateFilter" class="text-sm border-none bg-transparent text-orange-800 dark:text-orange-200 focus:outline-none cursor-pointer" title="종료 날짜">
-                                <button id="applyDateFilter" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                    적용
-                                </button>
-                                <button id="resetDateFilter" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm transition-colors">
-                                    초기화
-                                </button>
-                            </div>
-                            
+
                             <button id="darkModeToggle" class="rounded-full p-2 bg-orange-200 hover:bg-orange-300 dark:bg-orange-700 dark:hover:bg-orange-600 transition-colors">
                                 <!-- 라이트 모드에서는 달 아이콘, 다크모드에서는 해 아이콘 -->
                                 <i id="moonIcon" class="fas fa-moon text-orange-800"></i>
@@ -417,8 +404,24 @@
                     
                 </div>                <!-- Board별 부품 사용량 차트 -->
                 <div class="bg-orange-50 rounded-lg shadow p-6 dark:bg-orange-100 mb-8">
-                    <h3 class="text-lg font-medium mb-4 dark:text-orange-900">Board별 부품 사용량</h3>
-                    
+                    <!-- 제목과 날짜 필터를 flex로 배치 -->
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-lg font-medium dark:text-orange-900">Board별 부품 사용량</h3>
+                        <!-- 날짜 범위 필터 -->
+                        <div class="flex items-center space-x-2 bg-orange-200 dark:bg-orange-700 rounded-lg p-2">
+                            <i class="fas fa-calendar-alt text-orange-800 dark:text-orange-200"></i>
+                            <input type="date" id="startDateFilter" class="text-sm border-none bg-transparent text-orange-800 dark:text-orange-200 focus:outline-none cursor-pointer" title="시작 날짜">
+                            <span class="text-orange-800 dark:text-orange-200">~</span>
+                            <input type="date" id="endDateFilter" class="text-sm border-none bg-transparent text-orange-800 dark:text-orange-200 focus:outline-none cursor-pointer" title="종료 날짜">
+                            <button id="applyDateFilter" class="bg-orange-500 hover:bg-orange-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                적용
+                            </button>
+                            <button id="resetDateFilter" class="bg-gray-500 hover:bg-gray-600 text-white px-3 py-1 rounded text-sm transition-colors">
+                                초기화
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- 필터 UI -->
                     <div class="mb-6 grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
@@ -1384,7 +1387,7 @@
         };
 
         // 날짜 범위 필터 초기화
-        function setupDateFilter() {
+        async function setupDateFilter() {
             const startDateFilter = document.getElementById('startDateFilter');
             const endDateFilter = document.getElementById('endDateFilter');
             const applyDateFilter = document.getElementById('applyDateFilter');
@@ -1393,13 +1396,18 @@
             // 현재 날짜로 기본값 설정 (최근 1개월)
             const today = new Date();
             const oneMonthAgo = new Date(today.getFullYear(), today.getMonth() - 1, today.getDate());
-            
+
             endDateFilter.value = today.toISOString().split('T')[0];
             startDateFilter.value = oneMonthAgo.toISOString().split('T')[0];
 
             // 초기 필터 값 설정
             globalDateFilter.startDate = oneMonthAgo;
             globalDateFilter.endDate = today;
+
+            console.log('날짜 필터 초기값 설정 및 적용:', globalDateFilter);
+
+            // 디폴트 필터 적용 (자동으로 적용 버튼이 눌린 것처럼 차트 업데이트)
+            await updateBoardUsageChart();
 
             // 필터 적용 버튼 이벤트
             if (applyDateFilter) {
@@ -1419,8 +1427,8 @@
 
                     console.log('날짜 필터 적용:', globalDateFilter);
 
-                    // 모든 차트 업데이트
-                    await updateAllChartsWithDateFilter();
+                    // Board별 부품 사용량 차트만 업데이트
+                    await updateBoardUsageChart();
                 });
             }
 
@@ -1434,8 +1442,8 @@
 
                     console.log('날짜 필터 초기화');
 
-                    // 모든 차트 업데이트 (필터 없이)
-                    await updateAllChartsWithDateFilter();
+                    // Board별 부품 사용량 차트만 업데이트 (필터 없이)
+                    await updateBoardUsageChart();
                 });
             }
         }
@@ -2649,7 +2657,7 @@
             await checkUserAuthentication();
 
             // 날짜 필터 초기화 (다른 초기화보다 먼저 실행)
-            setupDateFilter();
+            await setupDateFilter();
             
             // 다크모드 토글 버튼 초기화
             const darkModeToggle = document.getElementById('darkModeToggle');

@@ -17,7 +17,7 @@
     "fs-extra": "^11.3.0"
   },
   "devDependencies": {
-    "electron": "^38.2.0",
+    "electron": "^38.2.2",
     "electron-builder": "^24.13.3"
   },
   "build": {
@@ -37,5 +37,13 @@
     }
   },
   "keywords": [],
-  "license": "ISC"
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gh2173/Parts_Management.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gh2173/Parts_Management/issues"
+  },
+  "homepage": "https://github.com/gh2173/Parts_Management#readme"
 }
