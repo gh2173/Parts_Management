@@ -555,34 +555,82 @@
         }
 
         // 알림 드롭다운 내용 업데이트 함수
+        // 날짜를 YYYY/MM/DD 형식으로 변환하는 함수
+        function formatDate(dateValue) {
+            if (!dateValue) return '입고 내역 없음';
+
+            try {
+                let date;
+
+                // Excel 날짜 숫자인 경우 (예: 44927)
+                if (typeof dateValue === 'number') {
+                    // Excel 날짜는 1900년 1월 1일부터의 일수
+                    const excelEpoch = new Date(1900, 0, 1);
+                    date = new Date(excelEpoch.getTime() + (dateValue - 2) * 24 * 60 * 60 * 1000);
+                }
+                // 문자열인 경우
+                else if (typeof dateValue === 'string') {
+                    date = new Date(dateValue);
+                }
+                // Date 객체인 경우
+                else if (dateValue instanceof Date) {
+                    date = dateValue;
+                }
+                else {
+                    return '입고 내역 없음';
+                }
+
+                // 유효한 날짜인지 확인
+                if (isNaN(date.getTime())) {
+                    return '입고 내역 없음';
+                }
+
+                // YYYY/MM/DD 형식으로 변환
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+
+                return `${year}/${month}/${day}`;
+            } catch (error) {
+                console.error('날짜 변환 오류:', error);
+                return '입고 내역 없음';
+            }
+        }
+
         // 부품명 기준으로 가장 최근 입고일 가져오기
         async function getLastInboundDate(partName) {
             try {
                 const historyResult = await window.partsAPI.getHistoryData();
-                console.log('입출고 이력 전체 데이터:', historyResult);
+                console.log('입출고 이력 전체 데이터 개수:', historyResult ? historyResult.length : 0);
 
                 if (!historyResult || historyResult.length === 0) {
                     console.log(`${partName}: 입출고 이력 데이터가 없음`);
-                    return '없음';
+                    return '입고 내역 없음';
                 }
 
                 // 해당 부품의 입고 이력만 필터링
-                console.log(`${partName} 필터링 시작...`);
+                console.log(`\n[${partName}] 입고 이력 검색 시작...`);
                 const inboundHistory = historyResult.filter(item => {
                     const nameMatch = item.name && item.name.toString().trim() === partName.toString().trim();
                     const typeMatch = item.type && item.type.toString().trim() === '입고';
 
+                    // 디버깅: 품명이 일치하는 모든 항목 출력
                     if (nameMatch) {
-                        console.log(`  - 품명 일치: ${item.name}, 구분: ${item.type}, 날짜: ${item.date}`);
+                        console.log(`  ✓ 품명 일치 발견!`);
+                        console.log(`    - 품명: "${item.name}"`);
+                        console.log(`    - 구분: "${item.type}"`);
+                        console.log(`    - 날짜 원본: ${item.date} (타입: ${typeof item.date})`);
+                        console.log(`    - 입고 여부: ${typeMatch}`);
                     }
 
                     return nameMatch && typeMatch;
                 });
 
-                console.log(`${partName}의 입고 이력 개수:`, inboundHistory.length);
+                console.log(`[${partName}] 입고 이력 개수: ${inboundHistory.length}`);
 
                 if (inboundHistory.length === 0) {
-                    return '없음';
+                    console.log(`[${partName}] 입고 이력이 없습니다.\n`);
+                    return '입고 내역 없음';
                 }
 
                 // 날짜 기준으로 정렬하여 가장 최근 날짜 찾기
@@ -592,13 +640,14 @@
                     return dateB - dateA; // 내림차순 정렬
                 });
 
-                const lastDate = inboundHistory[0].date || '없음';
-                console.log(`${partName}의 마지막 입고일:`, lastDate);
+                const lastDateRaw = inboundHistory[0].date;
+                const lastDate = formatDate(lastDateRaw);
+                console.log(`[${partName}] 마지막 입고일: ${lastDate}\n`);
 
                 return lastDate;
             } catch (error) {
                 console.error('마지막 입고일 조회 오류:', error);
-                return '없음';
+                return '입고 내역 없음';
             }
         }
 
