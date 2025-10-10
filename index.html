@@ -555,54 +555,89 @@
         }
 
         // 알림 드롭다운 내용 업데이트 함수
-        function updateNotificationDropdown(lowStockItems) {
+        // 부품명 기준으로 가장 최근 입고일 가져오기
+        async function getLastInboundDate(partName) {
+            try {
+                const historyResult = await window.partsAPI.getHistoryData();
+                if (!historyResult || historyResult.length === 0) {
+                    return '없음';
+                }
+
+                // 해당 부품의 입고 이력만 필터링
+                const inboundHistory = historyResult.filter(item =>
+                    item.name === partName && item.type === '입고'
+                );
+
+                if (inboundHistory.length === 0) {
+                    return '없음';
+                }
+
+                // 날짜 기준으로 정렬하여 가장 최근 날짜 찾기
+                inboundHistory.sort((a, b) => {
+                    const dateA = new Date(a.date || 0);
+                    const dateB = new Date(b.date || 0);
+                    return dateB - dateA; // 내림차순 정렬
+                });
+
+                return inboundHistory[0].date || '없음';
+            } catch (error) {
+                console.error('마지막 입고일 조회 오류:', error);
+                return '없음';
+            }
+        }
+
+        async function updateNotificationDropdown(lowStockItems) {
             const notificationList = document.getElementById('notificationList');
             const notificationCounter = document.getElementById('notificationCounter');
             const dropdownNotificationCounter = document.getElementById('dropdownNotificationCounter');
-            
+
             if (!notificationList || !notificationCounter || !dropdownNotificationCounter) {
                 console.error('알림 관련 요소를 찾을 수 없습니다.');
                 return;
             }
-            
+
             // 알림 카운터 업데이트
             const count = lowStockItems.length;
             notificationCounter.textContent = count;
             dropdownNotificationCounter.textContent = count;
-            
+
             // 알림 목록 비우기
             notificationList.innerHTML = '';
-            
+
             // 알림이 없을 경우 메시지 표시
             if (count === 0) {
                 notificationList.innerHTML = '<div class="text-center text-gray-500 dark:text-gray-400 py-6">알림이 없습니다</div>';
                 return;
             }
-            
-            // 알림 항목 생성
-            lowStockItems.forEach(item => {
+
+            // 알림 항목 생성 (비동기 처리)
+            for (const item of lowStockItems) {
                 const currentStock = parseInt(item.currentStock || 0);
                 const minStock = parseInt(item.minStock || 0);
                 const diff = minStock - currentStock; // 필요 수량
-                
+
+                // 마지막 입고일 가져오기
+                const lastInboundDate = await getLastInboundDate(item.name);
+
                 const notificationItem = document.createElement('div');
                 notificationItem.className = 'py-2 px-4 border-b border-gray-200 hover:bg-gray-50 dark:border-gray-700 dark:hover:bg-gray-700';
-                
+
                 notificationItem.innerHTML = `
                     <div class="flex items-start">
                         <div class="flex-shrink-0 rounded-full bg-red-200 dark:bg-red-900 p-1">
                             <i class="fas fa-exclamation-circle text-red-600 dark:text-red-400"></i>
                         </div>
                         <div class="ml-3 flex-1">
-                            <p class="text-sm font-medium text-gray-900 dark:text-gray-200">${item.name} 입고 필요</p>
+                            <p class="text-sm font-medium text-gray-900 dark:text-gray-200">${item.location || '-'} / ${item.name} / ${item.category || '-'}</p>
                             <p class="text-xs text-red-500 dark:text-red-400">현재재고: ${currentStock} / 최소재고: ${minStock}</p>
                             <p class="text-xs text-gray-500 dark:text-gray-400">${diff}개 부족</p>
+                            <p class="text-xs text-blue-500 dark:text-blue-400">마지막 입고: ${lastInboundDate}</p>
                         </div>
                     </div>
                 `;
-                
+
                 notificationList.appendChild(notificationItem);
-            });
+            }
         }
 
         // 실시간 알림 영역 업데이트 함수 수정
@@ -674,57 +709,49 @@
                     emptyMessage.textContent = '재고 알림이 없습니다.';
                     alertsContainer.appendChild(emptyMessage);
                 } else {
-                    // 각 알림 항목 생성
-                    alertsToShow.forEach(item => {
+                    // 각 알림 항목 생성 (비동기 처리)
+                    for (const item of alertsToShow) {
                         const alertDiv = document.createElement('div');
                         alertDiv.className = 'flex items-start mb-4'; // 마진 추가
-                        
+
                         // 아이콘 부분
                         const iconDiv = document.createElement('div');
                         iconDiv.className = 'flex-shrink-0 w-8 h-8 rounded-full bg-red-200 dark:bg-red-900 flex items-center justify-center';
                         iconDiv.innerHTML = '<i class="fas fa-exclamation-circle text-red-600 dark:text-red-400"></i>';
-                        
+
                         // 컨텐츠 부분
                         const contentDiv = document.createElement('div');
                         contentDiv.className = 'ml-3 flex-1'; // flex-1 추가하여 너비 확보
-                        
+
                         // 현재 재고와 최소 재고 계산
                         const currentStock = parseInt(item.currentStock || 0);
                         const minStock = parseInt(item.minStock || 0);
                         const diff = minStock - currentStock; // 필요 수량
-                        
-                        // 마지막 이벤트 결정 (현재는 입고일만 사용)
-                        // 추후 입출고 이력이 추가되면 실제 마지막 이벤트 날짜로 변경 가능
-                        const lastEventDate = item.inDate || '정보 없음';
-                        const eventType = '입고'; // 현재는 입고일만 있으므로 고정값
-                        
-                        // 타이틀 생성 - 품명과 필요 상태
+
+                        // 마지막 입고일 가져오기
+                        const lastInboundDate = await getLastInboundDate(item.name);
+
+                        // 타이틀 생성 - 위치 / 품명 / 카테고리
                         const title = document.createElement('p');
-                        title.className = 'text-sm font-medium';
-                        title.textContent = `${item.name} 입고 필요`;
-                        
-                        // 설명 생성 - 최소재고와 현재재고
-                        const description = document.createElement('p');
-                        description.className = 'text-xs text-red-500 dark:text-red-400';
-                        description.textContent = `최소재고: ${minStock} / 현재재고: ${currentStock} (${diff}개 필요)`;
-                        
-                        // 날짜 생성 - 마지막 이벤트 날짜
+                        title.className = 'text-sm font-medium dark:text-orange-900';
+                        title.textContent = `${item.location || '-'} / ${item.name} / ${item.category || '-'}`;
+
+                        // 날짜 생성 - 마지막 입고일
                         const date = document.createElement('p');
-                        date.className = 'text-xs text-gray-500 dark:text-gray-400';
-                        date.textContent = `마지막 ${eventType}: ${lastEventDate}`;
-                        
+                        date.className = 'text-xs text-orange-500';
+                        date.textContent = `마지막 입고: ${lastInboundDate}`;
+
                         // 컨텐츠에 요소 추가
                         contentDiv.appendChild(title);
-                        contentDiv.appendChild(description);
                         contentDiv.appendChild(date);
-                        
+
                         // 모든 요소 조합
                         alertDiv.appendChild(iconDiv);
                         alertDiv.appendChild(contentDiv);
-                        
+
                         // 알림 추가
                         alertsContainer.appendChild(alertDiv);
-                    });
+                    }
                 }
                 
                 // 알림 드롭다운 업데이트
