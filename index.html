@@ -597,8 +597,7 @@
             }
         }
 
-        /*
-        // 부품명 기준으로 가장 최근 입고일 가져오기 - 사용하지 않음
+        // 부품명 기준으로 가장 최근 입고일 가져오기
         async function getLastInboundDate(partName) {
             try {
                 const historyResult = await window.partsAPI.getHistoryData();
@@ -680,7 +679,6 @@
                 return '입고 내역 없음';
             }
         }
-        */
 
         async function updateNotificationDropdown(lowStockItems) {
             const notificationList = document.getElementById('notificationList');
