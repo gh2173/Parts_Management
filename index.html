@@ -612,12 +612,12 @@
                         console.log(`  - Object.values():`, Object.values(item));
                     });
                     
-                    console.log('🔍 Parts 입출고 이력 테이블 열 매핑:');
+                    console.log('🔍 엑셀 열 매핑 추정:');
                     const firstItem = historyResult[0];
                     const keys = Object.keys(firstItem);
-                    console.log(`  - 1번째 열(날짜) 후보: ${keys[0]} = "${firstItem[keys[0]]}"`);
-                    console.log(`  - 2번째 열(품목) 후보: ${keys[1]} = "${firstItem[keys[1]]}"`);
-                    console.log(`  - 4번째 열(타입) 후보: ${keys[3]} = "${firstItem[keys[3]]}"`);
+                    console.log(`  - B열(품명) 후보: ${keys[1]} = "${firstItem[keys[1]]}"`);
+                    console.log(`  - D열(구분) 후보: ${keys[3]} = "${firstItem[keys[3]]}"`);
+                    console.log(`  - F열(날짜) 후보: ${keys[5]} = "${firstItem[keys[5]]}"`);
                 }
 
                 if (!historyResult || historyResult.length === 0) {
@@ -630,20 +630,20 @@
                 const inboundHistory = historyResult.filter(item => {
                     const keys = Object.keys(item);
                     
-                    // Parts 입출고 이력 테이블 열 기준
-                    const dateField = keys[0];   // 1번째 열 (날짜)
-                    const itemField = keys[1];   // 2번째 열 (품목)
-                    const typeField = keys[3];   // 4번째 열 (타입)
+                    // 엑셀 열 기반 필드 추정
+                    const nameField = keys[1];  // B열 (품명)
+                    const typeField = keys[3];  // D열 (구분)
+                    const dateField = keys[5];  // F열 (날짜)
                     
-                    const nameMatch = item[itemField] && item[itemField].toString().trim() === partName.toString().trim();
+                    const nameMatch = item[nameField] && item[nameField].toString().trim() === partName.toString().trim();
                     const typeMatch = item[typeField] && item[typeField].toString().trim() === '입고';
 
                     // 디버깅: 품명이 일치하는 모든 항목 출력
                     if (nameMatch) {
-                        console.log(`  ✓ 품목 일치 발견!`);
-                        console.log(`    - 1번째 열(날짜): "${item[dateField]}"`);
-                        console.log(`    - 2번째 열(품목): "${item[itemField]}"`);
-                        console.log(`    - 4번째 열(타입): "${item[typeField]}"`);
+                        console.log(`  ✓ 품명 일치 발견!`);
+                        console.log(`    - B열(품명): "${item[nameField]}"`);
+                        console.log(`    - D열(구분): "${item[typeField]}"`);
+                        console.log(`    - F열(날짜): "${item[dateField]}"`);
                         console.log(`    - 입고 여부: ${typeMatch}`);
                     }
 
@@ -660,7 +660,7 @@
                 // 날짜 기준으로 정렬하여 가장 최근 날짜 찾기
                 inboundHistory.sort((a, b) => {
                     const keys = Object.keys(a);
-                    const dateField = keys[0];  // 1번째 열 (날짜)
+                    const dateField = keys[5];  // F열 (날짜)
                     
                     const dateA = new Date(a[dateField] || 0);
                     const dateB = new Date(b[dateField] || 0);
@@ -668,7 +668,7 @@
                 });
 
                 const keys = Object.keys(inboundHistory[0]);
-                const dateField = keys[0];  // 1번째 열 (날짜)
+                const dateField = keys[5];  // F열 (날짜)
                 const lastDateRaw = inboundHistory[0][dateField];
                 const lastDate = formatDate(lastDateRaw);
                 console.log(`[${partName}] 마지막 입고일: ${lastDate}\n`);
