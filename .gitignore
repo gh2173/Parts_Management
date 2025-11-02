@@ -1,5 +1,60 @@
-node_modules/
+# macOS 시스템 파일 무시
+._*
+.DS_Store
+
+# Windows 시스템 파일 무시
+Thumbs.db
+ehthumbs.db
+
+# 로그 파일
+*.log
 logs/
-dist/
-*.xlsx
-*.png
+
+# 빌드 결과물 폴더 및 컴파일 산출물
+/build/
+bin/
+target/
+*.o
+*.obj
+*.class
+*.dll
+*.exe
+
+# 패키지 및 종속 파일
+*.jar
+*.war
+*.ear
+*.dll
+*.lib
+*.so
+*.dylib
+
+# 임시 파일
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# 환경 설정 파일 및 개인 설정
+.env
+*.env.local
+*.local
+.vscode/
+.idea/
+*.iml
+
+# Python 관련
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Node.js 관련
+node_modules/
+
+# 기타
+tmp/
+*.cache/
+*.db
+*.sqlite3
